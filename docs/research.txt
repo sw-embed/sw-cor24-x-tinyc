@@ -1,0 +1,1501 @@
+
+
+
+
+I have an FPGA Soft CPU "COR24" (C-Oriented RISC, 24-bit ISA), and it works with a proprietary C compiler.  I want to be able to compile C programs to this ISA using an open-source C compiler.  What are my options?  I would like to start with a simpler, quick and dirty approach, like taking an open-source Tiny-C, if possible.  How hard is it to create/modify a C compiler for this task, for demo (not production) purposes?  Educational, learning opportunity, not a robust tool (at least not initially).   Note that I cheat at Rust compiler to cor24.s via 2 steps: compile Rust to 16-bit MSP430 with pass-through comments for cor24 op codes, and then translate the msp430 .s file to cor24.s file.  Would a C compiler for msp430 or other target be able to pass through inline assmbler this way?
+
+
+Thought for 33s
+You want an open-source path from C to COR24, starting with the fastest educational prototype, not a production-grade compiler. You also want to know whether your current “compile to another ISA, then translate assembly” trick can be reused for C, especially with inline asm passthrough.
+
+Bottom line
+You have four realistic options, in order from quickest demo to most correct long-term toolchain:
+
+Reuse an existing open-source C compiler that emits assembly for some easier source ISA, then translate that assembly to cor24.s.
+
+Modify a small educational C compiler to emit COR24 assembly directly.
+
+Retarget a purposely-retargetable compiler such as lcc.
+
+Build a real GCC/LLVM backend for COR24.
+
+For your stated goal, I would start with #1 or #2, and only move to #3 if you want “real compiler backend” learning without the full pain of GCC/LLVM.
+
+Architecture and decision criteria
+The main design question is:
+
+Do you want to build a compiler backend, or do you just want C programs running on COR24 soon?
+
+Those are different goals.
+
+A useful split is:
+
+Goal A: quick demo / educational tool
+
+tolerate poor codegen
+
+tolerate tiny C subset
+
+tolerate odd ABI/calling convention
+
+emit .s, not ELF/object files
+
+Goal B: “real” compiler port
+
+decent register allocation
+
+proper calling convention
+
+debug info, libs, linker story
+
+optimizer integration
+
+robust inline asm constraints
+
+For Goal A, the cheapest route is usually:
+C frontend → existing assembly target → translator → cor24.s
+
+That is very close to what you already do with Rust.
+
+Option 1 — C to MSP430 (or similar) to COR24 via assembly translation
+Why this is the best first experiment
+This is the lowest-risk path because you already have the core idea working:
+
+Rust → MSP430 .s
+
+translate MSP430 .s → COR24 .s
+
+You can try to reproduce that for C:
+
+C compiler for MSP430
+
+possibly inline asm or pseudo-ops embedded in the generated assembly
+
+existing translator extended to handle compiler output idioms
+
+GCC supports inline asm, and MSP430 GCC historically supports GNU-style inline assembly syntax. GCC’s general extended asm mechanism is documented officially, and MSPGCC documents MSP430 inline assembly usage specifically. 
+
+Candidate source compilers for this route
+GCC targeting MSP430
+This is the most obvious match because:
+
+MSP430 is 16-bit and “small embedded C”-ish
+
+you already have a translator pipeline from MSP430-flavored assembly
+
+GCC supports inline asm and target options for MSP430. 
+
+Clang/LLVM targeting MSP430
+Less attractive for now because LLVM/Clang still describes MSP430 support as limited / highly experimental. 
+
+SDCC
+SDCC is open-source, retargetable, and supports inline assembler blocks, but it does not target MSP430 and is focused mainly on 8-bit MCUs plus a few small architectures. 
+
+So SDCC is more interesting as a retargeting base than as a drop-in “compile to MSP430” solution.
+
+Can inline asm pass through this way?
+Yes, in principle, if you choose a compiler that:
+
+emits textual assembly,
+
+preserves inline asm blocks in a recognizable way,
+
+and your translator can detect and reinterpret them.
+
+TinyCC supports .s / .S and GNU-style asm, but its integrated assembler is target-dependent and not something I would count on as a neutral passthrough layer for a new ISA. 
+
+GCC-style inline asm is more mature, but you still have to decide:
+
+Two modes for passthrough
+Mode A — literal passthrough comments
+
+Put COR24 directives/opcodes in comments or markers.
+
+Let the translator replace them after C compilation.
+
+Easiest for demo purposes.
+
+Mode B — abuse inline asm
+
+Write target-ISA snippets in MSP430 inline asm syntax or raw strings.
+
+Have translator recognize a fenced convention such as:
+
+asm volatile(
+    "; COR24_BEGIN\n"
+    "; add3 r1,r2,r3\n"
+    "; COR24_END\n"
+);
+Translator strips the markers and injects real COR24 code.
+
+For a demo, Mode A is safer because you avoid fighting the source compiler’s parser, operand constraints, clobbers, and register syntax.
+
+Pros
+Fastest path to “hello world” or freestanding demo
+
+Reuses your existing translator knowledge
+
+Lets you focus on ABI and assembly mapping before compiler internals
+
+Risks
+Generated C compiler output may use constructs your translator does not yet handle
+
+Stack frames, spills, comparisons, switch lowering, and calling conventions may be uglier than your Rust-generated subset
+
+Inline asm can become brittle if compiler optimization rearranges things
+
+Recommendation
+If you want something working in days rather than months, start here.
+
+Option 2 — Modify a tiny educational C compiler to emit COR24 directly
+This is the best route if the learning goal is:
+
+“I want to understand how a C compiler works end-to-end, but I don’t want GCC/LLVM complexity.”
+
+Best candidates
+chibicc
+chibicc is intentionally small and educational. It explicitly says it does not support GCC-style inline assembly, and it emits poor code by design because optimization is not the focus. 
+
+That actually makes it attractive for you:
+
+parser/front-end already exists
+
+code generator is simple enough to replace
+
+easier to emit plain cor24.s
+
+no need to model a full assembler or object format initially
+
+TinyCC
+TinyCC is tiny as a user-facing compiler, but internally it is more “real toolchain-ish” than many people expect. It supports its own assembler and multiple targets including x86, x86-64, ARM, and RISC-V. 
+
+That makes it powerful, but for teaching yourself backend construction, I suspect it is harder than chibicc.
+
+Difficulty
+For a demo subset, direct emission from a tiny compiler is very doable.
+
+You need to define:
+
+Minimal C subset
+Start with:
+
+int or long mapped to 24-bit or 32-bit emulation
+
+local variables
+
+arithmetic + - & | ^ << >>
+
+if, while, for
+
+function calls
+
+pointers
+
+no structs/unions initially
+
+no floating point
+
+no varargs
+
+maybe no switch at first
+
+ABI choices
+You need an initial ABI spec:
+
+register-passed args? which registers?
+
+return value register?
+
+caller-saved vs callee-saved?
+
+stack growth direction?
+
+alignment?
+
+how to represent char, short, int, long, pointers?
+
+This matters more than people expect. A hacky compiler can survive mediocre optimization, but it falls apart fast if the ABI is fuzzy.
+
+Codegen components
+At minimum:
+
+expression evaluation
+
+load/store by size
+
+branch lowering
+
+function prologue/epilogue
+
+call sequence
+
+label generation
+
+If COR24 is RISC-like, direct template-based emission may actually be pretty pleasant.
+
+Pros
+Excellent educational value
+
+Full control over emitted COR24 assembly
+
+No dependency on weird source-ISA lowering artifacts
+
+Risks
+You must invent enough ABI to keep multi-function C code working
+
+You will probably under-estimate integer promotion and pointer semantics at first
+
+C front-end corner cases can still bite, even when borrowed from an existing compiler
+
+My view
+If you want a “compiler construction lab” project, chibicc → COR24 is probably the sweet spot.
+
+Option 3 — Retarget lcc
+This is the most academically “correct” answer for your stated educational goals.
+
+lcc is explicitly a retargetable C compiler, and the classic Fraser/Hanson work is famous for exactly this use case. The current public repo still describes lcc as retargetable, and the project docs point to the classic retargeting material. 
+
+Why lcc is attractive
+It was designed to be retargeted
+
+It is dramatically smaller in conceptual scope than GCC/LLVM
+
+It teaches backend design, instruction selection, and machine interface structure
+
+Why it may still not be your first move
+It is still a “real compiler” port, not just a weekend hack
+
+Documentation and code style are older-school
+
+You will spend time learning lcc’s way rather than just making COR24 code happen
+
+Difficulty estimate
+For an experienced systems person, a minimal lcc retarget is plausible as a focused learning project.
+It is still substantially more work than “assembly translator after an existing compiler.”
+
+Pros
+Best educational backend-retargeting experience
+
+Cleaner than GCC/LLVM
+
+More principled than bolting patterns onto a toy compiler
+
+Risks
+Longer ramp-up
+
+More internal machinery than a quick demo needs
+
+Older ecosystem, less tutorial-friendly than modern hobby compilers
+
+My view
+If your goal is “learn real retargetable compiler architecture without drowning in GCC/LLVM”, choose lcc.
+
+Option 4 — GCC or LLVM backend
+This is the long-term “serious toolchain” answer.
+
+GCC
+GCC backend work involves machine descriptions, target headers/macros, calling convention definitions, reload/register allocation interactions, and many target hooks. GCC’s internals docs explicitly describe backend structure and machine descriptions. 
+
+LLVM
+LLVM requires target description classes, instruction definitions, register info, lowering, MC layer pieces, and so on. LLVM’s code generator docs are clear that adding a new target means implementing target description classes and understanding LLVM’s codegen pipeline. 
+
+Difficulty
+For a hobby/demo compiler target, both are overkill.
+
+Even when successful, the first usable output often takes a while because you need enough backend and ABI support to survive even simple C.
+
+Pros
+Most extensible
+
+Easiest eventual path to “real” optimization and tooling
+
+Works well if COR24 grows into a serious ecosystem
+
+Risks
+Months, not weekends
+
+Most of your effort goes into framework plumbing instead of COR24-specific learning
+
+Easy to get stuck before first success
+
+My view
+Do this only after you already have either:
+
+a working translator-based path, or
+
+a small direct compiler proving your ABI and ISA mapping decisions
+
+What about TinyCC specifically?
+You mentioned “taking an open-source Tiny-C.”
+
+TinyCC is possible, but not my first recommendation
+TinyCC supports multiple targets and its own assembler with GNU-like syntax, including inline asm. 
+
+That sounds tempting, but in practice:
+
+It is not as pedagogically simple as it sounds
+
+You would still need to understand enough of its code generator and assembler integration
+
+A new target touches more than “just print different mnemonics”
+
+For quick-and-dirty demo purposes, TinyCC is attractive only if you want:
+
+tiny executable,
+
+simple compile driver,
+
+maybe direct assembly output if you can piggyback on an existing backend shape.
+
+But if the question is “what is easiest to modify?”, I would lean:
+
+easiest educational direct emitter: chibicc
+
+cleanest retargetable architecture: lcc
+
+best reuse of your existing hack: GCC-to-MSP430 then translate
+
+not easiest despite the name: TinyCC
+
+Would a C compiler for MSP430 or another target be able to pass through inline assembler this way?
+Yes, but with caveats
+The good news
+GCC supports inline asm generically. 
+
+MSP430 GCC has target-specific inline asm usage. 
+
+TinyCC also supports GNU-style inline asm. 
+
+SDCC supports inline assembler blocks too. 
+
+The bad news
+Inline asm is not magic passthrough unless the compiler and assembler accept the syntax.
+
+So for your technique, the safest variants are:
+
+Variant 1: comments as carrier
+Generate legal target assembly with comments containing COR24 pseudo-ops.
+Your translator reads comments and substitutes COR24 instructions.
+
+Variant 2: fake nop marker sequences
+Emit recognizable no-op asm sequences that the translator rewrites into COR24 instructions.
+
+Variant 3: dedicated intrinsic calls
+Write C like:
+
+cor24_out(port, value);
+Then have the translator replace the call sequence or emitted label with a COR24-specific expansion.
+
+For maintainability, intrinsics or comment-markers beat raw inline asm.
+
+Practical answer
+Yes, a C compiler for MSP430 can participate in this style of pipeline, but I would not depend heavily on “transparent inline asm passthrough” for more than tiny demos.
+
+A realistic staged plan
+Stage 0 — Decide the C model
+Before touching a compiler, write a 1–2 page COR24 C ABI sketch:
+
+pointer width
+
+char, short, int, long sizes
+
+stack layout
+
+function arg passing
+
+return value rules
+
+caller/callee saves
+
+endianness assumptions
+
+memory model / address space limits
+
+Even a crude document saves a lot of backtracking.
+
+Stage 1 — Quickest demo
+Use GCC for MSP430 to emit assembly and adapt your translator.
+
+Target examples:
+
+arithmetic
+
+loops
+
+simple functions
+
+pointers to arrays
+
+memory-mapped I/O helpers
+
+Avoid at first:
+
+structs
+
+function pointers
+
+recursion
+
+64-bit arithmetic
+
+switch/jumptables
+
+Stage 2 — Add a COR24 intrinsic layer
+Define a tiny header:
+
+static inline void cor24_nop(void);
+static inline void cor24_out(unsigned port, unsigned value);
+static inline unsigned cor24_in(unsigned port);
+Initially these can compile into:
+
+inline asm markers,
+
+dummy external calls,
+
+or recognizable comment-embedded sequences.
+
+Stage 3 — Decide whether the translator route is “good enough”
+If yes, keep extending it.
+
+If no, move to:
+
+chibicc direct emitter for learning, or
+
+lcc retarget for a more principled compiler project.
+
+My recommended ranking for you
+Best overall
+1. C → MSP430 assembly → COR24 translator
+Best because it reuses your proven mental model.
+
+Best for compiler-learning
+2. chibicc → direct COR24 .s
+Best if you want to really understand frontend + codegen without drowning.
+
+Best classical-retargeting exercise
+3. lcc retarget
+Best if you want something closer to textbook/compiler-engineering tradition.
+
+Best long-term serious toolchain
+4. LLVM or GCC backend
+Best only after COR24 ABI/instruction selection are already validated.
+
+How hard is it, really?
+For demo quality, assuming you already know the ISA and can assemble/link COR24 code:
+
+Easy-ish: translator approach
+days to a couple weeks
+
+if you constrain the supported C subset
+
+Moderate: chibicc direct backend
+couple weeks to couple months
+
+depending on how complete you want expressions, calls, locals, and pointers to be
+
+Harder: lcc retarget
+weeks to months
+
+but more disciplined and reusable
+
+Heavyweight: GCC/LLVM
+months
+
+and most of the work is infrastructure, not just “emit my opcodes”
+
+A concrete recommendation
+If I were doing this for a demo, I would do this:
+
+Pick GCC/MSP430 as the source compiler
+
+Compile only freestanding C
+
+Emit .s
+
+Extend your existing MSP430→COR24 translator
+
+Add a tiny COR24 intrinsics header using comment markers or inline asm markers
+
+Once that works, decide whether to:
+
+keep improving the translator, or
+
+replace the front half with chibicc direct codegen
+
+That gives you the fastest path to:
+
+“C on COR24”
+
+useful demos
+
+learning value
+
+minimal framework pain
+
+If you want, I can sketch a minimal COR24 C ABI, plus a translator-friendly intrinsic style, and a first 10 test programs to drive TDD for this.
+
+
+Can you create a detailed planning doc for a chibicc related approach, describing what I need to provide exactly.  
+
+Cor24-chibicc-planning-doc
+
+COR24 + chibicc Planning Document
+Purpose
+This document lays out a practical plan for creating a demo-quality C-to-COR24 compiler path by adapting chibicc to emit cor24.s directly. The goal is educational and incremental: get a small but real subset of C compiling to your FPGA soft CPU without first building a production-grade toolchain.
+
+This plan is designed to answer one central question:
+
+What exactly do I need to provide in order for a chibicc-based backend effort to proceed efficiently?
+
+1. Project Goal and Scope
+1.1 Primary goal
+Create a modified version of chibicc that can:
+
+parse a useful subset of C
+
+lower it to COR24 assembly text
+
+support enough ABI and runtime behavior to run simple demo programs
+
+produce understandable, inspectable assembly for learning and debugging
+
+1.2 Non-goals for the first version
+The first version should not attempt to be:
+
+production-ready
+
+fully optimizing
+
+GCC-compatible
+
+libc-compatible in any serious way
+
+ELF/object-format aware unless you already need that
+
+complete for the C language
+
+1.3 First milestone
+The first successful milestone should be:
+
+compile simple freestanding C into cor24.s
+
+assemble and run on the COR24 environment
+
+support simple integer expressions, locals, functions, branches, loops, pointer dereference, and memory-mapped I/O helpers
+
+2. Recommended High-Level Architecture
+2.1 Architecture choice
+The cleanest educational approach is:
+
+C source -> chibicc frontend + parser + type system -> custom COR24 code generator -> cor24.s
+
+This avoids translating from another ISA and gives full control over the emitted assembly.
+
+2.2 Why chibicc
+chibicc is a good fit because:
+
+it is small enough to understand
+
+it already handles parsing, typing, AST construction, and much of the front-end work
+
+its code generation is simple enough to replace or adapt
+
+it is intentionally educational rather than industrial
+
+2.3 Likely internal strategy
+There are two practical implementation patterns:
+
+Pattern A: Replace the existing backend directly
+fork chibicc
+
+keep most parsing/type logic intact
+
+replace or heavily edit codegen to emit COR24 assembly
+
+Pattern B: Add a new target mode
+keep existing codegen for reference
+
+add a new codegen_cor24.c or equivalent
+
+switch backend with a flag or build config
+
+For learning and maintainability, Pattern B is better.
+
+3. What You Need to Provide
+This is the most important section.
+
+In order to design or implement a COR24 backend, the missing information is not mostly about C syntax. It is mostly about the machine model, ABI, and toolchain boundary.
+
+3.1 Required deliverables from you
+You should provide the following, ideally as separate text files.
+
+A. ISA summary
+A concise but precise summary of the COR24 ISA.
+
+Minimum needed:
+
+register names and count
+
+register width
+
+special registers (PC, SP, flags, link register, etc.)
+
+instruction formats
+
+arithmetic instructions
+
+logical instructions
+
+compare/test instructions
+
+branch/jump/call/return instructions
+
+load/store instructions
+
+immediate forms and immediate size limits
+
+shift instructions
+
+sign-extension / zero-extension instructions, if any
+
+multiply/divide support, if any
+
+byte/halfword/word access rules
+
+endianness
+
+alignment requirements
+
+stack-related instructions, if any
+
+Best format:
+
+markdown file plus one or two short code examples
+
+PDF/manual excerpt is also useful if available
+
+B. Assembly syntax reference
+Describe the exact syntax expected by your assembler.
+
+Need to know:
+
+comment syntax
+
+label syntax
+
+directive syntax (.text, .data, .word, etc.)
+
+numeric literal formats
+
+string literal support in assembly
+
+symbol visibility rules
+
+function label conventions
+
+how addresses are materialized
+
+how constants are emitted
+
+how uninitialized storage is declared
+
+If you already have sample handwritten COR24 assembly that assembles successfully, that is ideal.
+
+C. Calling convention / ABI proposal
+This is essential. Even for a demo compiler, this must be decided early.
+
+Need to know or decide:
+
+where function arguments go
+
+where return values go
+
+which registers are caller-saved
+
+which registers are callee-saved
+
+whether there is a frame pointer
+
+stack growth direction
+
+stack alignment rule
+
+how local variables are laid out
+
+how temporaries spill to stack
+
+how structs would be passed later, even if postponed now
+
+how pointers are represented
+
+whether code/data share one address space
+
+whether function pointers and data pointers are same width and format
+
+If you do not already have an ABI, that is okay. But you need to choose one.
+
+D. C data model choice
+You need to decide what C types mean on COR24.
+
+At minimum:
+
+char size and signedness
+
+short size
+
+int size
+
+long size
+
+long long support or no support initially
+
+pointer size
+
+enum size rule
+
+_Bool size
+
+alignment rules for each type
+
+Suggested initial model for simplicity:
+
+char = 8 bits
+
+short = 16 bits
+
+int = 24 bits or 32 bits (must choose)
+
+long = same as int initially, or 32 bits if you want more C compatibility
+
+pointer = 24 bits
+
+This choice affects nearly everything in codegen.
+
+E. Memory model
+Need a map or summary of how memory works.
+
+Please provide:
+
+RAM address range
+
+ROM/flash/code range
+
+memory-mapped I/O ranges
+
+whether loads/stores are byte-addressed or word-addressed
+
+whether unaligned access is legal
+
+whether code can read constant data from program space like ordinary memory
+
+startup/reset execution address
+
+stack default location
+
+F. Runtime environment
+Need to know what the generated program runs under.
+
+Please describe:
+
+bare metal or monitor or simulator
+
+who sets up stack pointer
+
+whether there is startup code already
+
+whether global data is copied/zeroed before main
+
+whether there is an existing linker script or fixed memory layout
+
+how a program exits, halts, or returns control
+
+whether there is any existing C runtime support from the proprietary compiler
+
+G. Toolchain interface
+Please provide the exact tools and commands currently used for COR24.
+
+Need:
+
+assembler name and invocation
+
+linker name and invocation
+
+object format, if any
+
+whether you assemble from plain text directly to memory image
+
+how symbols are resolved
+
+how programs are loaded into the FPGA environment
+
+whether there is a simulator/test runner
+
+whether there is a disassembler
+
+H. Small assembly test corpus
+Please provide a small set of known-good COR24 assembly programs.
+
+Ideal minimum set:
+
+arithmetic-only example
+
+simple function call example
+
+loop example
+
+stack-using example
+
+memory load/store example
+
+conditional branch example
+
+memory-mapped I/O example
+
+global/static data example
+
+This will make backend design dramatically easier.
+
+I. Existing MSP430-to-COR24 translation notes (optional but very helpful)
+Since you already translate MSP430-flavored assembly into COR24, any notes you have on instruction mapping are valuable.
+
+Please provide:
+
+which MSP430 constructs map cleanly to COR24
+
+which constructs are painful
+
+known compiler codegen patterns you already handle
+
+examples of pass-through comments or inline opcode tricks
+
+This can speed up backend design because it exposes natural code templates.
+
+4. Recommended Initial Feature Set
+To keep the project achievable, the first version should support only a subset of C.
+
+4.1 Recommended supported subset
+Expressions
+integer literals
+
+local variable references
+
+global variable references
+
+unary -, ~, !, &, *
+
+binary +, -, * if hardware allows or helper routine exists
+
+binary &, |, ^
+
+shifts <<, >>
+
+comparison operators
+
+assignment
+
+comma operator optionally later
+
+Statements
+expression statement
+
+if
+
+while
+
+for
+
+return
+
+block statements
+
+Functions
+ordinary function definitions
+
+function calls with small fixed number of arguments
+
+recursion optional, not required first
+
+Types
+integer types
+
+pointers
+
+one-dimensional arrays
+
+no structs/unions initially
+
+no floating point
+
+no varargs
+
+no bitfields
+
+Storage
+locals
+
+globals
+
+string literals
+
+simple static storage
+
+4.2 Features to defer
+Defer these until basic execution works:
+
+switch
+
+goto
+
+structs/unions
+
+initializer complexity
+
+64-bit arithmetic
+
+floating point
+
+variadic functions
+
+function pointers if awkward
+
+preprocessor completeness beyond what chibicc already supports
+
+5. Backend Design Choices You Will Need to Make
+5.1 Register allocation strategy
+For the first version, use a simple register discipline rather than trying to build a sophisticated allocator.
+
+Recommended approach:
+
+reserve a few registers for expression evaluation
+
+reserve one register as stack pointer
+
+optionally reserve one as frame pointer
+
+spill aggressively to stack if needed
+
+The first version should favor correctness and clarity over performance.
+
+5.2 Expression evaluation model
+Two common choices:
+
+Choice A: stack-machine-like lowering
+evaluate subexpressions one at a time
+
+push intermediate values to stack
+
+simple but verbose
+
+Choice B: fixed temporary register discipline
+use a small number of temp registers for left/right operands
+
+spill when nesting is deep
+
+better assembly, modest complexity
+
+Recommended: Choice B with frequent spilling.
+
+5.3 Prologue/epilogue format
+You need a standard function frame layout.
+
+Typical questions:
+
+save return address manually or use link register?
+
+save callee-saved regs always or lazily?
+
+frame pointer mandatory or optional?
+
+locals addressed off SP or FP?
+
+Recommended initial design:
+
+always create a frame for non-leaf functions
+
+use FP if it makes codegen simpler
+
+treat leaf optimization as future work
+
+5.4 Handling globals and literals
+Need conventions for:
+
+string literal placement
+
+read-only versus writable data sections
+
+global symbol naming
+
+relocation model or absolute-address model
+
+For a demo, it is acceptable to use a very simple symbol model if your assembler/linker tolerates it.
+
+6. Practical Work Breakdown
+Phase 0 — Feasibility and specification
+Goal:
+
+define enough of COR24 to make code generation deterministic
+
+Tasks:
+
+collect ISA summary
+
+collect assembler syntax
+
+decide C data model
+
+decide ABI
+
+prepare 5–10 golden assembly examples
+
+Exit criteria:
+
+enough information exists to hand-compile simple C functions into COR24 assembly consistently
+
+Phase 1 — Backend skeleton
+Goal:
+
+produce valid assembly file structure
+
+Tasks:
+
+fork chibicc
+
+isolate existing codegen entry points
+
+add a COR24 target switch or file
+
+emit .text, labels, function labels, simple prologue/epilogue
+
+compile empty main and return 0
+
+Exit criteria:
+
+can compile trivial function to syntactically valid COR24 assembly
+
+Phase 2 — Integer expressions and locals
+Goal:
+
+support computation inside one function
+
+Tasks:
+
+local stack slots
+
+integer constants
+
+local loads/stores
+
+add/sub/bitwise/compare
+
+unary operators
+
+if/while/for lowering
+
+Exit criteria:
+
+can compile and run arithmetic/loop test programs
+
+Phase 3 — Calls and globals
+Goal:
+
+support multi-function programs
+
+Tasks:
+
+call sequence
+
+argument passing
+
+return value handling
+
+global variable emission
+
+string literals
+
+Exit criteria:
+
+can compile small multi-function demo programs
+
+Phase 4 — Pointers and arrays
+Goal:
+
+support low-level C idioms useful on embedded systems
+
+Tasks:
+
+address-of and dereference
+
+pointer arithmetic
+
+array decay
+
+indexed load/store patterns
+
+Exit criteria:
+
+can compile memory-mapped I/O helpers and simple array code
+
+Phase 5 — Refinement
+Goal:
+
+make the tool pleasant enough for demos
+
+Tasks:
+
+better diagnostics
+
+cleaner assembly formatting
+
+optional peephole cleanups
+
+helper runtime routines for multiply/divide if needed
+
+optional inline assembly or builtins for COR24-specific features
+
+7. Test-Driven Development Plan
+7.1 Why TDD matters here
+Compiler work becomes unmanageable without a growing corpus of tiny tests. The risk is not just parser bugs; it is silent miscompilation.
+
+7.2 Recommended test layers
+Layer 1: AST/codegen unit-style checks
+compile tiny snippets
+
+inspect emitted assembly text
+
+verify labels, directives, instruction patterns
+
+Layer 2: golden assembly comparison
+for tiny inputs, compare output to expected assembly skeletons
+
+allow some flexibility for generated label names
+
+Layer 3: execution tests
+compile C source
+
+assemble/load/run
+
+capture memory/register outputs
+
+verify expected results
+
+7.3 First 15 suggested test programs
+int main() { return 0; }
+
+int main() { return 42; }
+
+int main() { int a=2; int b=3; return a+b; }
+
+int main() { int a=7; a=a-2; return a; }
+
+int main() { if (1) return 3; else return 4; }
+
+int main() { int i=0; while (i<5) i=i+1; return i; }
+
+int add(int a,int b){ return a+b; } int main(){ return add(2,5); }
+
+int main() { int x=1; int *p=&x; return *p; }
+
+int main() { int a[3]; a[0]=4; return a[0]; }
+
+global variable read/write test
+
+string literal address test
+
+nested expression test
+
+comparison operators test
+
+function with 3+ args test
+
+memory-mapped I/O intrinsic/builtin test
+
+8. Questions That Must Be Answered Early
+These are the decisions most likely to block progress.
+
+8.1 Is int 24-bit or 32-bit?
+This is probably the single biggest language-model question.
+
+24-bit int
+Pros:
+
+maps naturally to the machine
+
+simpler arithmetic and storage
+
+educationally elegant
+
+Cons:
+
+less standard in hosted-C expectations
+
+may expose odd edge cases in chibicc assumptions
+
+might require more edits if code assumes 32-bit int
+
+32-bit int
+Pros:
+
+more conventional C behavior
+
+may align better with frontend assumptions
+
+Cons:
+
+more expensive runtime and codegen
+
+every arithmetic op becomes multiword or helper-based
+
+For a demo compiler, 24-bit int may be the most honest and practical choice, unless chibicc internals make that too awkward.
+
+8.2 Are pointers 24 bits?
+Probably yes, but confirm.
+
+Need to know whether:
+
+all memory is addressable with 24-bit pointers
+
+code and data use the same pointer representation
+
+function pointers need special treatment
+
+8.3 Does COR24 support byte-addressed memory?
+If yes, life is easier for C.
+
+If no, then char * semantics and string handling become more complex and need explicit policy decisions.
+
+8.4 Are there compare instructions or only subtract-and-branch patterns?
+This shapes how conditional code generation should be written.
+
+8.5 Is multiply/divide native or runtime-assisted?
+If absent in hardware, plan helper routines and constrain initial test programs.
+
+9. Suggested File Bundle You Should Prepare
+To move this project forward efficiently, create a folder like this:
+
+cor24-compiler-inputs/
+  README.md
+  isa-summary.md
+  assembler-syntax.md
+  abi-proposal.md
+  c-data-model.md
+  memory-map.md
+  toolchain-commands.md
+  sample-asm/
+    add.s
+    call.s
+    loop.s
+    branch.s
+    globals.s
+    mmio.s
+  optional/
+    proprietary-compiler-output/
+    msp430-to-cor24-notes.md
+    translated-examples/
+9.1 What each file should contain
+README.md
+one-paragraph overview
+
+where the docs came from
+
+which things are authoritative versus guessed
+
+isa-summary.md
+instruction list
+
+encoding notes if available
+
+examples
+
+assembler-syntax.md
+exact syntax rules with examples
+
+abi-proposal.md
+function call and frame conventions
+
+c-data-model.md
+sizes, alignments, signedness, pointer model
+
+memory-map.md
+code/data/stack/MMIO layout
+
+toolchain-commands.md
+exact commands you run today for assemble, link, load, test
+
+sample-asm/*
+minimal working assembly snippets
+
+10. Risks and Likely Pain Points
+10.1 Frontend assumptions versus 24-bit machine reality
+Many compiler components are written assuming 8/16/32/64-bit-friendly targets. A 24-bit machine is unusual enough that type sizes, alignment, and constant handling need careful review.
+
+10.2 C semantics around promotions
+Even a tiny compiler quickly runs into:
+
+integer promotions
+
+signed versus unsigned compares
+
+shift behavior
+
+pointer arithmetic scaling
+
+You do not need perfect standards compliance for a demo, but you do need consistency.
+
+10.3 Stack frame bugs
+Most early compiler failures are ABI/frame/layout bugs, not parser issues.
+
+10.4 Global initialization
+If there is no runtime startup code, then even simple globals and string literals require explicit placement and startup behavior decisions.
+
+10.5 Toolchain mismatch
+If chibicc emits nice assembly but your assembler/linker expects odd directives or symbol conventions, progress can stall. That is why working assembly samples matter so much.
+
+11. Recommended Next Step Sequence
+Immediate next steps for you
+Prepare the COR24 input bundle described above.
+
+Decide whether int should be 24-bit or 32-bit for version 1.
+
+Decide whether pointer size is 24 bits.
+
+Write down a provisional calling convention.
+
+Provide 5–10 known-good assembly files.
+
+Immediate next steps for implementation after that
+inspect chibicc codegen structure
+
+define an internal target description for COR24
+
+emit function skeletons and constant returns
+
+add locals and arithmetic
+
+add branches and loops
+
+add function calls
+
+add globals and pointers
+
+12. What Would Make This Much Easier
+The single most helpful things you could provide are:
+
+a short COR24 ISA summary written in your own words
+
+three to ten tiny assembly examples that definitely assemble and run
+
+a clear statement of register roles and stack behavior
+
+a decision on the C type model
+
+Those four items alone would remove most ambiguity.
+
+13. Minimal Questionnaire
+If you want a compact checklist instead of the full document, answer these questions:
+
+How many general-purpose registers does COR24 have, and what are their names?
+
+Which register is SP, PC, FP, LR, or equivalent?
+
+Is memory byte-addressed?
+
+Is endianness little or big?
+
+What load/store widths exist?
+
+What immediate widths exist?
+
+How are calls and returns implemented?
+
+Does hardware support multiply/divide?
+
+What is the stack growth direction?
+
+Which registers must a callee preserve?
+
+What sizes should char, short, int, long, and pointers have?
+
+How does assembly declare code, data, constants, strings, and labels?
+
+What commands assemble and load a program today?
+
+What does a minimal hand-written main look like in working COR24 assembly?
+
+How should a program terminate?
+
+14. Final Recommendation
+The best way to make a chibicc-based COR24 path succeed is to treat this as three mini-projects:
+
+Machine specification project — define ISA, ABI, data model, assembly syntax.
+
+Backend skeleton project — teach chibicc to emit basic COR24 function assembly.
+
+Validation project — grow a test suite of tiny C programs and known-good execution results.
+
+If you provide the machine-specification inputs cleanly, the rest becomes a manageable compiler-learning exercise rather than an open-ended reverse-engineering task.
+
+I created the planning doc in the canvas: “cor24-chibicc-planning-doc.”
+
+It includes:
+
+the overall architecture
+
+why chibicc is a good fit
+
+a detailed list of exactly what you need to provide
+
+ABI / C data model / memory model decisions
+
+phased implementation plan
+
+TDD strategy
+
+a compact questionnaire/checklist you can fill in
+
+The most important section is “What You Need to Provide”, which breaks the inputs down into:
+
+ISA summary
+
+assembler syntax
+
+calling convention / ABI
+
+C type model
+
+memory model
+
+runtime environment
+
+toolchain commands
+
+known-good assembly examples
+
+optional MSP430→COR24 translation notes
+
+The fastest way to move forward is for you to start filling in those files, especially:
+
+isa-summary.md
+
+assembler-syntax.md
+
+abi-proposal.md
+
+c-data-model.md
+
+a handful of working sample-asm/*.s
+
+Once you have that, I can turn it into a more concrete implementation blueprint, such as:
+
+proposed COR24 ABI v0
+
+suggested int / pointer sizing choices
+
+chibicc file-by-file modification plan
+
+first 10 backend milestones
+
+first 20 compiler tests
+
+
+
+
