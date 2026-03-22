@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "crates/cc24-expr-literal",
+    "crates/cc24-expr-variable",
+    "crates/cc24-expr-pointer",
+    "crates/cc24-expr-call",
+    "crates/cc24-expr-ops",
+]
+resolver = "3"
