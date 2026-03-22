@@ -191,6 +191,7 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "asm" => TokenKind::Asm,
         "sizeof" => TokenKind::Sizeof,
         "static" => TokenKind::Static,
+        "enum" => TokenKind::Enum,
         "extern" => TokenKind::Extern,
         _ => TokenKind::Ident(text.to_string()),
     }

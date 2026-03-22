@@ -1,16 +1,24 @@
 //! Core token stream navigation.
 
+use std::collections::HashMap;
+
 use cc24_token::{Token, TokenKind};
 
 /// Wrapper around a token vector providing navigation helpers.
 pub struct TokenStream {
     pub(crate) tokens: Vec<Token>,
     pub(crate) pos: usize,
+    /// Enum constants: name -> integer value.
+    pub enum_constants: HashMap<String, i32>,
 }
 
 impl TokenStream {
     pub fn new(tokens: Vec<Token>) -> Self {
-        Self { tokens, pos: 0 }
+        Self {
+            tokens,
+            pos: 0,
+            enum_constants: HashMap::new(),
+        }
     }
 
     pub fn peek(&self) -> &Token {

@@ -261,6 +261,7 @@ dependencies = [
  "cc24-error",
  "cc24-parse-stream",
  "cc24-parser-compound",
+ "cc24-parser-enum",
  "cc24-parser-types",
  "cc24-span",
  "cc24-token",
@@ -268,6 +269,16 @@ dependencies = [
 
 [[package]]
 name = "cc24-parser-compound"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-error",
+ "cc24-parse-stream",
+ "cc24-token",
+]
+
+[[package]]
+name = "cc24-parser-enum"
 version = "0.1.0"
 dependencies = [
  "cc24-ast",

@@ -138,6 +138,10 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     let TokenKind::Ident(name) = ts.advance().kind else {
         unreachable!()
     };
+    // Resolve enum constants to integer literals
+    if let Some(&val) = ts.enum_constants.get(&name) {
+        return Ok(Expr::IntLit(val));
+    }
     if ts.eat(TokenKind::LParen) {
         let mut args = Vec::new();
         if !ts.check(&TokenKind::RParen) {

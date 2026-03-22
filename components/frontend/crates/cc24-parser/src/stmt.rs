@@ -59,12 +59,29 @@ pub fn parse_stmt(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     if ts.eat(TokenKind::Asm) {
         return control::parse_asm(ts);
     }
+    if ts.check(&TokenKind::Enum) && is_enum_definition(ts) {
+        ts.advance(); // consume `enum`
+        return cc24_parser_enum::parse_enum_decl(ts);
+    }
     if is_type_keyword(&ts.peek().kind) {
         return parse_local_decl(ts);
     }
     let expr = parse_expr(ts)?;
     ts.expect(TokenKind::Semicolon)?;
     Ok(Stmt::Expr(expr))
+}
+
+/// Check if `enum` starts a definition (`enum {` or `enum tag {`)
+/// as opposed to a variable declaration (`enum tag x;`).
+fn is_enum_definition(ts: &TokenStream) -> bool {
+    // Current token is Enum
+    match ts.lookahead(1) {
+        TokenKind::LBrace => true, // enum { ... }
+        TokenKind::Ident(_) => {
+            matches!(ts.lookahead(2), TokenKind::LBrace) // enum tag { ... }
+        }
+        _ => false,
+    }
 }
 
 fn parse_return(ts: &mut TokenStream) -> Result<Stmt, CompileError> {

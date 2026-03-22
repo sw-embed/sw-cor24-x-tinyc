@@ -9,4 +9,6 @@ pub(crate) fn parse_source(src: &str) -> cc24_ast::Program {
 #[cfg(test)]
 mod tests_basic;
 #[cfg(test)]
+mod tests_enum;
+#[cfg(test)]
 mod tests_types;

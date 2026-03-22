@@ -11,11 +11,29 @@ use cc24_parse_stream::try_parse_interrupt_attr;
 use cc24_parser_types::{is_base_type, is_storage_class};
 pub use cc24_parser_types::{is_type_keyword, parse_type};
 
+/// Check if current position is an enum definition (`enum {` or `enum tag {`).
+fn is_enum_definition(ts: &TokenStream) -> bool {
+    if !matches!(ts.peek().kind, TokenKind::Enum) {
+        return false;
+    }
+    match ts.lookahead(1) {
+        TokenKind::LBrace => true,
+        TokenKind::Ident(_) => matches!(ts.lookahead(2), TokenKind::LBrace),
+        _ => false,
+    }
+}
+
 /// Parse a full program (sequence of functions and globals).
 pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
     let mut functions = Vec::new();
     let mut globals = Vec::new();
     while !ts.at_eof() {
+        // Top-level enum definition: consume and register constants
+        if is_enum_definition(ts) {
+            ts.advance(); // consume `enum`
+            cc24_parser_enum::parse_enum_decl(ts)?;
+            continue;
+        }
         let is_interrupt = try_parse_interrupt_attr(ts);
         if is_global_decl(ts) {
             globals.push(parse_global_decl(ts)?);

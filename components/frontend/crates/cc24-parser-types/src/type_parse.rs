@@ -11,7 +11,10 @@ pub fn is_type_keyword(kind: &TokenKind) -> bool {
 }
 
 pub fn is_base_type(kind: &TokenKind) -> bool {
-    matches!(kind, TokenKind::Char | TokenKind::Int | TokenKind::Void)
+    matches!(
+        kind,
+        TokenKind::Char | TokenKind::Int | TokenKind::Void | TokenKind::Enum
+    )
 }
 
 pub fn is_storage_class(kind: &TokenKind) -> bool {
@@ -35,6 +38,14 @@ pub fn parse_type(ts: &mut TokenStream) -> Result<Type, CompileError> {
         TokenKind::Void => {
             ts.advance();
             Type::Void
+        }
+        TokenKind::Enum => {
+            ts.advance();
+            // Skip optional enum tag name: `enum color`
+            if matches!(ts.peek().kind, TokenKind::Ident(_)) {
+                ts.advance();
+            }
+            Type::Int // enums are treated as int
         }
         _ => {
             return Err(CompileError::new(
