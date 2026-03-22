@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crates/cc24-config",
+    "crates/cc24-target",
+]
+resolver = "3"
