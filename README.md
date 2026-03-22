@@ -109,148 +109,22 @@ cd ~/github/sw-embed/cor24-rs
 cargo run -- run path/to/program.s
 ```
 
-## Demos
+## Testing
 
-17 demos in `demos/`, all PASS on the cor24-rs emulator:
+| Test Suite | Pass | Total | Notes |
+|-----------|------|-------|-------|
+| cc24 demos | 21 | 21 | End-to-end compiler + emulator |
+| chibicc-subset | 5 | 5 | Curated subsets of chibicc tests |
+| chibicc full | 3 | 41 | generic, pragma-once, stdhdr |
+| bgc examples | 1 | 117 | 116 blocked on stdio.h |
 
-| # | Demo | Features Tested | Status |
-|---|------|-----------------|--------|
-| 1 | demo.c | Globals, function calls, recursion, if/else, while, for | PASS |
-| 2 | demo2.c | char, pointers, casts, MMIO (LED, UART TX) | PASS |
-| 3 | demo3.c | Hex literals, pointer arithmetic, string constants | PASS |
-| 4 | demo4.c | Software division and modulo | PASS |
-| 5 | demo5.c | Arrays (declaration and indexing) | PASS |
-| 6 | demo6.c | Global char/pointer, .byte/.word emission | PASS |
-| 7 | demo7.c | Pointer subtraction with scaling | PASS |
-| 8 | demo8.c | Preprocessor #define | PASS |
-| 9 | demo9.c | Interrupt attribute, ISR, UART RX interrupt | PASS |
-| 10 | demo10.c | #include, #pragma once, -I flag | PASS |
-| 11 | demo11.c | Logical && and || with short-circuit | PASS |
-| 12 | demo12.c | do...while loop | PASS |
-| 13 | demo13.c | break, continue (while, do...while, for) | PASS |
-| 14 | demo14.c | Prefix/postfix ++, -- | PASS |
-| 15 | demo15.c | Ternary operator (? :) | PASS |
-| 16 | demo16.c | Character literals ('a', '\n', '\\') | PASS |
-| 17 | demo17.c | Multi-declaration (int x, y, z;) | PASS |
-| 18 | demo18.c | sizeof operator | PASS |
-| 19 | demo19.c | static/extern keywords | PASS |
-| 20 | demo20.c | Statement expressions ({ }) | PASS |
-| 21 | demo21.c | Compound assignment (+=, -=, *=, /=, etc.) | PASS |
-
-### chibicc-Inspired Subset Tests (5/5 pass)
-
-Simplified tests based on chibicc patterns, using only cc24-supported
-features. Located in `tests/chibicc-subset/`.
-
-| Test | Features Verified | Status |
-|------|------------------|--------|
-| arith.c | +, -, *, /, comparisons, &&, ||, !, ?:, +=/-= | PASS |
-| control.c | if/else, while, for, do-while, break, continue | PASS |
-| function.c | calls, arguments, recursion (fib) | PASS |
-| pointer.c | &x, *p, *p=val, array indexing, *(a+n) | PASS |
-| variable.c | locals, globals, assignment, multi-decl | PASS |
-
-Run subset tests: `scripts/run-subset-tests.sh`
-
-Run a demo:
+See [Testing Status](docs/testing-status.md) for detailed tables and blocker analysis.
 
 ```bash
-demos/run-demo.sh     # runs demo.c through cc24 and cor24-rs
+demos/run-demo.sh              # run a single demo
+scripts/run-subset-tests.sh    # run chibicc-subset tests
+scripts/run-chibicc-tests.sh   # run full chibicc tests
 ```
-
-## chibicc Test Compatibility
-
-chibicc coverage: **2/41 (5%)**
-
-Testing against the 41 test files from [chibicc](https://github.com/rui314/chibicc).
-2 currently compile and pass. Status and first blocker for each file listed below.
-
-### Passing (2)
-
-| Test | Notes |
-|------|-------|
-| pragma-once | #pragma once inclusion guard |
-| stdhdr | System header inclusion (skips gracefully) |
-
-### Out of Scope (7)
-
-These tests require hosted C features, FPU, or threading not applicable to
-a freestanding 24-bit target:
-
-| Test | Reason |
-|------|--------|
-| alloca | Requires alloca() runtime |
-| atomic | Requires _Atomic / hosted threading |
-| float | Requires FPU (COR24 has no FPU) |
-| stdhdr | Requires hosted standard headers |
-| tls | Requires _Thread_local / OS threads |
-| varargs | Requires va_list / stdarg.h runtime |
-| vla | Requires variable-length array runtime |
-
-### Compile Fail (34)
-
-| Test | First Blocker |
-|------|---------------|
-| alignof | Missing _Alignof keyword |
-| arith | Large int literals (overflow 24-bit) |
-| asm | GNU asm syntax (extended asm) |
-| attribute | Missing __attribute__ keyword |
-| bitfield | Missing struct |
-| builtin | Missing __builtin functions |
-| cast | Statement expressions ({...}) |
-| commonsym | Missing static/extern keywords |
-| compat | Missing struct |
-| complit | Compound literals |
-| const | Missing const keyword |
-| constexpr | Missing constexpr keyword |
-| control | Missing switch/case |
-| decl | Missing static/extern keywords |
-| enum | Missing enum keyword |
-| extern | Missing extern keyword |
-| function | Missing static keyword |
-| generic | Missing _Generic keyword |
-| initializer | Missing struct |
-| line | Missing __LINE__ / __FILE__ |
-| literal | Large int literals (overflow 24-bit) |
-| macro | Missing system headers |
-| offsetof | Missing struct |
-| pointer | Statement expressions ({...}) |
-| pragma-once | Missing system headers |
-| sizeof | Struct member access (.) |
-| string | String concatenation |
-| struct | Missing struct keyword |
-| typedef | Missing typedef keyword |
-| typeof | Missing typeof keyword |
-| unicode | Unicode literals |
-| union | Missing union keyword |
-| usualconv | Struct member access (.) |
-| variable | Statement expressions ({...}) |
-
-### Blockers Fixed
-
-- Ternary operator `? :` -- was blocking 8 tests (arith, control, sizeof, etc.)
-- Character literals `'a'`, `'\n'` -- was blocking literal.c, complit.c
-- Multi-declaration `int x, y;` -- was blocking variable.c
-- Hex literals `0xFF` -- was blocking MMIO patterns
-- Logical `&&` / `||` -- was blocking complex conditionals
-- `break` / `continue` -- was blocking loop tests
-- `++` / `--` -- was blocking for-loop increment patterns
-- `sizeof` operator -- was blocking sizeof.c, decl.c, string.c
-- `static` / `extern` keywords -- was blocking commonsym.c, compat.c, extern.c
-- Statement expressions `({ })` -- was blocking 6 tests
-- Compound assignment `+=`, `-=`, `*=`, `/=`, etc. -- was blocking arith.c, control.c
-- Test runner adaptation -- strip printf/exit calls, return _test_fail
-
-### Remaining Blockers (by impact)
-
-| Blocker | Tests Affected | Effort |
-|---------|---------------|--------|
-| `struct` / `union` / `.` access | 10 tests | Large |
-| `goto` / labels | 3 tests | Medium |
-| `switch` / `case` / `default` | 3 tests | Medium |
-| `typedef` / `enum` | 3 tests | Small-Medium |
-| Large int literals (>24-bit) | 2 tests | Out of scope (24-bit target) |
-| Missing system headers | 6 tests | Out of scope (freestanding) |
 
 ## Documentation
 
