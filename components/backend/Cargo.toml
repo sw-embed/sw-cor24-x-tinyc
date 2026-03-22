@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crates/cc24-codegen",
+    "crates/cc24-codegen-tests",
+]
+resolver = "3"

@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "crates/cc24-span",
+    "crates/cc24-error",
+    "crates/cc24-token",
+    "crates/cc24-ast",
+]
+resolver = "3"

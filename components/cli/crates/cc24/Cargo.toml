@@ -1,0 +1,13 @@
+[package]
+name = "cc24"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "cc24"
+path = "src/main.rs"
+
+[dependencies]
+cc24-codegen = { path = "../../../backend/crates/cc24-codegen" }
+cc24-lexer = { path = "../../../frontend/crates/cc24-lexer" }
+cc24-parser = { path = "../../../frontend/crates/cc24-parser" }

@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "crates/cc24-lexer",
+    "crates/cc24-lexer-tests",
+    "crates/cc24-parse-stream",
+    "crates/cc24-parser",
+    "crates/cc24-parser-tests",
+]
+resolver = "3"

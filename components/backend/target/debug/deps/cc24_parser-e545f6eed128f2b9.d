@@ -1,0 +1,12 @@
+/home/mike/github/sw-vibe-coding/cc24/components/backend/target/debug/deps/cc24_parser-e545f6eed128f2b9.d: /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/lib.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/decl.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/mod.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/arithmetic.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/bitwise.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/primary.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/stmt.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/stream.rs
+
+/home/mike/github/sw-vibe-coding/cc24/components/backend/target/debug/deps/libcc24_parser-e545f6eed128f2b9.rmeta: /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/lib.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/decl.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/mod.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/arithmetic.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/bitwise.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/primary.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/stmt.rs /home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/stream.rs
+
+/home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/lib.rs:
+/home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/decl.rs:
+/home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/mod.rs:
+/home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/arithmetic.rs:
+/home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/bitwise.rs:
+/home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/expr/primary.rs:
+/home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/stmt.rs:
+/home/mike/github/sw-vibe-coding/cc24/components/frontend/crates/cc24-parser/src/stream.rs:

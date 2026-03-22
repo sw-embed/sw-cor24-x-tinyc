@@ -395,7 +395,7 @@ For a demo, it is acceptable to use a very simple symbol model if your assembler
 
 # 6. Practical Work Breakdown
 
-## Phase 0 — Feasibility and specification
+## Phase 0 -- Feasibility and specification
 
 Goal:
 
@@ -407,13 +407,13 @@ Tasks:
 - collect assembler syntax
 - decide C data model
 - decide ABI
-- prepare 5–10 golden assembly examples
+- prepare 5-10 golden assembly examples
 
 Exit criteria:
 
 - enough information exists to hand-compile simple C functions into COR24 assembly consistently
 
-## Phase 1 — Backend skeleton
+## Phase 1 -- Backend skeleton
 
 Goal:
 
@@ -431,7 +431,7 @@ Exit criteria:
 
 - can compile trivial function to syntactically valid COR24 assembly
 
-## Phase 2 — Integer expressions and locals
+## Phase 2 -- Integer expressions and locals
 
 Goal:
 
@@ -450,7 +450,7 @@ Exit criteria:
 
 - can compile and run arithmetic/loop test programs
 
-## Phase 3 — Calls and globals
+## Phase 3 -- Calls and globals
 
 Goal:
 
@@ -468,7 +468,7 @@ Exit criteria:
 
 - can compile small multi-function demo programs
 
-## Phase 4 — Pointers and arrays
+## Phase 4 -- Pointers and arrays
 
 Goal:
 
@@ -485,7 +485,7 @@ Exit criteria:
 
 - can compile memory-mapped I/O helpers and simple array code
 
-## Phase 5 — Refinement
+## Phase 5 -- Refinement
 
 Goal:
 
@@ -712,7 +712,7 @@ If chibicc emits nice assembly but your assembler/linker expects odd directives 
 2. Decide whether `int` should be 24-bit or 32-bit for version 1.
 3. Decide whether pointer size is 24 bits.
 4. Write down a provisional calling convention.
-5. Provide 5–10 known-good assembly files.
+5. Provide 5-10 known-good assembly files.
 
 ## Immediate next steps for implementation after that
 
@@ -765,9 +765,9 @@ If you want a compact checklist instead of the full document, answer these quest
 
 The best way to make a chibicc-based COR24 path succeed is to treat this as three mini-projects:
 
-1. **Machine specification project** — define ISA, ABI, data model, assembly syntax.
-2. **Backend skeleton project** — teach chibicc to emit basic COR24 function assembly.
-3. **Validation project** — grow a test suite of tiny C programs and known-good execution results.
+1. **Machine specification project** -- define ISA, ABI, data model, assembly syntax.
+2. **Backend skeleton project** -- teach chibicc to emit basic COR24 function assembly.
+3. **Validation project** -- grow a test suite of tiny C programs and known-good execution results.
 
 If you provide the machine-specification inputs cleanly, the rest becomes a manageable compiler-learning exercise rather than an open-ended reverse-engineering task.
 
