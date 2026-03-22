@@ -221,7 +221,7 @@ for (i = 0; i < n; i = i + 1) {
 }
 ```
 
-Note: `++` and `--` are not yet supported. Use `i = i + 1`.
+Supports `i++`, `i--`, `++i`, `--i` for increment/decrement.
 
 ### break and continue
 
@@ -403,7 +403,7 @@ cc24 <input.c> [-o output.s] [-I dir]
 ## Known Limitations
 
 - No `switch`/`case`
-- No `++`, `--`, `+=`, `-=`, or other compound assignment
+- No `+=`, `-=`, or other compound assignment
 - No `sizeof`, `typedef`, `enum`, `struct`, `union`
 - No function prototypes (forward declarations)
 - No multi-file compilation (single translation unit)

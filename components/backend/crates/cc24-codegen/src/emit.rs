@@ -24,6 +24,28 @@ impl Codegen {
         }
     }
 
+    /// Load a named variable into r0.
+    pub(crate) fn gen_load_by_name(&mut self, name: &str) {
+        if self.globals.contains(name) {
+            self.emit(&format!("        la      r1,_{name}"));
+            self.emit("        lw      r0,0(r1)");
+        } else {
+            let offset = self.locals[name];
+            self.emit(&format!("        lw      r0,{offset}(fp)"));
+        }
+    }
+
+    /// Store r0 into a named variable.
+    pub(crate) fn gen_store_by_name(&mut self, name: &str) {
+        if self.globals.contains(name) {
+            self.emit(&format!("        la      r1,_{name}"));
+            self.emit("        sw      r0,0(r1)");
+        } else {
+            let offset = self.locals[name];
+            self.emit(&format!("        sw      r0,{offset}(fp)"));
+        }
+    }
+
     /// Emit startup code that calls _main and halts.
     pub(crate) fn emit_start(&mut self) {
         self.emit("        .globl  _start");

@@ -92,6 +92,20 @@ pub(crate) fn gen_do_while(cg: &mut Codegen, body: &cc24_ast::Block, cond: &Expr
     cg.continue_labels.pop();
 }
 
+/// Generate pre/post increment/decrement.
+/// delta: 1 for ++, -1 for --. post: true returns old value.
+pub(crate) fn gen_inc_dec(cg: &mut Codegen, name: &str, delta: i32, post: bool) {
+    cg.gen_load_by_name(name);
+    if post {
+        cg.emit("        push    r0"); // save old value
+    }
+    cg.emit(&format!("        add     r0,{delta}"));
+    cg.gen_store_by_name(name);
+    if post {
+        cg.emit("        pop     r0"); // restore old value
+    }
+}
+
 fn emit_divmod(cg: &mut Codegen) {
     // Shared loop: r0=dividend, r1=divisor -> r0=remainder, r2=quotient
     // Called with args on stack: 9(fp)=dividend, 12(fp)=divisor

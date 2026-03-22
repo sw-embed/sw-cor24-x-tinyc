@@ -57,6 +57,14 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
             operand: Box::new(operand),
         });
     }
+    if ts.eat(TokenKind::PlusPlus) {
+        let name = ts.expect_ident()?;
+        return Ok(Expr::PreInc(name));
+    }
+    if ts.eat(TokenKind::MinusMinus) {
+        let name = ts.expect_ident()?;
+        return Ok(Expr::PreDec(name));
+    }
     if ts.eat(TokenKind::Amp) {
         let name = ts.expect_ident()?;
         return Ok(Expr::AddrOf(name));
@@ -132,6 +140,13 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
             lhs: Box::new(base),
             rhs: Box::new(index),
         })));
+    }
+    // Postfix ++/--
+    if ts.eat(TokenKind::PlusPlus) {
+        return Ok(Expr::PostInc(name));
+    }
+    if ts.eat(TokenKind::MinusMinus) {
+        return Ok(Expr::PostDec(name));
     }
     Ok(Expr::Ident(name))
 }

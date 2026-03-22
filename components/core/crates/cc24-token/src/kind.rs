@@ -36,7 +36,9 @@ pub enum TokenKind {
 
     // Operators
     Plus,
+    PlusPlus,
     Minus,
+    MinusMinus,
     Star,
     Slash,
     Percent,

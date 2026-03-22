@@ -24,6 +24,14 @@ impl Codegen {
             Expr::Deref(ptr) => self.gen_deref(ptr),
             Expr::Cast { expr, .. } => self.gen_expr(expr),
             Expr::DerefAssign { ptr, value } => self.gen_deref_assign(ptr, value),
+            Expr::PreInc(name) | Expr::PreDec(name) | Expr::PostInc(name) | Expr::PostDec(name) => {
+                let delta = match expr {
+                    Expr::PreInc(_) | Expr::PostInc(_) => 1,
+                    _ => -1,
+                };
+                let post = matches!(expr, Expr::PostInc(_) | Expr::PostDec(_));
+                crate::runtime::gen_inc_dec(self, name, delta, post);
+            }
         }
     }
 

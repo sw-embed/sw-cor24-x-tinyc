@@ -37,6 +37,14 @@ pub enum Expr {
         ptr: Box<Expr>,
         value: Box<Expr>,
     },
+    /// Pre-increment: ++i (returns new value)
+    PreInc(String),
+    /// Pre-decrement: --i (returns new value)
+    PreDec(String),
+    /// Post-increment: i++ (returns old value)
+    PostInc(String),
+    /// Post-decrement: i-- (returns old value)
+    PostDec(String),
 }
 
 /// Binary operator.
