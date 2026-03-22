@@ -10,6 +10,7 @@ pub enum TokenKind {
     Return,
     If,
     Else,
+    Do,
     While,
     For,
     Asm,

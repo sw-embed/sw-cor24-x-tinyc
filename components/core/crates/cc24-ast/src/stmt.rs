@@ -28,6 +28,10 @@ pub enum Stmt {
         cond: Expr,
         body: Block,
     },
+    DoWhile {
+        body: Block,
+        cond: Expr,
+    },
     For {
         init: Option<Box<Stmt>>,
         cond: Option<Expr>,

@@ -96,7 +96,7 @@ impl Codegen {
                     self.collect_locals_block(&eb.stmts);
                 }
             }
-            Stmt::While { body, .. } => {
+            Stmt::While { body, .. } | Stmt::DoWhile { body, .. } => {
                 self.collect_locals_block(&body.stmts);
             }
             Stmt::For { init, body, .. } => {

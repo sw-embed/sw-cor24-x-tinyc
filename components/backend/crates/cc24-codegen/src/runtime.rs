@@ -70,6 +70,18 @@ pub(crate) fn gen_log_or(cg: &mut Codegen, lhs: &Expr, rhs: &Expr) {
     cg.emit(&format!("{done_label}:"));
 }
 
+/// Generate do { body } while (cond).
+pub(crate) fn gen_do_while(cg: &mut Codegen, body: &cc24_ast::Block, cond: &Expr) {
+    let loop_label = cg.new_label();
+    cg.emit(&format!("{loop_label}:"));
+    for s in &body.stmts {
+        cg.gen_stmt(s);
+    }
+    cg.gen_expr(cond);
+    cg.emit("        ceq     r0,z");
+    cg.emit(&format!("        brf     {loop_label}"));
+}
+
 fn emit_divmod(cg: &mut Codegen) {
     // Shared loop: r0=dividend, r1=divisor -> r0=remainder, r2=quotient
     // Called with args on stack: 9(fp)=dividend, 12(fp)=divisor

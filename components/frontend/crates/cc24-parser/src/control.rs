@@ -86,3 +86,13 @@ pub fn parse_asm(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     ts.expect(TokenKind::Semicolon)?;
     Ok(Stmt::Asm(s))
 }
+
+pub fn parse_do_while(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
+    let body = parse_block(ts)?;
+    ts.expect(TokenKind::While)?;
+    ts.expect(TokenKind::LParen)?;
+    let cond = parse_expr(ts)?;
+    ts.expect(TokenKind::RParen)?;
+    ts.expect(TokenKind::Semicolon)?;
+    Ok(Stmt::DoWhile { body, cond })
+}

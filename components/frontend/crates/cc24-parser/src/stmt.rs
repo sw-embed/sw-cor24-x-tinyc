@@ -34,6 +34,9 @@ pub fn parse_stmt(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     if ts.eat(TokenKind::For) {
         return control::parse_for(ts);
     }
+    if ts.eat(TokenKind::Do) {
+        return control::parse_do_while(ts);
+    }
     if ts.eat(TokenKind::Asm) {
         return control::parse_asm(ts);
     }

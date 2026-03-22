@@ -16,6 +16,7 @@ impl Codegen {
                 else_body,
             } => self.gen_if(cond, then_body, else_body.as_ref()),
             Stmt::While { cond, body } => self.gen_while(cond, body),
+            Stmt::DoWhile { body, cond } => crate::runtime::gen_do_while(self, body, cond),
             Stmt::For {
                 init,
                 cond,
