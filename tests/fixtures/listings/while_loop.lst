@@ -1,0 +1,33 @@
+                    _main:
+0000: 80             push    fp
+0001: 7F             push    r2
+0002: 7E             push    r1
+0003: 65             mov     fp,sp
+0004: 0C FD          add     sp,-3
+0006: 44 00          lc      r0,0
+0008: A6 FD          sw      r0,-3(fp)
+                    L0:
+000A: 4D FD          lw      r0,-3(fp)
+000C: 7D             push    r0
+000D: 44 05          lc      r0,5
+000F: 5A             mov     r1,r0
+0010: 79             pop     r0
+0011: 19             cls     r0,r1
+0012: 62             mov     r0,c
+0013: C8             ceq     r0,z
+0014: 15 0A          brt     L1
+0016: 4D FD          lw      r0,-3(fp)
+0018: 7D             push    r0
+0019: 44 01          lc      r0,1
+001B: 5A             mov     r1,r0
+001C: 79             pop     r0
+001D: 01             add     r0,r1
+001E: A6 FD          sw      r0,-3(fp)
+0020: 13 E6          bra     L0
+                    L1:
+0022: 4D FD          lw      r0,-3(fp)
+0024: 69             mov     sp,fp
+0025: 7A             pop     r1
+0026: 7B             pop     r2
+0027: 7C             pop     fp
+0028: 27             jmp     (r1)

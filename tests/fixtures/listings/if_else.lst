@@ -1,0 +1,18 @@
+                    _main:
+0000: 80             push    fp
+0001: 7F             push    r2
+0002: 7E             push    r1
+0003: 65             mov     fp,sp
+0004: 44 01          lc      r0,1
+0006: C8             ceq     r0,z
+0007: 15 02          brt     L0
+0009: 44 03          lc      r0,3
+000B: 13 00          bra     L1
+                    L0:
+000D: 44 04          lc      r0,4
+                    L1:
+000F: 69             mov     sp,fp
+0010: 7A             pop     r1
+0011: 7B             pop     r2
+0012: 7C             pop     fp
+0013: 27             jmp     (r1)

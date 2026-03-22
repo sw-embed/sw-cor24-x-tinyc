@@ -1,0 +1,42 @@
+        .text
+
+        .globl  _add
+_add:
+        push    fp
+        push    r2
+        push    r1
+        mov     fp,sp
+        lw      r0,9(fp)
+        push    r0
+        lw      r0,12(fp)
+        mov     r1,r0
+        pop     r0
+        add     r0,r1
+        bra     L0
+L0:
+        mov     sp,fp
+        pop     r1
+        pop     r2
+        pop     fp
+        jmp     (r1)
+
+        .globl  _main
+_main:
+        push    fp
+        push    r2
+        push    r1
+        mov     fp,sp
+        lc      r0,5
+        push    r0
+        lc      r0,2
+        push    r0
+        la      r0,_add
+        jal     r1,(r0)
+        add     sp,6
+        bra     L1
+L1:
+        mov     sp,fp
+        pop     r1
+        pop     r2
+        pop     fp
+        jmp     (r1)
