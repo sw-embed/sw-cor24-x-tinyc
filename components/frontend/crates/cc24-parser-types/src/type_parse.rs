@@ -37,11 +37,13 @@ pub fn is_storage_class(kind: &TokenKind) -> bool {
 
 pub fn parse_type(ts: &mut TokenStream) -> Result<Type, CompileError> {
     // Consume and ignore storage-class/type-qualifier specifiers
+    let mut had_qualifier = false;
     while matches!(
         ts.peek().kind,
         TokenKind::Static | TokenKind::Extern | TokenKind::Const
     ) {
         ts.advance();
+        had_qualifier = true;
     }
     let base = match ts.peek().kind {
         TokenKind::Char => {
@@ -68,6 +70,10 @@ pub fn parse_type(ts: &mut TokenStream) -> Result<Type, CompileError> {
             let resolved = ts.type_aliases[name].clone();
             ts.advance();
             resolved
+        }
+        _ if had_qualifier => {
+            // Implicit int: "const x" means "const int x" (K&R style)
+            Type::Int
         }
         _ => {
             return Err(CompileError::new(

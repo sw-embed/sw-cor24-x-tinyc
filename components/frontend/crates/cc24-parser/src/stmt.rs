@@ -34,6 +34,11 @@ pub fn parse_body(ts: &mut TokenStream) -> Result<Block, CompileError> {
 
 /// Parse a single statement.
 pub fn parse_stmt(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
+    // Bare block: { ... } used as scope
+    if ts.check(&TokenKind::LBrace) {
+        let block = parse_block(ts)?;
+        return Ok(Stmt::Block(block));
+    }
     if ts.eat(TokenKind::Return) {
         return parse_return(ts);
     }

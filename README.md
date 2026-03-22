@@ -115,7 +115,7 @@ cargo run -- run path/to/program.s
 |-----------|------|-------|-------|
 | cc24 demos | 24 | 24 | End-to-end compiler + emulator |
 | chibicc-subset | 5 | 5 | Curated subsets of chibicc tests |
-| chibicc full | 4 | 41 | enum, generic, pragma-once, stdhdr |
+| chibicc full | 5 | 41 | const, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 0 | 11 | All need stdio.h |
 | bgc examples | 0 | 117 | All need stdio.h |
 
