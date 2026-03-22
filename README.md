@@ -132,6 +132,7 @@ cargo run -- run path/to/program.s
 | 15 | demo15.c | Ternary operator (? :) | PASS |
 | 16 | demo16.c | Character literals ('a', '\n', '\\') | PASS |
 | 17 | demo17.c | Multi-declaration (int x, y, z;) | PASS |
+| 18 | demo18.c | sizeof operator | PASS |
 
 Run a demo:
 
@@ -190,14 +191,14 @@ a freestanding 24-bit target:
 | offsetof | Missing struct |
 | pointer | Statement expressions ({...}) |
 | pragma-once | Missing system headers |
-| sizeof | Missing sizeof keyword |
-| string | Missing sizeof keyword |
+| sizeof | Struct member access (.) |
+| string | String concatenation |
 | struct | Missing struct keyword |
 | typedef | Missing typedef keyword |
 | typeof | Missing typeof keyword |
 | unicode | Unicode literals |
 | union | Missing union keyword |
-| usualconv | Missing sizeof keyword |
+| usualconv | Struct member access (.) |
 | variable | Statement expressions ({...}) |
 
 ### Blockers Fixed
@@ -209,6 +210,7 @@ a freestanding 24-bit target:
 - Logical `&&` / `||` -- was blocking complex conditionals
 - `break` / `continue` -- was blocking loop tests
 - `++` / `--` -- was blocking for-loop increment patterns
+- `sizeof` operator -- was blocking sizeof.c, decl.c, string.c
 
 ### Remaining Blockers (by impact)
 
@@ -217,7 +219,6 @@ a freestanding 24-bit target:
 | Statement expressions `({ })` | 6 tests | Medium (GCC extension) |
 | `struct` / `union` / `.` access | 10 tests | Large |
 | `static` / `extern` keywords | 3 tests | Small |
-| `sizeof` operator | 3 tests | Small |
 | `typedef` / `enum` | 3 tests | Small-Medium |
 | Large int literals (>24-bit) | 2 tests | Out of scope (24-bit target) |
 | Missing system headers | 6 tests | Out of scope (freestanding) |

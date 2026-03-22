@@ -51,6 +51,9 @@ fn parse_ternary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
 }
 
 pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
+    if ts.eat(TokenKind::Sizeof) {
+        return parse_sizeof(ts);
+    }
     if ts.eat(TokenKind::Minus) {
         let operand = parse_unary(ts)?;
         return Ok(Expr::UnaryOp {
@@ -164,4 +167,18 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         return Ok(Expr::PostDec(name));
     }
     Ok(Expr::Ident(name))
+}
+
+/// Parse `sizeof(type)` or `sizeof(expr)` after the `sizeof` token.
+fn parse_sizeof(ts: &mut TokenStream) -> Result<Expr, CompileError> {
+    ts.expect(TokenKind::LParen)?;
+    if is_type_keyword(&ts.peek().kind) {
+        let ty = parse_type(ts)?;
+        ts.expect(TokenKind::RParen)?;
+        return Ok(Expr::IntLit(ty.size()));
+    }
+    // sizeof(expr) -- no type info available, assume int-sized
+    let _expr = parse_unary(ts)?;
+    ts.expect(TokenKind::RParen)?;
+    Ok(Expr::IntLit(3))
 }

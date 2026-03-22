@@ -107,6 +107,9 @@ impl Lexer<'_> {
             b'\\' => '\\',
             b'"' => '"',
             b'0' => '\0',
+            b'a' => '\x07',
+            b'r' => '\r',
+            b'\'' => '\'',
             other => {
                 return Err(CompileError::new(
                     format!("unknown escape: \\{}", other as char),
@@ -178,6 +181,7 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "while" => TokenKind::While,
         "for" => TokenKind::For,
         "asm" => TokenKind::Asm,
+        "sizeof" => TokenKind::Sizeof,
         _ => TokenKind::Ident(text.to_string()),
     }
 }
