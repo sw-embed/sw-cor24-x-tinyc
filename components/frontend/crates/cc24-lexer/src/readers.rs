@@ -116,8 +116,29 @@ impl Lexer<'_> {
             b'"' => '"',
             b'0' => '\0',
             b'a' => '\x07',
+            b'b' => '\x08',
             b'r' => '\r',
             b'\'' => '\'',
+            b'x' => {
+                // Hex escape: \xNN
+                let mut val: u8 = 0;
+                self.pos += 1;
+                while self.pos < self.source.len() && self.source[self.pos].is_ascii_hexdigit() {
+                    let d = self.source[self.pos];
+                    let nibble = if d.is_ascii_digit() {
+                        d - b'0'
+                    } else {
+                        (d | 0x20) - b'a' + 10
+                    };
+                    val = val.wrapping_mul(16).wrapping_add(nibble);
+                    self.pos += 1;
+                }
+                // pos is now past the hex digits; caller will increment
+                // so we need to back up one
+                self.pos -= 1;
+                value.push(val as char);
+                return Ok(());
+            }
             other => {
                 return Err(CompileError::new(
                     format!("unknown escape: \\{}", other as char),
@@ -148,7 +169,28 @@ impl Lexer<'_> {
                 Some(b'\\') => b'\\',
                 Some(b'\'') => b'\'',
                 Some(b'a') => 7, // bell
+                Some(b'b') => 8, // backspace
                 Some(b'r') => b'\r',
+                Some(b'x') => {
+                    // Hex escape: '\xNN'
+                    self.pos += 1;
+                    let mut val: u8 = 0;
+                    while self.pos < self.source.len() && self.source[self.pos].is_ascii_hexdigit()
+                    {
+                        let d = self.source[self.pos];
+                        let nibble = if d.is_ascii_digit() {
+                            d - b'0'
+                        } else {
+                            (d | 0x20) - b'a' + 10
+                        };
+                        val = val.wrapping_mul(16).wrapping_add(nibble);
+                        self.pos += 1;
+                    }
+                    // Don't advance past last hex digit
+                    // (the outer code will advance by 1 for the value byte)
+                    self.pos -= 1;
+                    val
+                }
                 _ => {
                     return Err(CompileError::new(
                         "unknown char escape",
