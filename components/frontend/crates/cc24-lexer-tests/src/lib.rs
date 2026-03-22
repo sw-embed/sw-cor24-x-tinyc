@@ -61,4 +61,39 @@ mod tests {
         let tokens = lexer.tokenize().unwrap();
         assert_eq!(tokens[0].kind, TokenKind::StringLit("hello\n".to_string()));
     }
+
+    #[test]
+    fn tokenize_line_comment() {
+        let mut lexer = Lexer::new("int x; // comment\nreturn x;");
+        let tokens = lexer.tokenize().unwrap();
+        let kinds: Vec<_> = tokens.iter().map(|t| &t.kind).collect();
+        assert_eq!(
+            kinds,
+            vec![
+                &TokenKind::Int,
+                &TokenKind::Ident("x".to_string()),
+                &TokenKind::Semicolon,
+                &TokenKind::Return,
+                &TokenKind::Ident("x".to_string()),
+                &TokenKind::Semicolon,
+                &TokenKind::Eof,
+            ]
+        );
+    }
+
+    #[test]
+    fn tokenize_block_comment() {
+        let mut lexer = Lexer::new("int /* skip this */ x;");
+        let tokens = lexer.tokenize().unwrap();
+        let kinds: Vec<_> = tokens.iter().map(|t| &t.kind).collect();
+        assert_eq!(
+            kinds,
+            vec![
+                &TokenKind::Int,
+                &TokenKind::Ident("x".to_string()),
+                &TokenKind::Semicolon,
+                &TokenKind::Eof,
+            ]
+        );
+    }
 }

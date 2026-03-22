@@ -1,6 +1,6 @@
 //! Golden file tests for basic expressions and locals.
 
-use super::golden_test;
+use super::{compile, golden_test};
 
 #[test]
 fn golden_return_0() {
@@ -25,4 +25,14 @@ fn golden_add_locals() {
 #[test]
 fn golden_if_else() {
     golden_test("if_else");
+}
+
+#[test]
+fn codegen_emits_start() {
+    let output = compile("int main() { return 0; }");
+    assert!(output.contains("_start:"));
+    assert!(output.contains("la      r0,_main"));
+    assert!(output.contains("jal     r1,(r0)"));
+    assert!(output.contains("_halt:"));
+    assert!(output.contains("bra     _halt"));
 }

@@ -24,7 +24,7 @@ impl<'a> Lexer<'a> {
     pub fn tokenize(&mut self) -> Result<Vec<Token>, CompileError> {
         let mut tokens = Vec::new();
         loop {
-            self.skip_whitespace();
+            self.skip_whitespace_and_comments();
             if self.pos >= self.source.len() {
                 tokens.push(Token {
                     kind: TokenKind::Eof,
@@ -37,10 +37,45 @@ impl<'a> Lexer<'a> {
         Ok(tokens)
     }
 
-    pub(crate) fn skip_whitespace(&mut self) {
+    pub(crate) fn skip_whitespace_and_comments(&mut self) {
+        loop {
+            self.skip_whitespace();
+            if !self.skip_comment() {
+                break;
+            }
+        }
+    }
+
+    fn skip_whitespace(&mut self) {
         while self.pos < self.source.len() && self.source[self.pos].is_ascii_whitespace() {
             self.pos += 1;
         }
+    }
+
+    fn skip_comment(&mut self) -> bool {
+        if self.pos + 1 >= self.source.len() {
+            return false;
+        }
+        if self.source[self.pos] == b'/' && self.source[self.pos + 1] == b'/' {
+            self.pos += 2;
+            while self.pos < self.source.len() && self.source[self.pos] != b'\n' {
+                self.pos += 1;
+            }
+            return true;
+        }
+        if self.source[self.pos] == b'/' && self.source[self.pos + 1] == b'*' {
+            self.pos += 2;
+            while self.pos + 1 < self.source.len() {
+                if self.source[self.pos] == b'*' && self.source[self.pos + 1] == b'/' {
+                    self.pos += 2;
+                    return true;
+                }
+                self.pos += 1;
+            }
+            self.pos = self.source.len();
+            return true;
+        }
+        false
     }
 
     pub(crate) fn peek_char(&self) -> Option<u8> {
