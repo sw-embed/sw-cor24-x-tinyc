@@ -52,9 +52,12 @@ impl Codegen {
         }
         for (i, s) in self.string_literals.clone().iter().enumerate() {
             self.emit(&format!("_S{i}:"));
-            for b in s.bytes().chain(std::iter::once(0)) {
-                self.emit(&format!("        .byte   {b}"));
-            }
+            let bytes: Vec<String> = s
+                .bytes()
+                .chain(std::iter::once(0))
+                .map(|b| b.to_string())
+                .collect();
+            self.emit(&format!("        .byte   {}", bytes.join(",")));
         }
     }
 }
