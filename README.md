@@ -135,6 +135,7 @@ cargo run -- run path/to/program.s
 | 18 | demo18.c | sizeof operator | PASS |
 | 19 | demo19.c | static/extern keywords | PASS |
 | 20 | demo20.c | Statement expressions ({ }) | PASS |
+| 21 | demo21.c | Compound assignment (+=, -=, *=, /=, etc.) | PASS |
 
 Run a demo:
 
@@ -221,16 +222,17 @@ a freestanding 24-bit target:
 - `++` / `--` -- was blocking for-loop increment patterns
 - `sizeof` operator -- was blocking sizeof.c, decl.c, string.c
 - `static` / `extern` keywords -- was blocking commonsym.c, compat.c, extern.c
-- Statement expressions `({ })` -- was blocking 6 tests (const, decl, enum, pointer, typeof, vla)
+- Statement expressions `({ })` -- was blocking 6 tests
+- Compound assignment `+=`, `-=`, `*=`, `/=`, etc. -- was blocking arith.c, control.c
 - Test runner adaptation -- strip printf/exit calls, return _test_fail
 
 ### Remaining Blockers (by impact)
 
 | Blocker | Tests Affected | Effort |
 |---------|---------------|--------|
-| Statement expressions `({ })` | 6 tests | Medium (GCC extension) |
 | `struct` / `union` / `.` access | 10 tests | Large |
-| Compound assignment `+=`, `-=` | 2 tests | Small |
+| `goto` / labels | 3 tests | Medium |
+| `switch` / `case` / `default` | 3 tests | Medium |
 | `typedef` / `enum` | 3 tests | Small-Medium |
 | Large int literals (>24-bit) | 2 tests | Out of scope (24-bit target) |
 | Missing system headers | 6 tests | Out of scope (freestanding) |

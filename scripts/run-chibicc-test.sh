@@ -29,9 +29,8 @@ if [ ! -f "$SRC" ]; then
     exit 2
 fi
 
-if [ ! -f "$CC24" ]; then
-    cargo build --manifest-path "$ROOT_DIR/components/cli/Cargo.toml" --release --quiet
-fi
+# Always rebuild to avoid stale binary issues (cargo is incremental)
+cargo build --manifest-path "$ROOT_DIR/components/cli/Cargo.toml" --release --quiet
 
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT

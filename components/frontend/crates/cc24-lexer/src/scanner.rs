@@ -76,4 +76,8 @@ impl<'a> Lexer<'a> {
     pub(crate) fn peek_char(&self) -> Option<u8> {
         self.source.get(self.pos + 1).copied()
     }
+
+    pub(crate) fn peek_char_at(&self, offset: usize) -> Option<u8> {
+        self.source.get(self.pos + offset).copied()
+    }
 }

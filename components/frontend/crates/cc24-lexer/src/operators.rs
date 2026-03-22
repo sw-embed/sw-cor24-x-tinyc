@@ -12,6 +12,9 @@ impl Lexer<'_> {
         let start = self.pos;
         let ch = self.source[self.pos];
 
+        if let Some(tok) = self.try_three_char(start) {
+            return Ok(tok);
+        }
         if let Some(tok) = self.try_two_char(start) {
             return Ok(tok);
         }
@@ -20,6 +23,22 @@ impl Lexer<'_> {
         }
 
         self.dispatch_literal(start, ch)
+    }
+
+    fn try_three_char(&mut self, start: usize) -> Option<Token> {
+        let ch = self.source[start];
+        let b = self.peek_char()?;
+        let c = self.peek_char_at(2)?;
+        let kind = match (ch, b, c) {
+            (b'<', b'<', b'=') => TokenKind::LShiftAssign,
+            (b'>', b'>', b'=') => TokenKind::RShiftAssign,
+            _ => return None,
+        };
+        self.pos += 3;
+        Some(Token {
+            kind,
+            span: Span::new(start, 3),
+        })
     }
 
     fn try_two_char(&mut self, start: usize) -> Option<Token> {
@@ -36,6 +55,14 @@ impl Lexer<'_> {
             (b'!', b'=') => TokenKind::BangEq,
             (b'<', b'=') => TokenKind::LtEq,
             (b'>', b'=') => TokenKind::GtEq,
+            (b'+', b'=') => TokenKind::PlusAssign,
+            (b'-', b'=') => TokenKind::MinusAssign,
+            (b'*', b'=') => TokenKind::StarAssign,
+            (b'/', b'=') => TokenKind::SlashAssign,
+            (b'%', b'=') => TokenKind::PercentAssign,
+            (b'&', b'=') => TokenKind::AmpAssign,
+            (b'|', b'=') => TokenKind::PipeAssign,
+            (b'^', b'=') => TokenKind::CaretAssign,
             _ => return None,
         };
         self.pos += 2;
