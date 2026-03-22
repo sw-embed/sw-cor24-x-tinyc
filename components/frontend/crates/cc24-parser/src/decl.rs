@@ -24,11 +24,16 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
 }
 
 fn is_global_decl(ts: &TokenStream) -> bool {
-    if !is_type_keyword(ts.lookahead(0)) {
+    let mut i = 0;
+    // Skip storage-class specifiers
+    while is_storage_class(ts.lookahead(i)) {
+        i += 1;
+    }
+    if !is_base_type(ts.lookahead(i)) {
         return false;
     }
+    i += 1;
     // Skip pointer stars: int **ptr
-    let mut i = 1;
     while matches!(ts.lookahead(i), TokenKind::Star) {
         i += 1;
     }
@@ -36,9 +41,17 @@ fn is_global_decl(ts: &TokenStream) -> bool {
         && !matches!(ts.lookahead(i + 1), TokenKind::LParen)
 }
 
-/// Check whether a token kind starts a type specifier.
+/// Check whether a token kind starts a declaration (type or storage class).
 pub fn is_type_keyword(kind: &TokenKind) -> bool {
+    is_base_type(kind) || is_storage_class(kind)
+}
+
+fn is_base_type(kind: &TokenKind) -> bool {
     matches!(kind, TokenKind::Char | TokenKind::Int | TokenKind::Void)
+}
+
+fn is_storage_class(kind: &TokenKind) -> bool {
+    matches!(kind, TokenKind::Static | TokenKind::Extern)
 }
 
 fn parse_global_decl(ts: &mut TokenStream) -> Result<GlobalDecl, CompileError> {
@@ -88,6 +101,10 @@ fn parse_params(ts: &mut TokenStream) -> Result<Vec<Param>, CompileError> {
 }
 
 pub fn parse_type(ts: &mut TokenStream) -> Result<Type, CompileError> {
+    // Consume and ignore storage-class specifiers (static, extern)
+    while matches!(ts.peek().kind, TokenKind::Static | TokenKind::Extern) {
+        ts.advance();
+    }
     let base = match ts.peek().kind {
         TokenKind::Char => {
             ts.advance();

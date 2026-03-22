@@ -133,6 +133,7 @@ cargo run -- run path/to/program.s
 | 16 | demo16.c | Character literals ('a', '\n', '\\') | PASS |
 | 17 | demo17.c | Multi-declaration (int x, y, z;) | PASS |
 | 18 | demo18.c | sizeof operator | PASS |
+| 19 | demo19.c | static/extern keywords | PASS |
 
 Run a demo:
 
@@ -211,6 +212,7 @@ a freestanding 24-bit target:
 - `break` / `continue` -- was blocking loop tests
 - `++` / `--` -- was blocking for-loop increment patterns
 - `sizeof` operator -- was blocking sizeof.c, decl.c, string.c
+- `static` / `extern` keywords -- was blocking commonsym.c, compat.c, extern.c
 
 ### Remaining Blockers (by impact)
 
@@ -218,7 +220,7 @@ a freestanding 24-bit target:
 |---------|---------------|--------|
 | Statement expressions `({ })` | 6 tests | Medium (GCC extension) |
 | `struct` / `union` / `.` access | 10 tests | Large |
-| `static` / `extern` keywords | 3 tests | Small |
+| Compound assignment `+=`, `-=` | 2 tests | Small |
 | `typedef` / `enum` | 3 tests | Small-Medium |
 | Large int literals (>24-bit) | 2 tests | Out of scope (24-bit target) |
 | Missing system headers | 6 tests | Out of scope (freestanding) |

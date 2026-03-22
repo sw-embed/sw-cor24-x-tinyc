@@ -17,6 +17,8 @@ pub enum TokenKind {
     For,
     Asm,
     Sizeof,
+    Static,
+    Extern,
 
     // Literals
     IntLit(i32),

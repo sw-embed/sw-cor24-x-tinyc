@@ -404,8 +404,14 @@ cc24 <input.c> [-o output.s] [-I dir]
 
 - No `switch`/`case`
 - No `+=`, `-=`, or other compound assignment
-- No `sizeof`, `typedef`, `enum`, `struct`, `union`
+- No `typedef`, `enum`, `struct`, `union`
 - No function prototypes (forward declarations)
+- `static` local variables are treated as regular locals (not persisted
+  across calls). File-scope `static` and `static` functions work correctly
+  for single-translation-unit compilation.
+- `extern` is accepted and ignored (single translation unit).
+- `sizeof(expr)` returns 3 (int size) for all expressions; only
+  `sizeof(type)` returns accurate sizes.
 - No multi-file compilation (single translation unit)
 - No `float` or `double`
 - Branch range limited to signed 8-bit offset (~127 bytes)

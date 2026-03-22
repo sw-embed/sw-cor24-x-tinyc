@@ -1,0 +1,68 @@
+=== cc24 Demo 19: static/extern ===
+Assembled 236 bytes
+Running (speed: max IPS, time limit: 10s)...
+
+[UART TX @ 349] 'D'  (0x44)
+[UART TX @ 349] '1'  (0x31)
+[UART TX @ 349] '9'  (0x39)
+[UART TX @ 349] 'O'  (0x4F)
+[UART TX @ 349] 'K'  (0x4B)
+[UART TX @ 349] '\n'
+
+UART output: D19OK
+
+
+Executed 349 instructions
+CPU halted (self-branch detected)
+
+=== Registers ===
+  PC:  0x000005    C: 1
+  r0:  0x00002A  (      42)
+  r1:  0x000005  (       5)
+  r2:  0x000000  (       0)
+  fp:  0x000000
+  sp:  0xFEEC00
+
+=== Emulator ===
+  Instructions: 350
+  Halted: true
+
+=== SRAM 000000-0FFFFF (1 MB) ===
+  000000: 29 69 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)i..%....~e)...8|
+  000010: 00 7D 29 80 00 00 5A 79 0D C8 15 00 13 EB 4D 09  |.})...Zy......M.|
+  000020: 7D 29 00 01 FF 5A 79 81 00 69 7A 7B 7C 27 80 7F  |})...Zy..iz{|'..|
+  000030: 7E 65 4D 09 38 00 C8 15 16 4D 09 38 00 7D 29 07  |~eM.8....M.8.}).|
+  000040: 00 00 25 0C 03 4D 09 7D 44 01 5A 79 01 A6 09 13  |..%..M.}D.Zy....|
+  000050: DF 69 7A 7B 7C 27 80 7F 7E 65 4D 09 7D 4D 0C 5A  |.iz{|'..~eM.}M.Z|
+  000060: 79 01 13 FE 69 7A 7B 7C 27 80 7F 7E 65 0C FD 44  |y...iz{|'..~e..D|
+  000070: 01 A6 FD 2A E2 00 00 4B 00 7D 44 0A 5A 79 16 62  |...*...K.}D.Zy.b|
+  000080: C8 62 C8 15 02 44 00 A6 FD 44 0C 7D 44 14 7D 29  |.b...D...D.}D.})|
+  000090: 56 00 00 25 0C 06 7D 44 20 5A 79 16 62 C8 62 C8  |V..%..}D Zy.b.b.|
+  0000A0: 15 02 44 00 A6 FD 44 2A 2A E2 00 00 A4 00 2A E2  |..D...D**.....*.|
+  0000B0: 00 00 4B 00 7D 44 2A 5A 79 16 62 C8 62 C8 15 02  |..K.}D*Zy.b.b...|
+  0000C0: 44 00 A6 FD 4D FD C8 15 0E 29 E5 00 00 7D 29 2E  |D...M....)...}).|
+  0000D0: 00 00 25 0C 03 44 2A 13 02 44 00 13 FE 69 7A 7B  |..%..D*..D...iz{|
+  0000E0: 7C 27 2A 00 00 44 31 39 4F 4B 0A 00 00 00 00 00  ||'*..D19OK......|
+  0000F0..0FFFFF: 1048336 bytes all zero
+
+=== Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
+
+=== EBR FEE000-FEFFFF (8 KB, stack) ===
+  FEE000..FEEBCF: 3024 bytes all zero
+  FEEBD0: 00 00 00 00 00 00 00 00 00 0A 00 00 43 00 00 00  |............C...|
+  FEEBE0: 00 00 E8 EB FE EA 00 00 D3 00 00 00 00 00 F7 EB  |................|
+  FEEBF0: FE EB 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
+  FEEC00..FEFFFF: 5120 bytes all zero
+
+=== I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
+  FF0000 LED:  0x00  [........]  BTN S2: released
+  FF0010 IntEn:  0x00  UART RX IRQ: disabled
+  FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
+  UART TX log:   "D19OK\n"
+
+=== Validation ===
+  [PASS] CPU halted
+  [PASS] r0 = 42
+  [PASS] UART: D19OK
+
+Demo 19 PASSED
