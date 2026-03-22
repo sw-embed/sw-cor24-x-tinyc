@@ -38,59 +38,37 @@ L0:
         pop     fp
         jmp     (r1)
 
-        .globl  _puts
-_puts:
-        push    fp
-        push    r2
-        push    r1
-        mov     fp,sp
-L4:
-        lw      r0,9(fp)
-        lbu     r0,0(r0)
-        ceq     r0,z
-        brt     L5
-        lw      r0,9(fp)
-        lbu     r0,0(r0)
-        push    r0
-        la      r0,_putc
-        jal     r1,(r0)
-        add     sp,3
-        lw      r0,9(fp)
-        push    r0
-        lc      r0,1
-        mov     r1,r0
-        pop     r0
-        add     r0,r1
-        sw      r0,9(fp)
-        bra     L4
-L5:
-L3:
-        mov     sp,fp
-        pop     r1
-        pop     r2
-        pop     fp
-        jmp     (r1)
-
         .globl  _main
 _main:
         push    fp
         push    r2
         push    r1
         mov     fp,sp
-        la      r0,_S0
+        lc      r0,72
         push    r0
-        la      r0,_puts
+        la      r0,_putc
+        jal     r1,(r0)
+        add     sp,3
+        lc      r0,105
+        push    r0
+        la      r0,_putc
+        jal     r1,(r0)
+        add     sp,3
+        lc      r0,33
+        push    r0
+        la      r0,_putc
+        jal     r1,(r0)
+        add     sp,3
+        lc      r0,10
+        push    r0
+        la      r0,_putc
         jal     r1,(r0)
         add     sp,3
         lc      r0,0
-        bra     L6
-L6:
+        bra     L3
+L3:
         mov     sp,fp
         pop     r1
         pop     r2
         pop     fp
         jmp     (r1)
-
-        .data
-_S0:
-        .byte   72,101,108,108,111,44,32,67,79,82,50,52,33,10,0

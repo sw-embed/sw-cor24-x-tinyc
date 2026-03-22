@@ -1,5 +1,6 @@
 // Send characters via UART TX
 void putc(int c) {
+    while (*(char *)0xFF0101 & 0x80) {}
     *(char *)0xFF0100 = c;
 }
 

@@ -28,6 +28,7 @@ void led_off() {
 }
 
 void uart_putc(int c) {
+    while (*(char *)0xFF0101 & 0x80) {}
     *(char *)0xFF0100 = c;
 }
 

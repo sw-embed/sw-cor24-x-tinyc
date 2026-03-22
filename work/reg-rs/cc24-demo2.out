@@ -32,6 +32,7 @@ void led_off() {
 }
 
 void uart_putc(int c) {
+    while (*(char *)0xFF0101 & 0x80) {}
     *(char *)0xFF0100 = c;
 }
 
@@ -132,6 +133,18 @@ _uart_putc:
         push    r2
         push    r1
         mov     fp,sp
+L3:
+        la      r0,16711937
+        lbu     r0,0(r0)
+        push    r0
+        la      r0,128
+        mov     r1,r0
+        pop     r0
+        and     r0,r1
+        ceq     r0,z
+        brt     L4
+        bra     L3
+L4:
         lw      r0,9(fp)
         push    r0
         la      r0,16711936
@@ -168,10 +181,10 @@ _main:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L5
+        brt     L7
         lc      r0,0
         sw      r0,-3(fp)
-L5:
+L7:
         lw      r0,-9(fp)
         push    r0
         lc      r0,66
@@ -182,10 +195,10 @@ L5:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L7
+        brt     L9
         lc      r0,0
         sw      r0,-3(fp)
-L7:
+L9:
         lc      r0,123
         sw      r0,-12(fp)
         lc      r0,-12
@@ -202,10 +215,10 @@ L7:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L9
+        brt     L11
         lc      r0,0
         sw      r0,-3(fp)
-L9:
+L11:
         la      r0,456
         push    r0
         lw      r0,-15(fp)
@@ -222,10 +235,10 @@ L9:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L11
+        brt     L13
         lc      r0,0
         sw      r0,-3(fp)
-L11:
+L13:
         lc      r0,77
         sw      r0,-18(fp)
         lc      r0,-18
@@ -242,10 +255,10 @@ L11:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L13
+        brt     L15
         lc      r0,0
         sw      r0,-3(fp)
-L13:
+L15:
         la      r0,_led_on
         jal     r1,(r0)
         lw      r0,-3(fp)
@@ -256,7 +269,7 @@ L13:
         ceq     r0,r1
         mov     r0,c
         ceq     r0,z
-        brt     L15
+        brt     L17
         lc      r0,79
         push    r0
         la      r0,_uart_putc
@@ -272,7 +285,7 @@ L13:
         la      r0,_uart_putc
         jal     r1,(r0)
         add     sp,3
-L15:
+L17:
         lw      r0,-3(fp)
         push    r0
         lc      r0,1
@@ -281,13 +294,13 @@ L15:
         ceq     r0,r1
         mov     r0,c
         ceq     r0,z
-        brt     L17
+        brt     L19
         lc      r0,42
-        bra     L3
-L17:
+        bra     L5
+L19:
         lc      r0,0
-        bra     L3
-L3:
+        bra     L5
+L5:
         mov     sp,fp
         pop     r1
         pop     r2
@@ -297,17 +310,17 @@ L3:
 
 Assembling and running on COR24 emulator...
 
-Assembled 282 bytes
+Assembled 301 bytes
 Running (speed: max IPS, time limit: 10s)...
 
-[UART TX @ 188] 'O'  (0x4F)
-[UART TX @ 188] 'K'  (0x4B)
-[UART TX @ 188] '\n'
+[UART TX @ 215] 'O'  (0x4F)
+[UART TX @ 215] 'K'  (0x4B)
+[UART TX @ 215] '\n'
 
 UART output: OK
 
 
-Executed 188 instructions
+Executed 215 instructions
 CPU halted (self-branch detected)
 
 === Registers ===
@@ -319,35 +332,36 @@ CPU halted (self-branch detected)
   sp:  0xFEEC00
 
 === Emulator ===
-  Instructions: 189
+  Instructions: 216
   Halted: true
 
 === SRAM 000000-0FFFFF (1 MB) ===
-  000000: 29 43 00 00 25 13 FC 80 7F 7E 65 44 00 7D 29 00  |)C..%....~eD.}).|
+  000000: 29 56 00 00 25 13 FC 80 7F 7E 65 44 00 7D 29 00  |)V..%....~eD.}).|
   000010: 00 FF 5A 79 81 00 69 7A 7B 7C 27 80 7F 7E 65 44  |..Zy..iz{|'..~eD|
   000020: 01 7D 29 00 00 FF 5A 79 81 00 69 7A 7B 7C 27 80  |.})...Zy..iz{|'.|
-  000030: 7F 7E 65 4D 09 7D 29 00 01 FF 5A 79 81 00 69 7A  |.~eM.})...Zy..iz|
-  000040: 7B 7C 27 80 7F 7E 65 0C EB 44 01 A6 FD 44 41 A6  |{|'..~e..D...DA.|
-  000050: FA 44 42 A6 F7 4D FA 7D 44 41 5A 79 16 62 C8 62  |.DB..M.}DAZy.b.b|
-  000060: C8 15 02 44 00 A6 FD 4D F7 7D 44 42 5A 79 16 62  |...D...M.}DBZy.b|
-  000070: C8 62 C8 15 02 44 00 A6 FD 44 7B A6 F4 44 F4 58  |.b...D...D{..D.X|
-  000080: A6 F1 4D F1 4A 00 7D 44 7B 5A 79 16 62 C8 62 C8  |..M.J.}D{Zy.b.b.|
-  000090: 15 02 44 00 A6 FD 29 C8 01 00 7D 4D F1 5A 79 A4  |..D...)...}M.Zy.|
-  0000A0: 00 4D F4 7D 29 C8 01 00 5A 79 16 62 C8 62 C8 15  |.M.})...Zy.b.b..|
-  0000B0: 02 44 00 A6 FD 44 4D A6 EE 44 EE 58 A6 EB 4D EB  |.D...DM..D.X..M.|
-  0000C0: 38 00 7D 44 4D 5A 79 16 62 C8 62 C8 15 02 44 00  |8.}DMZy.b.b...D.|
-  0000D0: A6 FD 29 07 00 00 25 4D FD 7D 44 01 5A 79 16 62  |..)...%M.}D.Zy.b|
-  0000E0: C8 15 1C 44 4F 7D 29 2F 00 00 25 0C 03 44 4B 7D  |...DO})/..%..DK}|
-  0000F0: 29 2F 00 00 25 0C 03 44 0A 7D 29 2F 00 00 25 0C  |)/..%..D.})/..%.|
-  000100: 03 4D FD 7D 44 01 5A 79 16 62 C8 15 02 44 2A 13  |.M.}D.Zy.b...D*.|
-  000110: 02 44 00 13 FE 69 7A 7B 7C 27 00 00 00 00 00 00  |.D...iz{|'......|
-  000120..0FFFFF: 1048288 bytes all zero
+  000030: 7F 7E 65 29 01 01 FF 38 00 7D 29 80 00 00 5A 79  |.~e)...8.})...Zy|
+  000040: 0D C8 15 00 13 EB 4D 09 7D 29 00 01 FF 5A 79 81  |......M.})...Zy.|
+  000050: 00 69 7A 7B 7C 27 80 7F 7E 65 0C EB 44 01 A6 FD  |.iz{|'..~e..D...|
+  000060: 44 41 A6 FA 44 42 A6 F7 4D FA 7D 44 41 5A 79 16  |DA..DB..M.}DAZy.|
+  000070: 62 C8 62 C8 15 02 44 00 A6 FD 4D F7 7D 44 42 5A  |b.b...D...M.}DBZ|
+  000080: 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44 7B A6 F4  |y.b.b...D...D{..|
+  000090: 44 F4 58 A6 F1 4D F1 4A 00 7D 44 7B 5A 79 16 62  |D.X..M.J.}D{Zy.b|
+  0000A0: C8 62 C8 15 02 44 00 A6 FD 29 C8 01 00 7D 4D F1  |.b...D...)...}M.|
+  0000B0: 5A 79 A4 00 4D F4 7D 29 C8 01 00 5A 79 16 62 C8  |Zy..M.})...Zy.b.|
+  0000C0: 62 C8 15 02 44 00 A6 FD 44 4D A6 EE 44 EE 58 A6  |b...D...DM..D.X.|
+  0000D0: EB 4D EB 38 00 7D 44 4D 5A 79 16 62 C8 62 C8 15  |.M.8.}DMZy.b.b..|
+  0000E0: 02 44 00 A6 FD 29 07 00 00 25 4D FD 7D 44 01 5A  |.D...)...%M.}D.Z|
+  0000F0: 79 16 62 C8 15 1C 44 4F 7D 29 2F 00 00 25 0C 03  |y.b...DO})/..%..|
+  000100: 44 4B 7D 29 2F 00 00 25 0C 03 44 0A 7D 29 2F 00  |DK})/..%..D.})/.|
+  000110: 00 25 0C 03 4D FD 7D 44 01 5A 79 16 62 C8 15 02  |.%..M.}D.Zy.b...|
+  000120: 44 2A 13 02 44 00 13 FE 69 7A 7B 7C 27 00 00 00  |D*..D...iz{|'...|
+  000130..0FFFFF: 1048272 bytes all zero
 
 === Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
 
 === EBR FEE000-FEFFFF (8 KB, stack) ===
   FEE000..FEEBCF: 3024 bytes all zero
-  FEEBD0: 00 00 00 0A 00 00 FF 00 00 00 00 00 F7 EB FE 01  |................|
+  FEEBD0: 00 00 00 0A 00 00 12 01 00 00 00 00 F7 EB FE 01  |................|
   FEEBE0: 00 00 E5 EB FE 4D 00 00 EB EB FE C8 01 00 42 00  |.....M........B.|
   FEEBF0: 00 41 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |.A..............|
   FEEC00..FEFFFF: 5120 bytes all zero

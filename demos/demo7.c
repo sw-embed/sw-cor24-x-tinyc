@@ -7,6 +7,7 @@
 // Expected: r0 = 42, UART output: "D7OK"
 
 void putc(int c) {
+    while (*(char *)0xFF0101 & 0x80) {}
     *(char *)0xFF0100 = c;
 }
 

@@ -13,6 +13,18 @@ _putc:
         push    r2
         push    r1
         mov     fp,sp
+L1:
+        la      r0,16711937
+        lbu     r0,0(r0)
+        push    r0
+        la      r0,128
+        mov     r1,r0
+        pop     r0
+        and     r0,r1
+        ceq     r0,z
+        brt     L2
+        bra     L1
+L2:
         lw      r0,9(fp)
         push    r0
         la      r0,16711936
@@ -32,11 +44,11 @@ _puts:
         push    r2
         push    r1
         mov     fp,sp
-L2:
+L4:
         lw      r0,9(fp)
         lbu     r0,0(r0)
         ceq     r0,z
-        brt     L3
+        brt     L5
         lw      r0,9(fp)
         lbu     r0,0(r0)
         push    r0
@@ -50,9 +62,9 @@ L2:
         pop     r0
         add     r0,r1
         sw      r0,9(fp)
-        bra     L2
+        bra     L4
+L5:
 L3:
-L1:
         mov     sp,fp
         pop     r1
         pop     r2
@@ -71,7 +83,7 @@ _led_on:
         mov     r1,r0
         pop     r0
         sb      r0,0(r1)
-L4:
+L6:
         mov     sp,fp
         pop     r1
         pop     r2
@@ -97,10 +109,10 @@ _main:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L7
+        brt     L9
         lc      r0,0
         sw      r0,-3(fp)
-L7:
+L9:
         la      r0,16711937
         push    r0
         la      r0,16711937
@@ -111,10 +123,10 @@ L7:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L9
+        brt     L11
         lc      r0,0
         sw      r0,-3(fp)
-L9:
+L11:
         la      r0,_led_on
         jal     r1,(r0)
         lw      r0,-3(fp)
@@ -125,18 +137,18 @@ L9:
         ceq     r0,r1
         mov     r0,c
         ceq     r0,z
-        brt     L11
+        brt     L13
         la      r0,_S0
         push    r0
         la      r0,_puts
         jal     r1,(r0)
         add     sp,3
         lc      r0,42
-        bra     L5
-L11:
+        bra     L7
+L13:
         lc      r0,0
-        bra     L5
-L5:
+        bra     L7
+L7:
         mov     sp,fp
         pop     r1
         pop     r2

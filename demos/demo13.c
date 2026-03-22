@@ -7,8 +7,9 @@
 //
 // Expected: r0 = 42, UART output: "D13OK"
 
-#define UART_DATA 0xFF0100
-void putc(int c) { *(char *)UART_DATA = c; }
+#define UART_DATA   0xFF0100
+#define UART_STATUS 0xFF0101
+void putc(int c) { while (*(char *)UART_STATUS & 0x80) {} *(char *)UART_DATA = c; }
 void puts(char *s) { while (*s) { putc(*s); s = s + 1; } }
 
 int main() {

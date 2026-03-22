@@ -7,9 +7,10 @@
 //
 // Expected: r0 = 42, LED D2 on, UART output: "D8OK"
 
-#define LED_REG   0xFF0000
-#define UART_REG  0xFF0100
-#define LED_ON    0
+#define LED_REG      0xFF0000
+#define UART_REG     0xFF0100
+#define UART_STATUS  0xFF0101
+#define LED_ON       0
 #define ANSWER    42
 #define GREETING  "D8OK\n"
 
@@ -18,6 +19,7 @@ void led_on() {
 }
 
 void putc(int c) {
+    while (*(char *)UART_STATUS & 0x80) {}
     *(char *)UART_REG = c;
 }
 
