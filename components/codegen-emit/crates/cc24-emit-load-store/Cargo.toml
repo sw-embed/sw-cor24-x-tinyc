@@ -1,0 +1,9 @@
+[package]
+name = "cc24-emit-load-store"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cc24-codegen-state = { path = "../../../codegen-state/crates/cc24-codegen-state" }
+cc24-ast = { path = "../../../core/crates/cc24-ast" }
+cc24-emit-core = { path = "../cc24-emit-core" }

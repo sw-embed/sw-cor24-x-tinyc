@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use cc24_ast::Type;
 
 /// All mutable state carried through code generation.
-#[derive(Clone, Debug, Default)]
+#[derive(Default)]
 pub struct CodegenState {
     /// Accumulated assembly output.
     pub out: String,

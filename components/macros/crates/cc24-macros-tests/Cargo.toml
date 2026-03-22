@@ -1,0 +1,9 @@
+[package]
+name = "cc24-macros-tests"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cc24-dispatch = { path = "../../../dispatch/crates/cc24-dispatch" }
+cc24-emit-macros = { path = "../cc24-emit-macros" }
+cc24-handler-macros = { path = "../cc24-handler-macros" }

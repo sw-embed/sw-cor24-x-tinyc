@@ -5,6 +5,7 @@ mod codegen;
 mod emit;
 mod expr;
 mod func;
+mod pipeline;
 mod runtime;
 mod stmt;
 

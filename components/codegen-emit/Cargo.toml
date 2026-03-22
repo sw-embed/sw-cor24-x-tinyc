@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "crates/cc24-emit-core",
+    "crates/cc24-emit-load-store",
+    "crates/cc24-emit-data",
+]
+resolver = "3"
