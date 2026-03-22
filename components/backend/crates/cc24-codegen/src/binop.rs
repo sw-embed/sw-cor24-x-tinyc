@@ -73,9 +73,44 @@ impl Codegen {
     }
 
     pub(crate) fn gen_binop(&mut self, op: BinOp, lhs: &Expr, rhs: &Expr) {
-        // Pointer arithmetic: scale integer operand by pointee size
-        let scale = if matches!(op, BinOp::Add | BinOp::Sub) {
-            match expr_type(self, lhs) {
+        let lhs_ty = expr_type(self, lhs);
+        let rhs_ty = expr_type(self, rhs);
+        let lhs_is_ptr = matches!(&lhs_ty, Some(Type::Ptr(_)));
+        let rhs_is_ptr = matches!(&rhs_ty, Some(Type::Ptr(_)));
+
+        // ptr - ptr: subtract then divide by element size
+        if op == BinOp::Sub && lhs_is_ptr && rhs_is_ptr {
+            let elem_size = match &lhs_ty {
+                Some(Type::Ptr(inner)) => inner.size(),
+                _ => 1,
+            };
+            self.gen_expr(lhs);
+            self.emit("        push    r0");
+            self.gen_expr(rhs);
+            self.emit("        mov     r1,r0");
+            self.emit("        pop     r0");
+            self.emit("        sub     r0,r1");
+            if elem_size > 1 {
+                self.needs_div = true;
+                self.emit("        push    r0");
+                self.load_immediate(elem_size);
+                self.emit("        push    r0");
+                // stack: dividend, divisor
+                // swap order: dividend first
+                self.emit("        pop     r1"); // divisor
+                self.emit("        pop     r0"); // dividend
+                self.emit("        push    r1"); // arg2
+                self.emit("        push    r0"); // arg1
+                self.emit("        la      r0,__cc24_div");
+                self.emit("        jal     r1,(r0)");
+                self.emit("        add     sp,6");
+            }
+            return;
+        }
+
+        // ptr +/- int: scale integer operand by pointee size
+        let scale = if matches!(op, BinOp::Add | BinOp::Sub) && lhs_is_ptr {
+            match &lhs_ty {
                 Some(Type::Ptr(inner)) => inner.size(),
                 _ => 1,
             }
