@@ -1,0 +1,7 @@
+[package]
+name = "cc24-codegen-state"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cc24-ast = { path = "../../../core/crates/cc24-ast" }

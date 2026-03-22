@@ -17,27 +17,5 @@ dependencies = [
 ]
 
 [[package]]
-name = "cc24-error"
-version = "0.1.0"
-dependencies = [
- "cc24-span",
-]
-
-[[package]]
 name = "cc24-span"
 version = "0.1.0"
-
-[[package]]
-name = "cc24-token"
-version = "0.1.0"
-dependencies = [
- "cc24-span",
-]
-
-[[package]]
-name = "cc24-traits"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
-]

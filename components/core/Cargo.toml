@@ -4,5 +4,6 @@ members = [
     "crates/cc24-error",
     "crates/cc24-token",
     "crates/cc24-ast",
+    "crates/cc24-traits",
 ]
 resolver = "3"
