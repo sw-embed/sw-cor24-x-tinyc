@@ -1,0 +1,74 @@
+=== cc24 Demo 22: Braceless Bodies ===
+Assembled 310 bytes
+Running (speed: max IPS, time limit: 10s)...
+
+[UART TX @ 668] 'D'  (0x44)
+[UART TX @ 668] '2'  (0x32)
+[UART TX @ 668] '2'  (0x32)
+[UART TX @ 668] 'O'  (0x4F)
+[UART TX @ 668] 'K'  (0x4B)
+[UART TX @ 668] '\n'
+
+UART output: D22OK
+
+
+Executed 668 instructions
+CPU halted (self-branch detected)
+
+=== Registers ===
+  PC:  0x000005    C: 1
+  r0:  0x00002A  (      42)
+  r1:  0x000005  (       5)
+  r2:  0x000000  (       0)
+  fp:  0x000000
+  sp:  0xFEEC00
+
+=== Emulator ===
+  Instructions: 669
+  Halted: true
+
+=== SRAM 000000-0FFFFF (1 MB) ===
+  000000: 29 56 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)V..%....~e)...8|
+  000010: 00 7D 29 80 00 00 5A 79 0D C8 15 00 13 EB 4D 09  |.})...Zy......M.|
+  000020: 7D 29 00 01 FF 5A 79 81 00 69 7A 7B 7C 27 80 7F  |})...Zy..iz{|'..|
+  000030: 7E 65 4D 09 38 00 C8 15 16 4D 09 38 00 7D 29 07  |~eM.8....M.8.}).|
+  000040: 00 00 25 0C 03 4D 09 7D 44 01 5A 79 01 A6 09 13  |..%..M.}D.Zy....|
+  000050: DF 69 7A 7B 7C 27 80 7F 7E 65 0C EE 44 01 A6 FD  |.iz{|'..~e..D...|
+  000060: 44 01 C8 15 04 44 0A A6 FA 13 02 44 14 A6 FA 4D  |D....D.....D...M|
+  000070: FA 7D 44 0A 5A 79 16 62 C8 62 C8 15 02 44 00 A6  |.}D.Zy.b.b...D..|
+  000080: FD 44 00 A6 F7 4D F7 7D 44 05 5A 79 19 62 C8 15  |.D...M.}D.Zy.b..|
+  000090: 08 4D F7 7D 09 01 A6 F7 79 13 E8 4D F7 7D 44 05  |.M.}....y..M.}D.|
+  0000A0: 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44 00 A6  |Zy.b.b...D...D..|
+  0000B0: F4 44 00 A6 F1 4D F1 7D 44 0A 5A 79 19 62 C8 15  |.D...M.}D.Zy.b..|
+  0000C0: 12 4D F4 7D 4D F1 5A 79 01 A6 F4 4D F1 7D 09 01  |.M.}M.Zy...M.}..|
+  0000D0: A6 F1 79 13 DE 4D F4 7D 44 2D 5A 79 16 62 C8 62  |..y..M.}D-Zy.b.b|
+  0000E0: C8 15 02 44 00 A6 FD 44 00 A6 EE 44 01 C8 15 0D  |...D...D...D....|
+  0000F0: 44 00 C8 15 04 44 01 A6 EE 13 02 44 02 A6 EE 4D  |D....D.....D...M|
+  000100: EE 7D 44 02 5A 79 16 62 C8 62 C8 15 02 44 00 A6  |.}D.Zy.b.b...D..|
+  000110: FD 4D FD C8 15 0E 29 2F 01 00 7D 29 2E 00 00 25  |.M....)/..})...%|
+  000120: 0C 03 44 2A 13 02 44 00 13 FE 69 7A 7B 7C 27 44  |..D*..D...iz{|'D|
+  000130: 32 32 4F 4B 0A 00 00 00 00 00 00 00 00 00 00 00  |22OK............|
+  000140..0FFFFF: 1048256 bytes all zero
+
+=== Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
+
+=== EBR FEE000-FEFFFF (8 KB, stack) ===
+  FEE000..FEEBBF: 3008 bytes all zero
+  FEEBC0: 00 00 00 00 00 00 00 00 00 00 0A 00 00 43 00 00  |.............C..|
+  FEEBD0: 00 00 00 D9 EB FE 34 01 00 20 01 00 00 00 00 F7  |......4.. ......|
+  FEEBE0: EB FE 35 01 00 02 00 00 0A 00 00 2D 00 00 05 00  |..5........-....|
+  FEEBF0: 00 0A 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
+  FEEC00..FEFFFF: 5120 bytes all zero
+
+=== I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
+  FF0000 LED:  0x00  [........]  BTN S2: released
+  FF0010 IntEn:  0x00  UART RX IRQ: disabled
+  FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
+  UART TX log:   "D22OK\n"
+
+=== Validation ===
+  [PASS] CPU halted
+  [PASS] r0 = 42
+  [PASS] UART: D22OK
+
+Demo 22 PASSED

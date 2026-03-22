@@ -20,6 +20,17 @@ pub fn parse_block(ts: &mut TokenStream) -> Result<Block, CompileError> {
     Ok(Block { stmts })
 }
 
+/// Parse either a brace-delimited block or a single statement.
+/// Enables braceless control flow: `if (x) stmt;`
+pub fn parse_body(ts: &mut TokenStream) -> Result<Block, CompileError> {
+    if ts.check(&TokenKind::LBrace) {
+        parse_block(ts)
+    } else {
+        let stmt = parse_stmt(ts)?;
+        Ok(Block { stmts: vec![stmt] })
+    }
+}
+
 /// Parse a single statement.
 pub fn parse_stmt(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     if ts.eat(TokenKind::Return) {

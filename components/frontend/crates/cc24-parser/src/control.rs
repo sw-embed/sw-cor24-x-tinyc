@@ -7,15 +7,15 @@ use cc24_token::TokenKind;
 
 use crate::decl::is_type_keyword;
 use crate::expr::parse_expr;
-use crate::stmt::{parse_block, parse_local_decl};
+use crate::stmt::{parse_block, parse_body, parse_local_decl};
 
 pub fn parse_if(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     ts.expect(TokenKind::LParen)?;
     let cond = parse_expr(ts)?;
     ts.expect(TokenKind::RParen)?;
-    let then_body = parse_block(ts)?;
+    let then_body = parse_body(ts)?;
     let else_body = if ts.eat(TokenKind::Else) {
-        Some(parse_block(ts)?)
+        Some(parse_body(ts)?)
     } else {
         None
     };
@@ -30,7 +30,7 @@ pub fn parse_while(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     ts.expect(TokenKind::LParen)?;
     let cond = parse_expr(ts)?;
     ts.expect(TokenKind::RParen)?;
-    let body = parse_block(ts)?;
+    let body = parse_body(ts)?;
     Ok(Stmt::While { cond, body })
 }
 
@@ -49,7 +49,7 @@ pub fn parse_for(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
         Some(parse_expr(ts)?)
     };
     ts.expect(TokenKind::RParen)?;
-    let body = parse_block(ts)?;
+    let body = parse_body(ts)?;
     Ok(Stmt::For {
         init,
         cond,
