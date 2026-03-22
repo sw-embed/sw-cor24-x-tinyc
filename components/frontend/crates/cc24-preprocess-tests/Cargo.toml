@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 cc24-preprocess = { path = "../cc24-preprocess" }
+tempfile = "3"
