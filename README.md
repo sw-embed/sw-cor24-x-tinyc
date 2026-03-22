@@ -1,16 +1,35 @@
 # cc24 -- C Compiler for the COR24 FPGA Soft CPU
 
-cc24 is an open-source C compiler targeting the **COR24** (C-Oriented RISC, 24-bit) instruction set architecture. COR24 is an FPGA soft CPU designed by [MakerLisp](https://makerlisp.com) for efficient C code execution. The existing MakerLisp C compiler is proprietary -- cc24 aims to provide an open-source alternative, starting as an educational demo-quality tool and growing from there.
+cc24 is an open-source C compiler targeting the **COR24** (C-Oriented RISC, 24-bit) instruction set architecture. COR24 is an FPGA soft CPU designed by [MakerLisp](https://makerlisp.com) for efficient C code execution. The existing MakerLisp C compiler is proprietary -- cc24 provides an open-source alternative.
 
 The approach is inspired by [chibicc](https://github.com/rui314/chibicc), a small educational C compiler. cc24 follows the same architecture pattern (recursive-descent parser, direct assembly emission) but is written from scratch in Rust.
 
 ## Project Status
 
-**Phase 1 complete** -- the compiler can compile trivial C programs to valid COR24 assembly.
+The compiler is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 12 working demos exercise all implemented features including functions, recursion, pointers, arrays, MMIO, interrupts, and a preprocessor.
 
-- Phase 0 (specification): Complete -- ISA, ABI, data model, memory map, assembler syntax, and 13 sample assembly programs documented
-- Phase 1 (backend skeleton): Complete -- lexer, parser, codegen, golden-file test harness; compiles `int main() { return 42; }`
-- Phase 2 (expressions and locals): In progress
+See [docs/status.md](docs/status.md) for detailed status and test counts.
+
+### What Works
+
+- Types: int (24-bit), char (8-bit), void, pointers, arrays
+- All standard C operators with correct precedence
+- Control flow: if/else, while, do...while, for
+- Functions with multiple parameters, recursion, ISR support
+- Globals, string constants, hex literals
+- Pointer arithmetic with element-size scaling
+- Preprocessor: #define, #include, #pragma once
+- Inline assembly: asm("...")
+- MMIO: LED, UART TX/RX, interrupt enable
+- Software division and modulo runtime
+
+### What Does Not Work Yet
+
+- switch/case, break, continue
+- ++, --, +=, and other compound assignment
+- sizeof, typedef, enum, struct, union
+- Function prototypes (forward declarations)
+- Multi-file compilation
 
 ## COR24 Architecture at a Glance
 
@@ -22,77 +41,70 @@ The approach is inspired by [chibicc](https://github.com/rui314/chibicc), a smal
 - Little-endian, byte-addressable memory
 - UART and GPIO via memory-mapped I/O
 
-## C Data Model
+## Component Structure
 
-| Type | Size | Notes |
-|------|------|-------|
-| `char` | 8-bit | signed |
-| `short` | 16-bit | |
-| `int` | 24-bit | native machine word |
-| `long` | 24-bit | same as int (v1) |
-| pointer | 24-bit | flat address space |
+The compiler is organized into 4 components with 14 crates:
 
-No `long long`, `float`, or `double` in the initial version.
+```
+components/
+  core/           -- shared types (AST, tokens, spans, errors)
+    cc24-ast
+    cc24-error
+    cc24-span
+    cc24-token
+  frontend/       -- preprocessing, lexing, parsing
+    cc24-lexer
+    cc24-lexer-tests
+    cc24-parser
+    cc24-parser-tests
+    cc24-parse-stream
+    cc24-preprocess
+    cc24-preprocess-tests
+  backend/        -- code generation and validation
+    cc24-codegen
+    cc24-codegen-tests
+    cc24-codegen-validate
+  cli/            -- compiler binary
+    cc24
+```
 
-## Documentation
-
-Specification and design documents are in the `docs/` directory:
-
-| Document | Description |
-|----------|-------------|
-| [ISA Summary](docs/isa-summary.md) | Complete COR24 instruction set reference |
-| [Assembler Syntax](docs/assembler-syntax.md) | Assembly language syntax accepted by as24 |
-| [ABI Proposal](docs/abi-proposal.md) | Calling convention, stack frame layout, register roles |
-| [C Data Model](docs/c-data-model.md) | Type sizes, alignment, integer promotions |
-| [Memory Map](docs/memory-map.md) | Address space layout, MMIO ports, stack location |
-| [Toolchain Commands](docs/toolchain-commands.md) | as24, ld24, longlgo, te, and development workflow |
-| [Compiler Planning](docs/cor_24_chibicc_planning_doc.md) | Detailed chibicc adaptation plan and phased roadmap |
-| [Project Status](docs/status.md) | Current progress, completed phases, next steps |
-| [Interrupt Plan](docs/interrupt-plan.md) | Inline asm, __attribute__((interrupt)), ISR support roadmap |
-| [Sample Assembly](docs/sample-asm/) | 13 known-good COR24 assembly programs (see below) |
-
-### Research and Process
-
-| Document | Description |
-|----------|-------------|
-| [Research Notes](docs/research.txt) | Original ChatGPT research on compiler options for COR24 |
-| [AI Agent Instructions](docs/ai_agent_instructions.md) | Development process guidelines for AI coding agents |
-| [Development Process](docs/process.md) | TDD workflow, pre-commit quality gates, commit conventions |
-| [Tools](docs/tools.md) | Recommended development tools |
-
-### Sample Assembly Programs
-
-Each sample has a C equivalent in comments and serves as a golden reference for compiler output:
-
-| Sample | C Feature | Hardware |
-|--------|-----------|----------|
-| return_const.s | Return constant | -- |
-| add.s | Local variables, arithmetic | -- |
-| branch.s | if/else conditional | -- |
-| loop.s | while loop | -- |
-| call.s | Function call with arguments | -- |
-| fib.s | Recursion (MakerLisp compiler output) | -- |
-| pointer.s | Address-of, pointer dereference | -- |
-| globals.s | Global variable in .data section | -- |
-| mmio.s | UART TX (polling putc) | UART |
-| uart_rx.s | UART RX (polling getc) | UART |
-| led.s | LED on/off | GPIO |
-| button.s | Read button state | GPIO |
-| interrupt.s | UART RX interrupt handler with ISR | UART, interrupt |
+Each component is its own Cargo workspace. See [docs/architecture.md](docs/architecture.md) for data flow and design constraints.
 
 ## Building
 
+Build all components:
+
 ```bash
-cargo build
+scripts/build-all.sh
 ```
 
-## Planned Development Workflow
+This runs each component's `scripts/build.sh` in dependency order. The release binary is produced at:
 
-Once the compiler is functional:
+```
+components/cli/target/release/cc24
+```
+
+To build a single component:
+
+```bash
+cargo build --manifest-path components/<name>/Cargo.toml
+```
+
+## Usage
+
+```bash
+cc24 <input.c> [-o output.s] [-I dir]
+```
+
+- `<input.c>` -- C source file to compile
+- `-o output.s` -- output assembly file (default: stdout)
+- `-I dir` -- add include search path (repeatable)
+
+### Full Workflow
 
 ```bash
 # Compile C to COR24 assembly
-cargo run -- program.c -o program.s
+cc24 program.c -o program.s
 
 # Assemble (requires as24 from COR24-TB archive)
 as24 < program.s | longlgo > program.lgo
@@ -102,43 +114,68 @@ cd ~/github/sw-embed/cor24-rs
 cargo run -- run path/to/program.s
 ```
 
-## Implementation Roadmap
+## Demos
 
-The compiler follows a phased plan based on the [chibicc planning doc](docs/cor_24_chibicc_planning_doc.md):
+12 demos in `demos/`, each with a run script:
 
-1. **Phase 1 -- Backend skeleton**: Emit valid `.text`, labels, prologue/epilogue. Compile `return 0;`
-2. **Phase 2 -- Expressions and locals**: Integer constants, local variables, arithmetic, if/while/for
-3. **Phase 3 -- Calls and globals**: Function calls, argument passing, global variables, string literals
-4. **Phase 4 -- Pointers and arrays**: Address-of, dereference, pointer arithmetic, indexed access
-5. **Phase 5 -- Refinement**: Diagnostics, peephole optimizations, runtime helpers (divide, etc.)
+| Demo | Features |
+|------|----------|
+| demo.c | Globals, function calls, recursion, if/else, while, for |
+| demo2.c | char, pointers, casts, MMIO (LED, UART TX) |
+| demo3.c | Hex literals, pointer arithmetic, string constants |
+| demo4.c | Software division and modulo |
+| demo5.c | Arrays (declaration and indexing) |
+| demo6.c | Global char/pointer, .byte/.word emission |
+| demo7.c | Pointer subtraction with scaling |
+| demo8.c | Preprocessor #define |
+| demo9.c | Interrupt attribute, ISR, UART RX interrupt |
+| demo10.c | #include, #pragma once, -I flag |
+| demo11.c | Logical && and || with short-circuit |
+| demo12.c | do...while loop |
 
-## MVP Definition
+Run a demo:
 
-The compiler reaches MVP when it can compile the "Hello" UART demo -- a
-program that computes something and prints it over the serial port. This
-requires all core features working together:
+```bash
+demos/run-demo.sh     # runs demo.c through cc24 and cor24-rs
+```
 
-| # | Test Program | What it proves |
-|---|-------------|----------------|
-| 1 | `return 42` | Constants, prologue/epilogue (done) |
-| 2 | `int a=2; int b=3; return a+b;` | Locals, stack allocation |
-| 3 | Binary operators (`+`, `-`, `*`, `&`, `\|`, `<<`) | Arithmetic/logic codegen |
-| 4 | `if (1) return 3; else return 4;` | Conditional branches |
-| 5 | `while(i<10) i=i+1;` | Loops |
-| 6 | `int add(int a,int b){...}` | Function calls, arguments |
-| 7 | Recursive fibonacci | Recursion (gold standard: fib.s) |
-| 8 | `int *p=&x; return *p;` | Pointers |
-| 9 | Global variables | .data section |
-| 10 | `*(volatile char*)0xFF0100 = 'H';` | MMIO, pointer casts |
-| 11 | `char *s="Hello"; s[0]` | String literals, indexing |
-| 12 | Print "Hello\n" over UART | **MVP gate** -- ties everything together |
+## Documentation
 
-## Next Steps
+| Document | Description |
+|----------|-------------|
+| [Language Reference](docs/reference.md) | All supported C features with examples |
+| [Architecture](docs/architecture.md) | Component layout, data flow, design constraints |
+| [Project Status](docs/status.md) | Current progress, test counts, demo list |
+| [Future Plan](docs/plan.md) | Planned features and improvements |
+| [ISA Summary](docs/isa-summary.md) | COR24 instruction set reference |
+| [ABI Proposal](docs/abi-proposal.md) | Calling convention, stack frame layout |
+| [Memory Map](docs/memory-map.md) | Address space, MMIO ports, stack location |
+| [Assembler Syntax](docs/assembler-syntax.md) | as24 assembly syntax |
+| [C Data Model](docs/c-data-model.md) | Type sizes and promotions |
+| [Interrupt Plan](docs/interrupt-plan.md) | ISR support design |
 
-1. **Phase 2**: Local variables, binary/unary operators, if/else, while, for
-2. **Phase 3**: Function calls, argument passing, globals, string literals, basic `asm("...")`
-3. **Phase 4**: Pointers, arrays, pointer casts (enables MMIO)
-4. **Phase 5**: Refinement, `__attribute__((interrupt))`, peephole optimizations
+### Development
+
+| Document | Description |
+|----------|-------------|
+| [AI Agent Instructions](docs/ai_agent_instructions.md) | Guidelines for AI coding agents |
+| [Development Process](docs/process.md) | TDD workflow and commit conventions |
+| [Tools](docs/tools.md) | Recommended development tools |
+
+## Tests
+
+54 active tests across all components:
+
+```bash
+# Run all tests (build-all.sh runs tests too)
+scripts/build-all.sh
+
+# Run tests for one component
+cargo test --manifest-path components/frontend/Cargo.toml
+
+# Run ignored as24 validation tests (requires service on localhost:7412)
+cargo test --manifest-path components/backend/Cargo.toml -- --ignored
+```
 
 ## License
 
