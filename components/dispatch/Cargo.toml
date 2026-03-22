@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crates/cc24-dispatch",
+    "crates/cc24-dispatch-tests",
+]
+resolver = "3"
