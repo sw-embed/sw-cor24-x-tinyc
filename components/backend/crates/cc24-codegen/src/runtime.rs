@@ -73,13 +73,23 @@ pub(crate) fn gen_log_or(cg: &mut Codegen, lhs: &Expr, rhs: &Expr) {
 /// Generate do { body } while (cond).
 pub(crate) fn gen_do_while(cg: &mut Codegen, body: &cc24_ast::Block, cond: &Expr) {
     let loop_label = cg.new_label();
+    let cont_label = cg.new_label();
+    let done_label = cg.new_label();
+    cg.break_labels.push(done_label.clone());
+    cg.continue_labels.push(cont_label.clone());
+
     cg.emit(&format!("{loop_label}:"));
     for s in &body.stmts {
         cg.gen_stmt(s);
     }
+    cg.emit(&format!("{cont_label}:"));
     cg.gen_expr(cond);
     cg.emit("        ceq     r0,z");
     cg.emit(&format!("        brf     {loop_label}"));
+    cg.emit(&format!("{done_label}:"));
+
+    cg.break_labels.pop();
+    cg.continue_labels.pop();
 }
 
 fn emit_divmod(cg: &mut Codegen) {

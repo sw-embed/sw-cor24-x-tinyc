@@ -38,5 +38,7 @@ pub enum Stmt {
         inc: Option<Expr>,
         body: Block,
     },
+    Break,
+    Continue,
     Asm(String),
 }

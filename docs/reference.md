@@ -223,6 +223,24 @@ for (i = 0; i < n; i = i + 1) {
 
 Note: `++` and `--` are not yet supported. Use `i = i + 1`.
 
+### break and continue
+
+`break` exits the innermost loop. `continue` jumps to the loop's
+next iteration (increment for `for`, condition for `while`/`do...while`).
+
+```c
+while (1) {
+    if (done) { break; }
+    if (skip) { continue; }
+    process();
+}
+
+for (int i = 0; i < 10; i = i + 1) {
+    if (i % 2 == 0) { continue; }  // skip evens
+    sum = sum + i;
+}
+```
+
 ## Functions
 
 ### Definition and Calls
@@ -384,7 +402,7 @@ cc24 <input.c> [-o output.s] [-I dir]
 
 ## Known Limitations
 
-- No `switch`/`case`, `break`, `continue`
+- No `switch`/`case`
 - No `++`, `--`, `+=`, `-=`, or other compound assignment
 - No `sizeof`, `typedef`, `enum`, `struct`, `union`
 - No function prototypes (forward declarations)

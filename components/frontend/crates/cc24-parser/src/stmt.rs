@@ -37,6 +37,14 @@ pub fn parse_stmt(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     if ts.eat(TokenKind::Do) {
         return control::parse_do_while(ts);
     }
+    if ts.eat(TokenKind::Break) {
+        ts.expect(TokenKind::Semicolon)?;
+        return Ok(Stmt::Break);
+    }
+    if ts.eat(TokenKind::Continue) {
+        ts.expect(TokenKind::Semicolon)?;
+        return Ok(Stmt::Continue);
+    }
     if ts.eat(TokenKind::Asm) {
         return control::parse_asm(ts);
     }

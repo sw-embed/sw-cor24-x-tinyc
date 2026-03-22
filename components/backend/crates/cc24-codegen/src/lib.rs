@@ -25,6 +25,8 @@ pub struct Codegen {
     pub(crate) string_literals: Vec<String>,
     pub(crate) needs_div: bool,
     pub(crate) needs_mod: bool,
+    pub(crate) break_labels: Vec<String>,
+    pub(crate) continue_labels: Vec<String>,
 }
 
 impl Codegen {

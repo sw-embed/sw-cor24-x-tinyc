@@ -23,6 +23,16 @@ impl Codegen {
                 inc,
                 body,
             } => self.gen_for(init.as_deref(), cond.as_ref(), inc.as_ref(), body),
+            Stmt::Break => {
+                if let Some(label) = self.break_labels.last() {
+                    self.emit(&format!("        bra     {label}"));
+                }
+            }
+            Stmt::Continue => {
+                if let Some(label) = self.continue_labels.last() {
+                    self.emit(&format!("        bra     {label}"));
+                }
+            }
             Stmt::Asm(text) => self.gen_asm(text),
         }
     }
@@ -84,6 +94,8 @@ impl Codegen {
     fn gen_while(&mut self, cond: &cc24_ast::Expr, body: &cc24_ast::Block) {
         let loop_label = self.new_label();
         let done_label = self.new_label();
+        self.break_labels.push(done_label.clone());
+        self.continue_labels.push(loop_label.clone());
 
         self.emit(&format!("{loop_label}:"));
         self.gen_expr(cond);
@@ -95,6 +107,8 @@ impl Codegen {
         }
         self.emit(&format!("        bra     {loop_label}"));
         self.emit(&format!("{done_label}:"));
+        self.break_labels.pop();
+        self.continue_labels.pop();
     }
 
     fn gen_for(
@@ -109,7 +123,10 @@ impl Codegen {
         }
 
         let loop_label = self.new_label();
+        let cont_label = self.new_label();
         let done_label = self.new_label();
+        self.break_labels.push(done_label.clone());
+        self.continue_labels.push(cont_label.clone());
 
         self.emit(&format!("{loop_label}:"));
         if let Some(cond_expr) = cond {
@@ -122,11 +139,14 @@ impl Codegen {
             self.gen_stmt(s);
         }
 
+        self.emit(&format!("{cont_label}:"));
         if let Some(inc_expr) = inc {
             self.gen_expr(inc_expr);
         }
 
         self.emit(&format!("        bra     {loop_label}"));
         self.emit(&format!("{done_label}:"));
+        self.break_labels.pop();
+        self.continue_labels.pop();
     }
 }
