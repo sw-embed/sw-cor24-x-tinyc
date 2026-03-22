@@ -1,5 +1,12 @@
         .text
 
+        .globl  _start
+_start:
+        la      r0,_main
+        jal     r1,(r0)
+_halt:
+        bra     _halt
+
         .globl  _add
 _add:
         push    fp

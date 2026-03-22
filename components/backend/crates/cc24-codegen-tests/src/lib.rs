@@ -88,9 +88,18 @@ pub(crate) fn assert_assembles_http(name: &str, source: &str) {
     );
 }
 
-/// Return the path to cor24-run if it exists.
+/// Return the path to cor24-run if it exists (check PATH first, then known location).
 #[cfg(test)]
 pub(crate) fn cor24_run_path() -> Option<std::path::PathBuf> {
+    if let Some(output) = std::process::Command::new("which")
+        .arg("cor24-run")
+        .output()
+        .ok()
+        .filter(|o| o.status.success())
+    {
+        let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        return Some(std::path::PathBuf::from(path));
+    }
     let home = std::env::var("HOME").ok()?;
     let path = std::path::PathBuf::from(home)
         .join("github/sw-embed/cor24-rs/rust-to-cor24/target/release/cor24-run");

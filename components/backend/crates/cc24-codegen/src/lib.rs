@@ -32,6 +32,8 @@ impl Codegen {
             self.globals.insert(g.name.clone());
         }
         self.emit("        .text");
+        self.emit("");
+        self.emit_start();
         for func in &program.functions {
             self.emit("");
             self.gen_function(func);

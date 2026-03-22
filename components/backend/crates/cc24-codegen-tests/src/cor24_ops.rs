@@ -42,7 +42,7 @@ fn cor24_function_call() {
 fn cor24_fib() {
     assert_assembles_cor24(
         "fib",
-        "int fib(int n) { if (n < 2) { return 1; } return fib(n - 1) + fib(n - 2); }",
+        "int fib(int n) { if (n < 2) { return 1; } return fib(n - 1) + fib(n - 2); } int main() { return fib(6); }",
     );
 }
 

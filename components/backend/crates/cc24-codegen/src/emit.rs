@@ -24,6 +24,16 @@ impl Codegen {
         }
     }
 
+    /// Emit startup code that calls _main and halts.
+    pub(crate) fn emit_start(&mut self) {
+        self.emit("        .globl  _start");
+        self.emit("_start:");
+        self.emit("        la      r0,_main");
+        self.emit("        jal     r1,(r0)");
+        self.emit("_halt:");
+        self.emit("        bra     _halt");
+    }
+
     pub(crate) fn emit_globals(&mut self, program: &Program) {
         if program.globals.is_empty() {
             return;
