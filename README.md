@@ -113,10 +113,11 @@ cargo run -- run path/to/program.s
 
 | Test Suite | Pass | Total | Notes |
 |-----------|------|-------|-------|
-| cc24 demos | 21 | 21 | End-to-end compiler + emulator |
+| cc24 demos | 22 | 22 | End-to-end compiler + emulator |
 | chibicc-subset | 5 | 5 | Curated subsets of chibicc tests |
 | chibicc full | 3 | 41 | generic, pragma-once, stdhdr |
-| bgc examples | 1 | 117 | 116 blocked on stdio.h |
+| beej-c-guide | 0 | 11 | All need stdio.h |
+| bgc examples | 0 | 117 | All need stdio.h |
 
 See [Testing Status](docs/testing-status.md) for detailed tables and blocker analysis.
 

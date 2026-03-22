@@ -6,10 +6,12 @@ Last updated: 2026-03-22
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| cc24 demos | 21 | 21 | 100% | End-to-end compiler + emulator |
-| reg-rs regressions | 21 | 21 | 100% | Output stability checks |
+| cc24 demos | 22 | 22 | 100% | End-to-end compiler + emulator |
+| reg-rs regressions | 22 | 22 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 3 | 41 | 7% | generic, pragma-once, stdhdr |
+| beej-c-guide | 0 | 11 | 0% | All need stdio.h |
+| bgc examples | 0 | 117 | 0% | All need stdio.h |
 | bgc examples | 1 | 117 | 1% | 116 blocked on stdio.h |
 
 ## cc24 Demos (21/21)
@@ -92,28 +94,51 @@ Run: `scripts/run-chibicc-tests.sh`
 - Large literal truncation to 24 bits
 - Void return (`return;`)
 
-## bgc (Beej's Guide to C) Examples (1/117)
+## beej-c-guide Examples (0/11)
 
-Testing against `/home/mike/bgc_download/bgc_source/examples/*.c`.
+Testing against `~/github/softwarewrighter/beej-c-guide/src/*.c`.
 
-### Status
+All 11 examples use `#include <stdio.h>` and `printf`. None compile
+without a stdio.h stub.
 
-- 116/117 blocked on `#include <stdio.h>` (no hosted C runtime)
-- 1 compiles: `env_argvadder.c` (does not use stdio)
-- All examples use `printf` and require a stdio.h implementation
-
-### Path to Progress
-
-Requires either:
-1. A freestanding `stdio.h` stub with minimal printf (needs varargs or fixed-arg workaround)
-2. Or a test adapter that strips printf calls and checks compilation only
+| Example | Blocker |
+|---------|---------|
+| hello_world.c | printf (1 call) |
+| functions.c | printf (2 calls) |
+| pointers.c | printf (4 calls) |
+| structs.c | printf (3 calls), struct |
+| typedef.c | printf (1 call), typedef |
+| arrays.c | printf (18 calls) |
+| strings.c | printf, string.h |
+| pointers_arithmetic.c | printf, string.h |
+| variables_and_statements.c | printf, scanf, stdbool.h |
+| memory_management.c | printf, malloc/free |
+| file_io.c | printf, fopen/fclose/fgets/etc |
 
 Run: `scripts/run-beej-tests.sh`
 
+## bgc (Beej's Guide to C) Examples (0/117)
+
+Testing against `/home/mike/bgc_download/bgc_source/examples/*.c`.
+
+- 116/117 blocked on `#include <stdio.h>`
+- 1/117 blocked on `#include <stdalign.h>`
+- All 117 examples use printf and require a stdio.h implementation
+
+### Path to Progress for beej + bgc
+
+Both suites require a freestanding `stdio.h` with at least:
+- `printf(fmt, ...)` mapped to UART output
+- `NULL` and `EOF` defines
+- Optionally: `puts`, `putchar`, `getchar`
+
+This requires either varargs support or a fixed-arg printf workaround.
+The Arduino approach: provide `putchar` mapped to UART, then a minimal
+printf that calls putchar for each formatted character.
+
 ## Known Limitations Affecting Tests
 
-- **Braceless control flow**: `if (x) stmt;` without braces is not supported.
-  Most real C code uses this. High priority to fix.
+- **Braceless control flow**: Now supported (demo22).
 - **Local variable scoping**: Statement expression locals share stack
   with outer scope locals of the same name (flat allocation).
 - **No varargs**: `printf` and similar functions cannot be implemented.
