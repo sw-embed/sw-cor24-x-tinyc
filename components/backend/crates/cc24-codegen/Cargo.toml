@@ -5,4 +5,19 @@ edition = "2024"
 
 [dependencies]
 cc24-ast = { path = "../../../core/crates/cc24-ast" }
-cc24-dispatch = { path = "../../../dispatch/crates/cc24-dispatch" }
+cc24-codegen-state = { path = "../../../codegen-state/crates/cc24-codegen-state" }
+cc24-emit-core = { path = "../../../codegen-emit/crates/cc24-emit-core" }
+cc24-emit-data = { path = "../../../codegen-emit/crates/cc24-emit-data" }
+cc24-emit-macros = { path = "../../../macros/crates/cc24-emit-macros" }
+cc24-ops-divmod = { path = "../../../codegen-ops/crates/cc24-ops-divmod" }
+cc24-ops-incdec = { path = "../../../codegen-ops/crates/cc24-ops-incdec" }
+cc24-expr-literal = { path = "../../../codegen-expr/crates/cc24-expr-literal" }
+cc24-expr-variable = { path = "../../../codegen-expr/crates/cc24-expr-variable" }
+cc24-expr-pointer = { path = "../../../codegen-expr/crates/cc24-expr-pointer" }
+cc24-expr-call = { path = "../../../codegen-expr/crates/cc24-expr-call" }
+cc24-expr-ops = { path = "../../../codegen-expr/crates/cc24-expr-ops" }
+cc24-stmt-simple = { path = "../../../codegen-stmt/crates/cc24-stmt-simple" }
+cc24-stmt-control = { path = "../../../codegen-stmt/crates/cc24-stmt-control" }
+cc24-struct-prologue = { path = "../../../codegen-structure/crates/cc24-struct-prologue" }
+cc24-struct-isr = { path = "../../../codegen-structure/crates/cc24-struct-isr" }
+cc24-struct-locals = { path = "../../../codegen-structure/crates/cc24-struct-locals" }

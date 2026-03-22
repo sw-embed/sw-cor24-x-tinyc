@@ -26,7 +26,29 @@ name = "cc24-codegen"
 version = "0.1.0"
 dependencies = [
  "cc24-ast",
- "cc24-dispatch",
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-data",
+ "cc24-emit-macros",
+ "cc24-expr-call",
+ "cc24-expr-literal",
+ "cc24-expr-ops",
+ "cc24-expr-pointer",
+ "cc24-expr-variable",
+ "cc24-ops-divmod",
+ "cc24-ops-incdec",
+ "cc24-stmt-control",
+ "cc24-stmt-simple",
+ "cc24-struct-isr",
+ "cc24-struct-locals",
+ "cc24-struct-prologue",
+]
+
+[[package]]
+name = "cc24-codegen-state"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
 ]
 
 [[package]]
@@ -55,7 +77,35 @@ dependencies = [
 ]
 
 [[package]]
-name = "cc24-dispatch"
+name = "cc24-emit-core"
+version = "0.1.0"
+dependencies = [
+ "cc24-codegen-state",
+ "cc24-emit-macros",
+]
+
+[[package]]
+name = "cc24-emit-data"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-macros",
+]
+
+[[package]]
+name = "cc24-emit-load-store"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-macros",
+]
+
+[[package]]
+name = "cc24-emit-macros"
 version = "0.1.0"
 
 [[package]]
@@ -66,12 +116,132 @@ dependencies = [
 ]
 
 [[package]]
+name = "cc24-expr-call"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-macros",
+]
+
+[[package]]
+name = "cc24-expr-literal"
+version = "0.1.0"
+dependencies = [
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-macros",
+]
+
+[[package]]
+name = "cc24-expr-ops"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-macros",
+ "cc24-ops-arithmetic",
+ "cc24-ops-bitwise",
+ "cc24-ops-compare",
+ "cc24-ops-divmod",
+ "cc24-ops-incdec",
+ "cc24-ops-logical",
+ "cc24-ops-unary",
+ "cc24-type-infer",
+]
+
+[[package]]
+name = "cc24-expr-pointer"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-macros",
+ "cc24-type-infer",
+]
+
+[[package]]
+name = "cc24-expr-variable"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-load-store",
+ "cc24-emit-macros",
+]
+
+[[package]]
 name = "cc24-lexer"
 version = "0.1.0"
 dependencies = [
  "cc24-error",
  "cc24-span",
  "cc24-token",
+]
+
+[[package]]
+name = "cc24-ops-arithmetic"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-macros",
+ "cc24-type-infer",
+]
+
+[[package]]
+name = "cc24-ops-bitwise"
+version = "0.1.0"
+dependencies = [
+ "cc24-codegen-state",
+ "cc24-emit-macros",
+]
+
+[[package]]
+name = "cc24-ops-compare"
+version = "0.1.0"
+dependencies = [
+ "cc24-codegen-state",
+ "cc24-emit-macros",
+]
+
+[[package]]
+name = "cc24-ops-divmod"
+version = "0.1.0"
+dependencies = [
+ "cc24-codegen-state",
+ "cc24-emit-macros",
+]
+
+[[package]]
+name = "cc24-ops-incdec"
+version = "0.1.0"
+dependencies = [
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-load-store",
+ "cc24-emit-macros",
+]
+
+[[package]]
+name = "cc24-ops-logical"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-macros",
+]
+
+[[package]]
+name = "cc24-ops-unary"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-macros",
 ]
 
 [[package]]
@@ -101,6 +271,55 @@ version = "0.1.0"
 [[package]]
 name = "cc24-span"
 version = "0.1.0"
+
+[[package]]
+name = "cc24-stmt-control"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-macros",
+ "cc24-stmt-simple",
+ "cc24-type-infer",
+]
+
+[[package]]
+name = "cc24-stmt-simple"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-macros",
+ "cc24-type-infer",
+]
+
+[[package]]
+name = "cc24-struct-isr"
+version = "0.1.0"
+dependencies = [
+ "cc24-codegen-state",
+ "cc24-emit-macros",
+ "cc24-struct-prologue",
+]
+
+[[package]]
+name = "cc24-struct-locals"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+]
+
+[[package]]
+name = "cc24-struct-prologue"
+version = "0.1.0"
+dependencies = [
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-macros",
+]
 
 [[package]]
 name = "cc24-test-as24"
@@ -139,6 +358,14 @@ name = "cc24-token"
 version = "0.1.0"
 dependencies = [
  "cc24-span",
+]
+
+[[package]]
+name = "cc24-type-infer"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
 ]
 
 [[package]]
