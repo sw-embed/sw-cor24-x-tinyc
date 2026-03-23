@@ -22,13 +22,22 @@ pub fn is_typedef_name(ts: &TokenStream, kind: &TokenKind) -> bool {
 pub fn is_base_type(kind: &TokenKind) -> bool {
     matches!(
         kind,
-        TokenKind::Char | TokenKind::Int | TokenKind::Void | TokenKind::Enum | TokenKind::Struct
+        TokenKind::Char
+            | TokenKind::Int
+            | TokenKind::Void
+            | TokenKind::Enum
+            | TokenKind::Struct
+            | TokenKind::Union
+            | TokenKind::Long
+            | TokenKind::Short
+            | TokenKind::Signed
+            | TokenKind::Unsigned
     )
 }
 
 pub fn is_storage_class(kind: &TokenKind) -> bool {
     matches!(
         kind,
-        TokenKind::Static | TokenKind::Extern | TokenKind::Const
+        TokenKind::Static | TokenKind::Extern | TokenKind::Const | TokenKind::Inline
     )
 }

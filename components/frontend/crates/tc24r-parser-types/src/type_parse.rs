@@ -11,7 +11,7 @@ fn consume_qualifiers(ts: &mut TokenStream) -> bool {
     let mut had = false;
     while matches!(
         ts.peek().kind,
-        TokenKind::Static | TokenKind::Extern | TokenKind::Const
+        TokenKind::Static | TokenKind::Extern | TokenKind::Const | TokenKind::Inline
     ) {
         ts.advance();
         had = true;
@@ -21,6 +21,17 @@ fn consume_qualifiers(ts: &mut TokenStream) -> bool {
 
 /// Parse a base type keyword (char/int/void/enum/struct/typedef alias).
 fn parse_base_type(ts: &mut TokenStream, had_qualifier: bool) -> Result<Type, CompileError> {
+    // Consume type modifiers: long, short, signed, unsigned
+    // On COR24, all integer types are 24-bit, so these are accepted and ignored.
+    let mut had_modifier = false;
+    while matches!(
+        ts.peek().kind,
+        TokenKind::Long | TokenKind::Short | TokenKind::Signed | TokenKind::Unsigned
+    ) {
+        ts.advance();
+        had_modifier = true;
+    }
+
     match ts.peek().kind {
         TokenKind::Char => {
             ts.advance();
@@ -30,6 +41,7 @@ fn parse_base_type(ts: &mut TokenStream, had_qualifier: bool) -> Result<Type, Co
             ts.advance();
             Ok(Type::Int)
         }
+        _ if had_modifier => Ok(Type::Int), // "long" alone, "unsigned" alone, etc.
         TokenKind::Void => {
             ts.advance();
             Ok(Type::Void)
@@ -43,7 +55,11 @@ fn parse_base_type(ts: &mut TokenStream, had_qualifier: bool) -> Result<Type, Co
         }
         TokenKind::Struct => {
             ts.advance();
-            tc24r_parser_struct::parse_struct_type(ts, parse_type)
+            tc24r_parser_struct::parse_struct_type(ts, parse_type, false)
+        }
+        TokenKind::Union => {
+            ts.advance();
+            tc24r_parser_struct::parse_struct_type(ts, parse_type, true)
         }
         TokenKind::Ident(ref name) if ts.type_aliases.contains_key(name) => {
             let resolved = ts.type_aliases[name].clone();

@@ -1,4 +1,4 @@
-//! Struct type parsing.
+//! Struct and union type parsing.
 
 use tc24r_ast::{StructMember, Type};
 use tc24r_error::CompileError;
@@ -8,15 +8,17 @@ use tc24r_token::TokenKind;
 /// Callback for parsing member types (avoids circular dependency).
 pub type ParseTypeFn = fn(&mut TokenStream) -> Result<Type, CompileError>;
 
-/// Parse a struct type after the `struct` keyword has been consumed.
-/// Returns the resolved `Type::Struct`.
+/// Parse a struct or union type after the keyword has been consumed.
+/// When `is_union` is true, all members share offset 0 and total_size
+/// is the maximum member size (union semantics).
 pub fn parse_struct_type(
     ts: &mut TokenStream,
     parse_type_fn: ParseTypeFn,
+    is_union: bool,
 ) -> Result<Type, CompileError> {
     let tag = parse_optional_tag(ts);
     if ts.check(&TokenKind::LBrace) {
-        let ty = parse_struct_body(ts, &tag, parse_type_fn)?;
+        let ty = parse_body(ts, &tag, parse_type_fn, is_union)?;
         if let Some(ref name) = tag {
             ts.struct_types.insert(name.clone(), ty.clone());
         }
@@ -36,15 +38,20 @@ fn parse_optional_tag(ts: &mut TokenStream) -> Option<String> {
     }
 }
 
-fn parse_struct_body(
+fn parse_body(
     ts: &mut TokenStream,
     tag: &Option<String>,
     parse_type_fn: ParseTypeFn,
+    is_union: bool,
 ) -> Result<Type, CompileError> {
     ts.expect(TokenKind::LBrace)?;
-    let members = parse_members(ts, parse_type_fn)?;
+    let members = parse_members(ts, parse_type_fn, is_union)?;
     ts.expect(TokenKind::RBrace)?;
-    let total_size = members.last().map_or(0, |m| m.offset + m.ty.size());
+    let total_size = if is_union {
+        members.iter().map(|m| m.ty.size()).max().unwrap_or(0)
+    } else {
+        members.last().map_or(0, |m| m.offset + m.ty.size())
+    };
     Ok(Type::Struct {
         tag: tag.clone(),
         members,
@@ -55,6 +62,7 @@ fn parse_struct_body(
 fn parse_members(
     ts: &mut TokenStream,
     parse_type_fn: ParseTypeFn,
+    is_union: bool,
 ) -> Result<Vec<StructMember>, CompileError> {
     let mut members = Vec::new();
     let mut offset = 0;
@@ -63,8 +71,15 @@ fn parse_members(
         let name = ts.expect_ident()?;
         ts.expect(TokenKind::Semicolon)?;
         let size = ty.size();
-        members.push(StructMember { name, ty, offset });
-        offset += size;
+        let member_offset = if is_union { 0 } else { offset };
+        members.push(StructMember {
+            name,
+            ty,
+            offset: member_offset,
+        });
+        if !is_union {
+            offset += size;
+        }
     }
     Ok(members)
 }
