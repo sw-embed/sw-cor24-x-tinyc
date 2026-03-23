@@ -6,6 +6,7 @@
 //! - `#include <file.h>` (search system include paths)
 //! - `#pragma once` (skip file if already included)
 
+mod conditional;
 mod func_args;
 mod func_macro;
 mod func_subst;
