@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "crates/cc24-codegen-state",
+    "crates/tc24r-codegen-state",
 ]
 resolver = "3"

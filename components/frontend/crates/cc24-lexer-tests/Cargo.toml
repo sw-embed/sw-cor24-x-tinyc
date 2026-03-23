@@ -1,8 +1,0 @@
-[package]
-name = "cc24-lexer-tests"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-cc24-lexer = { path = "../cc24-lexer" }
-cc24-token = { path = "../../../../components/core/crates/cc24-token" }

@@ -1,7 +1,7 @@
 [workspace]
 members = [
-    "crates/cc24-emit-core",
-    "crates/cc24-emit-load-store",
-    "crates/cc24-emit-data",
+    "crates/tc24r-emit-core",
+    "crates/tc24r-emit-load-store",
+    "crates/tc24r-emit-data",
 ]
 resolver = "3"

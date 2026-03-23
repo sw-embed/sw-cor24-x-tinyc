@@ -1,0 +1,7 @@
+[package]
+name = "tc24r-codegen-state"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-ast = { path = "../../../core/crates/tc24r-ast" }

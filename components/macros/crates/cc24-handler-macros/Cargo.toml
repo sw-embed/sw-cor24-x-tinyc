@@ -1,7 +1,0 @@
-[package]
-name = "cc24-handler-macros"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-cc24-dispatch = { path = "../../../dispatch/crates/cc24-dispatch" }

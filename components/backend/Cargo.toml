@@ -1,7 +1,7 @@
 [workspace]
 members = [
-    "crates/cc24-codegen",
-    "crates/cc24-codegen-tests",
-    "crates/cc24-codegen-validate",
+    "crates/tc24r-codegen",
+    "crates/tc24r-codegen-tests",
+    "crates/tc24r-codegen-validate",
 ]
 resolver = "3"

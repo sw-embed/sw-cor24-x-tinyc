@@ -1,0 +1,7 @@
+[package]
+name = "tc24r-test-golden"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-test-compile = { path = "../tc24r-test-compile" }

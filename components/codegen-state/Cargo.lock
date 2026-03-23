@@ -3,19 +3,19 @@
 version = 4
 
 [[package]]
-name = "cc24-ast"
+name = "tc24r-ast"
 version = "0.1.0"
 dependencies = [
- "cc24-span",
+ "tc24r-span",
 ]
 
 [[package]]
-name = "cc24-codegen-state"
+name = "tc24r-codegen-state"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
+ "tc24r-ast",
 ]
 
 [[package]]
-name = "cc24-span"
+name = "tc24r-span"
 version = "0.1.0"

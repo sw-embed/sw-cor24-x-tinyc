@@ -3,62 +3,62 @@
 version = 4
 
 [[package]]
-name = "cc24-ast"
+name = "tc24r-ast"
 version = "0.1.0"
 dependencies = [
- "cc24-span",
+ "tc24r-span",
 ]
 
 [[package]]
-name = "cc24-codegen-state"
+name = "tc24r-codegen-state"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
+ "tc24r-ast",
 ]
 
 [[package]]
-name = "cc24-emit-core"
+name = "tc24r-emit-core"
 version = "0.1.0"
 dependencies = [
- "cc24-codegen-state",
- "cc24-emit-macros",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-emit-macros"
+name = "tc24r-emit-macros"
 version = "0.1.0"
 
 [[package]]
-name = "cc24-span"
+name = "tc24r-span"
 version = "0.1.0"
 
 [[package]]
-name = "cc24-stmt-control"
+name = "tc24r-stmt-control"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-core",
- "cc24-emit-macros",
- "cc24-stmt-simple",
- "cc24-type-infer",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+ "tc24r-stmt-simple",
+ "tc24r-type-infer",
 ]
 
 [[package]]
-name = "cc24-stmt-simple"
+name = "tc24r-stmt-simple"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-core",
- "cc24-emit-macros",
- "cc24-type-infer",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+ "tc24r-type-infer",
 ]
 
 [[package]]
-name = "cc24-type-infer"
+name = "tc24r-type-infer"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
+ "tc24r-ast",
+ "tc24r-codegen-state",
 ]

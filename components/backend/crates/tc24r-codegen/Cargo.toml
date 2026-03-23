@@ -1,0 +1,24 @@
+[package]
+name = "tc24r-codegen"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-ast = { path = "../../../core/crates/tc24r-ast" }
+tc24r-codegen-state = { path = "../../../codegen-state/crates/tc24r-codegen-state" }
+tc24r-emit-core = { path = "../../../codegen-emit/crates/tc24r-emit-core" }
+tc24r-emit-data = { path = "../../../codegen-emit/crates/tc24r-emit-data" }
+tc24r-emit-macros = { path = "../../../macros/crates/tc24r-emit-macros" }
+tc24r-ops-divmod = { path = "../../../codegen-ops/crates/tc24r-ops-divmod" }
+tc24r-ops-incdec = { path = "../../../codegen-ops/crates/tc24r-ops-incdec" }
+tc24r-expr-literal = { path = "../../../codegen-expr/crates/tc24r-expr-literal" }
+tc24r-expr-variable = { path = "../../../codegen-expr/crates/tc24r-expr-variable" }
+tc24r-expr-pointer = { path = "../../../codegen-expr/crates/tc24r-expr-pointer" }
+tc24r-expr-call = { path = "../../../codegen-expr/crates/tc24r-expr-call" }
+tc24r-expr-ops = { path = "../../../codegen-expr/crates/tc24r-expr-ops" }
+tc24r-expr-struct = { path = "../../../codegen-expr/crates/tc24r-expr-struct" }
+tc24r-stmt-simple = { path = "../../../codegen-stmt/crates/tc24r-stmt-simple" }
+tc24r-stmt-control = { path = "../../../codegen-stmt/crates/tc24r-stmt-control" }
+tc24r-struct-prologue = { path = "../../../codegen-structure/crates/tc24r-struct-prologue" }
+tc24r-struct-isr = { path = "../../../codegen-structure/crates/tc24r-struct-isr" }
+tc24r-struct-locals = { path = "../../../codegen-structure/crates/tc24r-struct-locals" }

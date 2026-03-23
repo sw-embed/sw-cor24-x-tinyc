@@ -1,0 +1,10 @@
+[package]
+name = "tc24r-emit-load-store"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-codegen-state = { path = "../../../codegen-state/crates/tc24r-codegen-state" }
+tc24r-ast = { path = "../../../core/crates/tc24r-ast" }
+tc24r-emit-core = { path = "../tc24r-emit-core" }
+tc24r-emit-macros = { path = "../../../macros/crates/tc24r-emit-macros" }

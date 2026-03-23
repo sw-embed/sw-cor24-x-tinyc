@@ -87,7 +87,7 @@ _main:
         pop     r0
         push    r1
         push    r0
-        la      r0,__cc24_div
+        la      r0,__tc24r_div
         jal     r1,(r0)
         add     sp,6
         push    r0
@@ -110,7 +110,7 @@ L8:
         pop     r0
         push    r1
         push    r0
-        la      r0,__cc24_mod
+        la      r0,__tc24r_mod
         jal     r1,(r0)
         add     sp,6
         push    r0
@@ -133,7 +133,7 @@ L10:
         pop     r0
         push    r1
         push    r0
-        la      r0,__cc24_div
+        la      r0,__tc24r_div
         jal     r1,(r0)
         add     sp,6
         push    r0
@@ -156,7 +156,7 @@ L12:
         pop     r0
         push    r1
         push    r0
-        la      r0,__cc24_mod
+        la      r0,__tc24r_mod
         jal     r1,(r0)
         add     sp,6
         push    r0
@@ -179,7 +179,7 @@ L14:
         pop     r0
         push    r1
         push    r0
-        la      r0,__cc24_div
+        la      r0,__tc24r_div
         jal     r1,(r0)
         add     sp,6
         push    r0
@@ -202,7 +202,7 @@ L16:
         pop     r0
         push    r1
         push    r0
-        la      r0,__cc24_mod
+        la      r0,__tc24r_mod
         jal     r1,(r0)
         add     sp,6
         push    r0
@@ -225,7 +225,7 @@ L18:
         pop     r0
         push    r1
         push    r0
-        la      r0,__cc24_div
+        la      r0,__tc24r_div
         jal     r1,(r0)
         add     sp,6
         push    r0
@@ -248,7 +248,7 @@ L20:
         pop     r0
         push    r1
         push    r0
-        la      r0,__cc24_mod
+        la      r0,__tc24r_mod
         jal     r1,(r0)
         add     sp,6
         push    r0
@@ -290,7 +290,7 @@ L6:
         pop     fp
         jmp     (r1)
 
-__cc24_div:
+__tc24r_div:
         push    fp
         push    r2
         push    r1
@@ -298,32 +298,32 @@ __cc24_div:
         lw      r0,9(fp)
         lw      r1,12(fp)
         lc      r2,0
-__cc24_div_lp:
+__tc24r_div_lp:
         cls     r0,r1
-        brt     __cc24_div_dn
+        brt     __tc24r_div_dn
         sub     r0,r1
         add     r2,1
-        bra     __cc24_div_lp
-__cc24_div_dn:
+        bra     __tc24r_div_lp
+__tc24r_div_dn:
         mov     r0,r2
         mov     sp,fp
         pop     r1
         pop     r2
         pop     fp
         jmp     (r1)
-__cc24_mod:
+__tc24r_mod:
         push    fp
         push    r2
         push    r1
         mov     fp,sp
         lw      r0,9(fp)
         lw      r1,12(fp)
-__cc24_mod_lp:
+__tc24r_mod_lp:
         cls     r0,r1
-        brt     __cc24_mod_dn
+        brt     __tc24r_mod_dn
         sub     r0,r1
-        bra     __cc24_mod_lp
-__cc24_mod_dn:
+        bra     __tc24r_mod_lp
+__tc24r_mod_dn:
         mov     sp,fp
         pop     r1
         pop     r2

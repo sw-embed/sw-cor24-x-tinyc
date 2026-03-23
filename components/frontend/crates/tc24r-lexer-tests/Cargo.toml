@@ -1,0 +1,8 @@
+[package]
+name = "tc24r-lexer-tests"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-lexer = { path = "../tc24r-lexer" }
+tc24r-token = { path = "../../../../components/core/crates/tc24r-token" }

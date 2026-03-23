@@ -1,0 +1,8 @@
+[package]
+name = "tc24r-preprocess-tests"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-preprocess = { path = "../tc24r-preprocess" }
+tempfile = "3"

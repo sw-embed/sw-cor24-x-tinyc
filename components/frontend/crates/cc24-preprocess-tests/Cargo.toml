@@ -1,8 +1,0 @@
-[package]
-name = "cc24-preprocess-tests"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-cc24-preprocess = { path = "../cc24-preprocess" }
-tempfile = "3"

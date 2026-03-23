@@ -1,10 +1,10 @@
 [workspace]
 members = [
-    "crates/cc24-expr-literal",
-    "crates/cc24-expr-variable",
-    "crates/cc24-expr-pointer",
-    "crates/cc24-expr-call",
-    "crates/cc24-expr-ops",
-    "crates/cc24-expr-struct",
+    "crates/tc24r-expr-literal",
+    "crates/tc24r-expr-variable",
+    "crates/tc24r-expr-pointer",
+    "crates/tc24r-expr-call",
+    "crates/tc24r-expr-ops",
+    "crates/tc24r-expr-struct",
 ]
 resolver = "3"

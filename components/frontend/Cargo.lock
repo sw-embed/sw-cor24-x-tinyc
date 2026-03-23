@@ -15,146 +15,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "843867be96c8daad0d758b57df9392b6d8d271134fce549de6ce169ff98a92af"
 
 [[package]]
-name = "cc24-ast"
-version = "0.1.0"
-dependencies = [
- "cc24-span",
-]
-
-[[package]]
-name = "cc24-error"
-version = "0.1.0"
-dependencies = [
- "cc24-span",
-]
-
-[[package]]
-name = "cc24-lexer"
-version = "0.1.0"
-dependencies = [
- "cc24-error",
- "cc24-span",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-lexer-tests"
-version = "0.1.0"
-dependencies = [
- "cc24-lexer",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-parse-stream"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-error",
- "cc24-span",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-parser"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-error",
- "cc24-parse-stream",
- "cc24-parser-compound",
- "cc24-parser-enum",
- "cc24-parser-typedef",
- "cc24-parser-types",
- "cc24-span",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-parser-compound"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-error",
- "cc24-parse-stream",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-parser-enum"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-error",
- "cc24-parse-stream",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-parser-struct"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-error",
- "cc24-parse-stream",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-parser-tests"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-lexer",
- "cc24-parser",
-]
-
-[[package]]
-name = "cc24-parser-typedef"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-error",
- "cc24-parse-stream",
- "cc24-parser-types",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-parser-types"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-error",
- "cc24-parse-stream",
- "cc24-parser-struct",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-preprocess"
-version = "0.1.0"
-
-[[package]]
-name = "cc24-preprocess-tests"
-version = "0.1.0"
-dependencies = [
- "cc24-preprocess",
- "tempfile",
-]
-
-[[package]]
-name = "cc24-span"
-version = "0.1.0"
-
-[[package]]
-name = "cc24-token"
-version = "0.1.0"
-dependencies = [
- "cc24-span",
-]
-
-[[package]]
 name = "cfg-if"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -386,6 +246,146 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "tc24r-ast"
+version = "0.1.0"
+dependencies = [
+ "tc24r-span",
+]
+
+[[package]]
+name = "tc24r-error"
+version = "0.1.0"
+dependencies = [
+ "tc24r-span",
+]
+
+[[package]]
+name = "tc24r-lexer"
+version = "0.1.0"
+dependencies = [
+ "tc24r-error",
+ "tc24r-span",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-lexer-tests"
+version = "0.1.0"
+dependencies = [
+ "tc24r-lexer",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parse-stream"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-span",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-parser-compound",
+ "tc24r-parser-enum",
+ "tc24r-parser-typedef",
+ "tc24r-parser-types",
+ "tc24r-span",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser-compound"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser-enum"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser-struct"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser-tests"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-lexer",
+ "tc24r-parser",
+]
+
+[[package]]
+name = "tc24r-parser-typedef"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-parser-types",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser-types"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-parser-struct",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-preprocess"
+version = "0.1.0"
+
+[[package]]
+name = "tc24r-preprocess-tests"
+version = "0.1.0"
+dependencies = [
+ "tc24r-preprocess",
+ "tempfile",
+]
+
+[[package]]
+name = "tc24r-span"
+version = "0.1.0"
+
+[[package]]
+name = "tc24r-token"
+version = "0.1.0"
+dependencies = [
+ "tc24r-span",
 ]
 
 [[package]]

@@ -1,0 +1,13 @@
+[package]
+name = "tc24r-codegen-validate"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-codegen = { path = "../tc24r-codegen" }
+tc24r-lexer = { path = "../../../../components/frontend/crates/tc24r-lexer" }
+tc24r-parser = { path = "../../../../components/frontend/crates/tc24r-parser" }
+tempfile = "3"
+tc24r-test-compile = { path = "../../../../components/testing/crates/tc24r-test-compile" }
+tc24r-test-cor24 = { path = "../../../../components/testing/crates/tc24r-test-cor24" }
+tc24r-test-as24 = { path = "../../../../components/testing/crates/tc24r-test-as24" }

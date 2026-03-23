@@ -148,7 +148,7 @@ L13:
         pop     r0
         push    r1
         push    r0
-        la      r0,__cc24_mod
+        la      r0,__tc24r_mod
         jal     r1,(r0)
         add     sp,6
         push    r0
@@ -256,7 +256,7 @@ L26:
         pop     r0
         push    r1
         push    r0
-        la      r0,__cc24_mod
+        la      r0,__tc24r_mod
         jal     r1,(r0)
         add     sp,6
         push    r0
@@ -320,19 +320,19 @@ L6:
         pop     fp
         jmp     (r1)
 
-__cc24_mod:
+__tc24r_mod:
         push    fp
         push    r2
         push    r1
         mov     fp,sp
         lw      r0,9(fp)
         lw      r1,12(fp)
-__cc24_mod_lp:
+__tc24r_mod_lp:
         cls     r0,r1
-        brt     __cc24_mod_dn
+        brt     __tc24r_mod_dn
         sub     r0,r1
-        bra     __cc24_mod_lp
-__cc24_mod_dn:
+        bra     __tc24r_mod_lp
+__tc24r_mod_dn:
         mov     sp,fp
         pop     r1
         pop     r2

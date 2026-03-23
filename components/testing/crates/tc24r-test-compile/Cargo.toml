@@ -1,0 +1,10 @@
+[package]
+name = "tc24r-test-compile"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-lexer = { path = "../../../frontend/crates/tc24r-lexer" }
+tc24r-parser = { path = "../../../frontend/crates/tc24r-parser" }
+tc24r-codegen = { path = "../../../backend/crates/tc24r-codegen" }
+tc24r-preprocess = { path = "../../../frontend/crates/tc24r-preprocess" }

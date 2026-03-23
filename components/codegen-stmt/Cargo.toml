@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "crates/cc24-stmt-simple",
-    "crates/cc24-stmt-control",
+    "crates/tc24r-stmt-simple",
+    "crates/tc24r-stmt-control",
 ]
 resolver = "3"

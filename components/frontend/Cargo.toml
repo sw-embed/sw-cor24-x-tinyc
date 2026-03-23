@@ -1,16 +1,16 @@
 [workspace]
 members = [
-    "crates/cc24-lexer",
-    "crates/cc24-lexer-tests",
-    "crates/cc24-parse-stream",
-    "crates/cc24-parser",
-    "crates/cc24-parser-compound",
-    "crates/cc24-parser-enum",
-    "crates/cc24-parser-struct",
-    "crates/cc24-parser-tests",
-    "crates/cc24-parser-typedef",
-    "crates/cc24-parser-types",
-    "crates/cc24-preprocess",
-    "crates/cc24-preprocess-tests",
+    "crates/tc24r-lexer",
+    "crates/tc24r-lexer-tests",
+    "crates/tc24r-parse-stream",
+    "crates/tc24r-parser",
+    "crates/tc24r-parser-compound",
+    "crates/tc24r-parser-enum",
+    "crates/tc24r-parser-struct",
+    "crates/tc24r-parser-tests",
+    "crates/tc24r-parser-typedef",
+    "crates/tc24r-parser-types",
+    "crates/tc24r-preprocess",
+    "crates/tc24r-preprocess-tests",
 ]
 resolver = "3"

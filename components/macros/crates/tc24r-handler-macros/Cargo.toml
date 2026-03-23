@@ -1,0 +1,7 @@
+[package]
+name = "tc24r-handler-macros"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-dispatch = { path = "../../../dispatch/crates/tc24r-dispatch" }

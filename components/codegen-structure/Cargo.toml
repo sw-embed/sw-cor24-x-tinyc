@@ -1,7 +1,7 @@
 [workspace]
 members = [
-    "crates/cc24-struct-prologue",
-    "crates/cc24-struct-isr",
-    "crates/cc24-struct-locals",
+    "crates/tc24r-struct-prologue",
+    "crates/tc24r-struct-isr",
+    "crates/tc24r-struct-locals",
 ]
 resolver = "3"

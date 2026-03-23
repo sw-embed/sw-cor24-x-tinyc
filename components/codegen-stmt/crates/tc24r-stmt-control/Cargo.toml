@@ -1,0 +1,12 @@
+[package]
+name = "tc24r-stmt-control"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-codegen-state = { path = "../../../codegen-state/crates/tc24r-codegen-state" }
+tc24r-ast = { path = "../../../core/crates/tc24r-ast" }
+tc24r-emit-core = { path = "../../../codegen-emit/crates/tc24r-emit-core" }
+tc24r-emit-macros = { path = "../../../macros/crates/tc24r-emit-macros" }
+tc24r-type-infer = { path = "../../../codegen-ops/crates/tc24r-type-infer" }
+tc24r-stmt-simple = { path = "../tc24r-stmt-simple" }

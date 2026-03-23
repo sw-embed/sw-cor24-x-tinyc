@@ -3,30 +3,30 @@
 version = 4
 
 [[package]]
-name = "cc24-asm-dsl"
+name = "tc24r-asm-dsl"
 version = "0.1.0"
 
 [[package]]
-name = "cc24-dispatch"
+name = "tc24r-dispatch"
 version = "0.1.0"
 
 [[package]]
-name = "cc24-emit-macros"
+name = "tc24r-emit-macros"
 version = "0.1.0"
 
 [[package]]
-name = "cc24-handler-macros"
+name = "tc24r-handler-macros"
 version = "0.1.0"
 dependencies = [
- "cc24-dispatch",
+ "tc24r-dispatch",
 ]
 
 [[package]]
-name = "cc24-macros-tests"
+name = "tc24r-macros-tests"
 version = "0.1.0"
 dependencies = [
- "cc24-asm-dsl",
- "cc24-dispatch",
- "cc24-emit-macros",
- "cc24-handler-macros",
+ "tc24r-asm-dsl",
+ "tc24r-dispatch",
+ "tc24r-emit-macros",
+ "tc24r-handler-macros",
 ]

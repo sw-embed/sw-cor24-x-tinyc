@@ -1,4 +1,0 @@
-command = "bash demos/run-demo9.sh"
-exit_code = 0
-desc = "Demo 9"
-expects = "r0=42, CPU halted, Demo 9 PASSED"

@@ -3,12 +3,12 @@
 version = 4
 
 [[package]]
-name = "cc24-dispatch"
+name = "tc24r-dispatch"
 version = "0.1.0"
 
 [[package]]
-name = "cc24-dispatch-tests"
+name = "tc24r-dispatch-tests"
 version = "0.1.0"
 dependencies = [
- "cc24-dispatch",
+ "tc24r-dispatch",
 ]

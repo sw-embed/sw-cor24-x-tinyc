@@ -1,0 +1,7 @@
+[package]
+name = "tc24r-dispatch-tests"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-dispatch = { path = "../tc24r-dispatch" }

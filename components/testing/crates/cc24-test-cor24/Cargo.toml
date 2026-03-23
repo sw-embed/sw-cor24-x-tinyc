@@ -1,8 +1,0 @@
-[package]
-name = "cc24-test-cor24"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-cc24-test-compile = { path = "../cc24-test-compile" }
-tempfile = "3"

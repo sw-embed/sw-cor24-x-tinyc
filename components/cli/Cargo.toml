@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "crates/cc24",
+    "crates/tc24r",
 ]
 resolver = "3"

@@ -1,7 +1,0 @@
-[package]
-name = "cc24-test-golden"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-cc24-test-compile = { path = "../cc24-test-compile" }

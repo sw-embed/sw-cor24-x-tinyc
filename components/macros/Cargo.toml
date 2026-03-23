@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "crates/cc24-emit-macros",
-    "crates/cc24-handler-macros",
-    "crates/cc24-asm-dsl",
-    "crates/cc24-macros-tests",
+    "crates/tc24r-emit-macros",
+    "crates/tc24r-handler-macros",
+    "crates/tc24r-asm-dsl",
+    "crates/tc24r-macros-tests",
 ]
 resolver = "3"

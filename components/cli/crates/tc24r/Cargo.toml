@@ -1,0 +1,14 @@
+[package]
+name = "tc24r"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "tc24r"
+path = "src/main.rs"
+
+[dependencies]
+tc24r-codegen = { path = "../../../backend/crates/tc24r-codegen" }
+tc24r-lexer = { path = "../../../frontend/crates/tc24r-lexer" }
+tc24r-parser = { path = "../../../frontend/crates/tc24r-parser" }
+tc24r-preprocess = { path = "../../../frontend/crates/tc24r-preprocess" }

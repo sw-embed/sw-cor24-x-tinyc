@@ -1,0 +1,15 @@
+[package]
+name = "tc24r-parser"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-ast = { path = "../../../core/crates/tc24r-ast" }
+tc24r-error = { path = "../../../core/crates/tc24r-error" }
+tc24r-parse-stream = { path = "../tc24r-parse-stream" }
+tc24r-parser-compound = { path = "../tc24r-parser-compound" }
+tc24r-parser-enum = { path = "../tc24r-parser-enum" }
+tc24r-parser-typedef = { path = "../tc24r-parser-typedef" }
+tc24r-parser-types = { path = "../tc24r-parser-types" }
+tc24r-span = { path = "../../../core/crates/tc24r-span" }
+tc24r-token = { path = "../../../core/crates/tc24r-token" }

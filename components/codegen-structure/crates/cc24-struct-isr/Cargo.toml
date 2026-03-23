@@ -1,9 +1,0 @@
-[package]
-name = "cc24-struct-isr"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-cc24-codegen-state = { path = "../../../codegen-state/crates/cc24-codegen-state" }
-cc24-struct-prologue = { path = "../cc24-struct-prologue" }
-cc24-emit-macros = { path = "../../../macros/crates/cc24-emit-macros" }

@@ -15,108 +15,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "843867be96c8daad0d758b57df9392b6d8d271134fce549de6ce169ff98a92af"
 
 [[package]]
-name = "cc24-ast"
-version = "0.1.0"
-dependencies = [
- "cc24-span",
-]
-
-[[package]]
-name = "cc24-codegen"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-dispatch",
-]
-
-[[package]]
-name = "cc24-dispatch"
-version = "0.1.0"
-
-[[package]]
-name = "cc24-error"
-version = "0.1.0"
-dependencies = [
- "cc24-span",
-]
-
-[[package]]
-name = "cc24-lexer"
-version = "0.1.0"
-dependencies = [
- "cc24-error",
- "cc24-span",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-parse-stream"
-version = "0.1.0"
-dependencies = [
- "cc24-error",
- "cc24-span",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-parser"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-error",
- "cc24-parse-stream",
- "cc24-span",
- "cc24-token",
-]
-
-[[package]]
-name = "cc24-preprocess"
-version = "0.1.0"
-
-[[package]]
-name = "cc24-span"
-version = "0.1.0"
-
-[[package]]
-name = "cc24-test-as24"
-version = "0.1.0"
-dependencies = [
- "cc24-test-compile",
-]
-
-[[package]]
-name = "cc24-test-compile"
-version = "0.1.0"
-dependencies = [
- "cc24-codegen",
- "cc24-lexer",
- "cc24-parser",
- "cc24-preprocess",
-]
-
-[[package]]
-name = "cc24-test-cor24"
-version = "0.1.0"
-dependencies = [
- "cc24-test-compile",
- "tempfile",
-]
-
-[[package]]
-name = "cc24-test-golden"
-version = "0.1.0"
-dependencies = [
- "cc24-test-compile",
-]
-
-[[package]]
-name = "cc24-token"
-version = "0.1.0"
-dependencies = [
- "cc24-span",
-]
-
-[[package]]
 name = "cfg-if"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -348,6 +246,403 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "tc24r-ast"
+version = "0.1.0"
+dependencies = [
+ "tc24r-span",
+]
+
+[[package]]
+name = "tc24r-codegen"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-data",
+ "tc24r-emit-macros",
+ "tc24r-expr-call",
+ "tc24r-expr-literal",
+ "tc24r-expr-ops",
+ "tc24r-expr-pointer",
+ "tc24r-expr-struct",
+ "tc24r-expr-variable",
+ "tc24r-ops-divmod",
+ "tc24r-ops-incdec",
+ "tc24r-stmt-control",
+ "tc24r-stmt-simple",
+ "tc24r-struct-isr",
+ "tc24r-struct-locals",
+ "tc24r-struct-prologue",
+]
+
+[[package]]
+name = "tc24r-codegen-state"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+]
+
+[[package]]
+name = "tc24r-emit-core"
+version = "0.1.0"
+dependencies = [
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-emit-data"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-emit-load-store"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-emit-macros"
+version = "0.1.0"
+
+[[package]]
+name = "tc24r-error"
+version = "0.1.0"
+dependencies = [
+ "tc24r-span",
+]
+
+[[package]]
+name = "tc24r-expr-call"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-expr-literal"
+version = "0.1.0"
+dependencies = [
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-expr-ops"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+ "tc24r-ops-arithmetic",
+ "tc24r-ops-bitwise",
+ "tc24r-ops-compare",
+ "tc24r-ops-divmod",
+ "tc24r-ops-incdec",
+ "tc24r-ops-logical",
+ "tc24r-ops-unary",
+ "tc24r-type-infer",
+]
+
+[[package]]
+name = "tc24r-expr-pointer"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+ "tc24r-type-infer",
+]
+
+[[package]]
+name = "tc24r-expr-struct"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-expr-variable"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-load-store",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-lexer"
+version = "0.1.0"
+dependencies = [
+ "tc24r-error",
+ "tc24r-span",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-ops-arithmetic"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+ "tc24r-type-infer",
+]
+
+[[package]]
+name = "tc24r-ops-bitwise"
+version = "0.1.0"
+dependencies = [
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-ops-compare"
+version = "0.1.0"
+dependencies = [
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-ops-divmod"
+version = "0.1.0"
+dependencies = [
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-ops-incdec"
+version = "0.1.0"
+dependencies = [
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-load-store",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-ops-logical"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-ops-unary"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-parse-stream"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-span",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-parser-compound",
+ "tc24r-parser-enum",
+ "tc24r-parser-typedef",
+ "tc24r-parser-types",
+ "tc24r-span",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser-compound"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser-enum"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser-struct"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser-typedef"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-parser-types",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-parser-types"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-error",
+ "tc24r-parse-stream",
+ "tc24r-parser-struct",
+ "tc24r-token",
+]
+
+[[package]]
+name = "tc24r-preprocess"
+version = "0.1.0"
+
+[[package]]
+name = "tc24r-span"
+version = "0.1.0"
+
+[[package]]
+name = "tc24r-stmt-control"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+ "tc24r-stmt-simple",
+ "tc24r-type-infer",
+]
+
+[[package]]
+name = "tc24r-stmt-simple"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+ "tc24r-type-infer",
+]
+
+[[package]]
+name = "tc24r-struct-isr"
+version = "0.1.0"
+dependencies = [
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+ "tc24r-struct-prologue",
+]
+
+[[package]]
+name = "tc24r-struct-locals"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
+]
+
+[[package]]
+name = "tc24r-struct-prologue"
+version = "0.1.0"
+dependencies = [
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+]
+
+[[package]]
+name = "tc24r-test-as24"
+version = "0.1.0"
+dependencies = [
+ "tc24r-test-compile",
+]
+
+[[package]]
+name = "tc24r-test-compile"
+version = "0.1.0"
+dependencies = [
+ "tc24r-codegen",
+ "tc24r-lexer",
+ "tc24r-parser",
+ "tc24r-preprocess",
+]
+
+[[package]]
+name = "tc24r-test-cor24"
+version = "0.1.0"
+dependencies = [
+ "tc24r-test-compile",
+ "tempfile",
+]
+
+[[package]]
+name = "tc24r-test-golden"
+version = "0.1.0"
+dependencies = [
+ "tc24r-test-compile",
+]
+
+[[package]]
+name = "tc24r-token"
+version = "0.1.0"
+dependencies = [
+ "tc24r-span",
+]
+
+[[package]]
+name = "tc24r-type-infer"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-codegen-state",
 ]
 
 [[package]]

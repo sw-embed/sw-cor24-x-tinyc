@@ -1,12 +1,12 @@
 [workspace]
 members = [
-    "crates/cc24-type-infer",
-    "crates/cc24-ops-arithmetic",
-    "crates/cc24-ops-bitwise",
-    "crates/cc24-ops-compare",
-    "crates/cc24-ops-logical",
-    "crates/cc24-ops-divmod",
-    "crates/cc24-ops-unary",
-    "crates/cc24-ops-incdec",
+    "crates/tc24r-type-infer",
+    "crates/tc24r-ops-arithmetic",
+    "crates/tc24r-ops-bitwise",
+    "crates/tc24r-ops-compare",
+    "crates/tc24r-ops-logical",
+    "crates/tc24r-ops-divmod",
+    "crates/tc24r-ops-unary",
+    "crates/tc24r-ops-incdec",
 ]
 resolver = "3"

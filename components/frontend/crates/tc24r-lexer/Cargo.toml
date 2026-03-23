@@ -1,0 +1,9 @@
+[package]
+name = "tc24r-lexer"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-error = { path = "../../../core/crates/tc24r-error" }
+tc24r-span = { path = "../../../core/crates/tc24r-span" }
+tc24r-token = { path = "../../../core/crates/tc24r-token" }

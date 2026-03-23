@@ -1,0 +1,10 @@
+[package]
+name = "tc24r-macros-tests"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tc24r-dispatch = { path = "../../../dispatch/crates/tc24r-dispatch" }
+tc24r-emit-macros = { path = "../tc24r-emit-macros" }
+tc24r-handler-macros = { path = "../tc24r-handler-macros" }
+tc24r-asm-dsl = { path = "../tc24r-asm-dsl" }

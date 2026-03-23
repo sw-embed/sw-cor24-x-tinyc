@@ -1,7 +1,0 @@
-[package]
-name = "cc24-token"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-cc24-span = { path = "../cc24-span" }

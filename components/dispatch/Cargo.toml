@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "crates/cc24-dispatch",
-    "crates/cc24-dispatch-tests",
+    "crates/tc24r-dispatch",
+    "crates/tc24r-dispatch-tests",
 ]
 resolver = "3"

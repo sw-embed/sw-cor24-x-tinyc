@@ -3,179 +3,179 @@
 version = 4
 
 [[package]]
-name = "cc24-ast"
+name = "tc24r-ast"
 version = "0.1.0"
 dependencies = [
- "cc24-span",
+ "tc24r-span",
 ]
 
 [[package]]
-name = "cc24-codegen-state"
+name = "tc24r-codegen-state"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
+ "tc24r-ast",
 ]
 
 [[package]]
-name = "cc24-emit-core"
+name = "tc24r-emit-core"
 version = "0.1.0"
 dependencies = [
- "cc24-codegen-state",
- "cc24-emit-macros",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-emit-load-store"
+name = "tc24r-emit-load-store"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-core",
- "cc24-emit-macros",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-emit-macros"
+name = "tc24r-emit-macros"
 version = "0.1.0"
 
 [[package]]
-name = "cc24-expr-call"
+name = "tc24r-expr-call"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-macros",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-expr-literal"
+name = "tc24r-expr-literal"
 version = "0.1.0"
 dependencies = [
- "cc24-codegen-state",
- "cc24-emit-core",
- "cc24-emit-macros",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-expr-ops"
+name = "tc24r-expr-ops"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-macros",
- "cc24-ops-arithmetic",
- "cc24-ops-bitwise",
- "cc24-ops-compare",
- "cc24-ops-divmod",
- "cc24-ops-incdec",
- "cc24-ops-logical",
- "cc24-ops-unary",
- "cc24-type-infer",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+ "tc24r-ops-arithmetic",
+ "tc24r-ops-bitwise",
+ "tc24r-ops-compare",
+ "tc24r-ops-divmod",
+ "tc24r-ops-incdec",
+ "tc24r-ops-logical",
+ "tc24r-ops-unary",
+ "tc24r-type-infer",
 ]
 
 [[package]]
-name = "cc24-expr-pointer"
+name = "tc24r-expr-pointer"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-macros",
- "cc24-type-infer",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
+ "tc24r-type-infer",
 ]
 
 [[package]]
-name = "cc24-expr-struct"
+name = "tc24r-expr-struct"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-core",
- "cc24-emit-macros",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-expr-variable"
+name = "tc24r-expr-variable"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-core",
- "cc24-emit-load-store",
- "cc24-emit-macros",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-load-store",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-ops-arithmetic"
+name = "tc24r-ops-arithmetic"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-core",
- "cc24-emit-macros",
- "cc24-type-infer",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
+ "tc24r-type-infer",
 ]
 
 [[package]]
-name = "cc24-ops-bitwise"
+name = "tc24r-ops-bitwise"
 version = "0.1.0"
 dependencies = [
- "cc24-codegen-state",
- "cc24-emit-macros",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-ops-compare"
+name = "tc24r-ops-compare"
 version = "0.1.0"
 dependencies = [
- "cc24-codegen-state",
- "cc24-emit-macros",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-ops-divmod"
+name = "tc24r-ops-divmod"
 version = "0.1.0"
 dependencies = [
- "cc24-codegen-state",
- "cc24-emit-macros",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-ops-incdec"
+name = "tc24r-ops-incdec"
 version = "0.1.0"
 dependencies = [
- "cc24-codegen-state",
- "cc24-emit-core",
- "cc24-emit-load-store",
- "cc24-emit-macros",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-load-store",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-ops-logical"
+name = "tc24r-ops-logical"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-core",
- "cc24-emit-macros",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-core",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-ops-unary"
+name = "tc24r-ops-unary"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
- "cc24-emit-macros",
+ "tc24r-ast",
+ "tc24r-codegen-state",
+ "tc24r-emit-macros",
 ]
 
 [[package]]
-name = "cc24-span"
+name = "tc24r-span"
 version = "0.1.0"
 
 [[package]]
-name = "cc24-type-infer"
+name = "tc24r-type-infer"
 version = "0.1.0"
 dependencies = [
- "cc24-ast",
- "cc24-codegen-state",
+ "tc24r-ast",
+ "tc24r-codegen-state",
 ]
