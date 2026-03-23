@@ -80,6 +80,39 @@ stripped, leaving the address expression.
 
 ---
 
+### BUG-004: Short branch emitted for far forward target
+
+**Filed by:** tml24c
+**Fixed:** 2026-03-23
+**Component:** `tc24r-emit-core` (emit.rs)
+
+Compiling tml24c's `main.c` produced `bra L36` where L36 was ~91
+instructions away — beyond the COR24 ±127 byte short branch range.
+The assembler rejected it with "Branch target too far".
+
+```
+build/tml24c.s line 574:  bra     L36
+build/tml24c.s line 665:  L36:
+```
+
+**Root cause:** The cor24-isa branch range check (commit fc82730)
+correctly handled backward branches by checking instruction distance,
+but forward branches (where the target label hasn't been emitted yet)
+optimistically defaulted to short form. Large function bodies like
+tml24c's eval exceeded the short branch range.
+
+**Fix:** Changed forward-branch default from `true` (optimistic) to
+`false` (conservative). All forward branches now use long form
+(`la r2,target; jmp (r2)`). Backward branches still use the
+cor24-isa `can_short_branch()` check for short form when safe.
+
+Trade-off: small functions produce slightly larger output (demo2
+went from 140 to 159 instructions), but no assembler errors ever
+occur. A future two-pass approach could recover short branches for
+small forward distances.
+
+---
+
 ## Open
 
 (none)

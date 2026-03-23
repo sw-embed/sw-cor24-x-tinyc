@@ -2,20 +2,20 @@
 
 Compiling demo12.c -> demo12.s
 Assembling and running on COR24 emulator...
-Assembled 208 bytes
+Assembled 268 bytes
 Running (speed: max IPS, time limit: 10s)...
 
-[UART TX @ 309] 'D'  (0x44)
-[UART TX @ 309] '1'  (0x31)
-[UART TX @ 309] '2'  (0x32)
-[UART TX @ 309] 'O'  (0x4F)
-[UART TX @ 309] 'K'  (0x4B)
-[UART TX @ 309] '\n'
+[UART TX @ 346] 'D'  (0x44)
+[UART TX @ 346] '1'  (0x31)
+[UART TX @ 346] '2'  (0x32)
+[UART TX @ 346] 'O'  (0x4F)
+[UART TX @ 346] 'K'  (0x4B)
+[UART TX @ 346] '\n'
 
 UART output: D12OK
 
 
-Executed 309 instructions
+Executed 346 instructions
 CPU halted (self-branch detected)
 
 === Registers ===
@@ -27,31 +27,35 @@ CPU halted (self-branch detected)
   sp:  0xFEEC00
 
 === Emulator ===
-  Instructions: 310
+  Instructions: 347
   Halted: true
 
 === SRAM 000000-0FFFFF (1 MB) ===
-  000000: 29 4E 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)N..%....~e)...8|
-  000010: 00 2A 80 00 00 0D C8 15 00 13 EE 29 00 01 FF 5A  |.*.........)...Z|
-  000020: 4D 09 81 00 69 7A 7B 7C 27 80 7F 7E 65 4D 09 38  |M...iz{|'..~eM.8|
-  000030: 00 C8 15 13 4D 09 38 00 7D 29 07 00 00 25 0C 03  |....M.8.})...%..|
-  000040: 4D 09 45 01 01 A6 09 13 E2 69 7A 7B 7C 27 80 7F  |M.E......iz{|'..|
-  000050: 7E 65 0C F4 44 01 A6 FD 44 00 A6 FA 44 01 A6 FA  |~e..D...D...D...|
-  000060: 44 00 C8 14 F5 4D FA C8 62 C8 15 02 44 00 A6 FD  |D....M..b...D...|
-  000070: 44 00 A6 F7 4D F7 45 01 01 A6 F7 4D F7 45 05 19  |D...M.E....M.E..|
-  000080: 15 F0 4D F7 45 05 16 15 02 44 00 A6 FD 44 00 A6  |..M.E....D...D..|
-  000090: F4 4D F4 45 64 1B 14 06 29 E7 03 00 A6 F4 13 EF  |.M.Ed...).......|
-  0000A0: 4D F4 45 00 16 15 02 44 00 A6 FD 4D FD C8 15 0E  |M.E....D...M....|
-  0000B0: 29 C9 00 00 7D 29 29 00 00 25 0C 03 44 2A 13 02  |)...}))..%..D*..|
-  0000C0: 44 00 13 FE 69 7A 7B 7C 27 44 31 32 4F 4B 0A 00  |D...iz{|'D12OK..|
-  0000D0..0FFFFF: 1048368 bytes all zero
+  000000: 29 5E 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)^..%....~e)...8|
+  000010: 00 2A 80 00 00 0D C8 14 03 2B 23 00 00 28 2B 0B  |.*.......+#..(+.|
+  000020: 00 00 28 29 00 01 FF 5A 4D 09 81 00 69 7A 7B 7C  |..()...ZM...iz{||
+  000030: 27 80 7F 7E 65 4D 09 38 00 C8 14 03 2B 59 00 00  |'..~eM.8....+Y..|
+  000040: 28 4D 09 38 00 7D 29 07 00 00 25 0C 03 4D 09 45  |(M.8.})...%..M.E|
+  000050: 01 01 A6 09 2B 35 00 00 28 69 7A 7B 7C 27 80 7F  |....+5..(iz{|'..|
+  000060: 7E 65 0C F4 44 01 A6 FD 44 00 A6 FA 44 01 A6 FA  |~e..D...D...D...|
+  000070: 44 00 C8 15 03 2B 6C 00 00 28 4D FA C8 62 C8 14  |D....+l..(M..b..|
+  000080: 03 2B 8A 00 00 28 44 00 A6 FD 44 00 A6 F7 4D F7  |.+...(D...D...M.|
+  000090: 45 01 01 A6 F7 4D F7 45 05 19 14 03 2B 8E 00 00  |E....M.E....+...|
+  0000A0: 28 4D F7 45 05 16 14 03 2B B1 00 00 28 44 00 A6  |(M.E....+...(D..|
+  0000B0: FD 44 00 A6 F4 4D F4 45 64 1B 15 03 2B CC 00 00  |.D...M.Ed...+...|
+  0000C0: 28 29 E7 03 00 A6 F4 2B B5 00 00 28 4D F4 45 00  |().....+...(M.E.|
+  0000D0: 16 14 03 2B DC 00 00 28 44 00 A6 FD 4D FD C8 14  |...+...(D...M...|
+  0000E0: 03 2B F9 00 00 28 29 05 01 00 7D 29 31 00 00 25  |.+...()...})1..%|
+  0000F0: 0C 03 44 2A 2B 00 01 00 28 44 00 2B 00 01 00 28  |..D*+...(D.+...(|
+  000100: 69 7A 7B 7C 27 44 31 32 4F 4B 0A 00 00 00 00 00  |iz{|'D12OK......|
+  000110..0FFFFF: 1048304 bytes all zero
 
 === Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
 
 === EBR FEE000-FEFFFF (8 KB, stack) ===
   FEE000..FEEBCF: 3024 bytes all zero
-  FEEBD0: 00 00 00 3E 00 00 00 00 00 DF EB FE 0A 00 00 BA  |...>............|
-  FEEBE0: 00 00 00 00 00 F7 EB FE CF 00 00 00 00 00 05 00  |................|
+  FEEBD0: 00 00 00 4B 00 00 35 00 00 DF EB FE 0A 00 00 F0  |...K..5.........|
+  FEEBE0: 00 00 DC 00 00 F7 EB FE 0B 01 00 00 00 00 05 00  |................|
   FEEBF0: 00 01 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
   FEEC00..FEFFFF: 5120 bytes all zero
 

@@ -20,15 +20,20 @@ L1:
         lw      r0,-3(fp)
         lc      r1,5
         cls     r0,r1
-        brf     L2
+        brt     L3
+        la      r2,L2
+        jmp     (r2)
+L3:
         lw      r0,-3(fp)
         lc      r1,1
         add     r0,r1
         sw      r0,-3(fp)
-        bra     L1
+        la      r2,L1
+        jmp     (r2)
 L2:
         lw      r0,-3(fp)
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L0:
         mov     sp,fp
         pop     r1

@@ -95,8 +95,12 @@ L1:
         la      r1,128
         and     r0,r1
         ceq     r0,z
-        brt     L2
-        bra     L1
+        brf     L3
+        la      r2,L2
+        jmp     (r2)
+L3:
+        la      r2,L1
+        jmp     (r2)
 L2:
         la      r0,16711936
         mov     r1,r0
@@ -115,11 +119,14 @@ _puts:
         push    r2
         push    r1
         mov     fp,sp
-L4:
+L5:
         lw      r0,9(fp)
         lbu     r0,0(r0)
         ceq     r0,z
-        brt     L5
+        brf     L7
+        la      r2,L6
+        jmp     (r2)
+L7:
         lw      r0,9(fp)
         lbu     r0,0(r0)
         push    r0
@@ -130,9 +137,10 @@ L4:
         lc      r1,1
         add     r0,r1
         sw      r0,9(fp)
-        bra     L4
-L5:
-L3:
+        la      r2,L5
+        jmp     (r2)
+L6:
+L4:
         mov     sp,fp
         pop     r1
         pop     r2
@@ -148,11 +156,14 @@ _strlen:
         add     sp,-3
         lc      r0,0
         sw      r0,-3(fp)
-L7:
+L9:
         lw      r0,9(fp)
         lbu     r0,0(r0)
         ceq     r0,z
-        brt     L8
+        brf     L11
+        la      r2,L10
+        jmp     (r2)
+L11:
         lw      r0,-3(fp)
         lc      r1,1
         add     r0,r1
@@ -161,11 +172,13 @@ L7:
         lc      r1,1
         add     r0,r1
         sw      r0,9(fp)
-        bra     L7
-L8:
+        la      r2,L9
+        jmp     (r2)
+L10:
         lw      r0,-3(fp)
-        bra     L6
-L6:
+        la      r2,L8
+        jmp     (r2)
+L8:
         mov     sp,fp
         pop     r1
         pop     r2
@@ -186,19 +199,25 @@ _main:
         lw      r0,-6(fp)
         la      r1,255
         ceq     r0,r1
-        brt     L11
+        brf     L15
+        la      r2,L14
+        jmp     (r2)
+L15:
         lc      r0,0
         sw      r0,-3(fp)
-L11:
+L14:
         lc      r0,42
         sw      r0,-9(fp)
         lw      r0,-9(fp)
         lc      r1,42
         ceq     r0,r1
-        brt     L13
+        brf     L18
+        la      r2,L17
+        jmp     (r2)
+L18:
         lc      r0,0
         sw      r0,-3(fp)
-L13:
+L17:
         la      r0,_S0
         sw      r0,-12(fp)
         lw      r0,-12(fp)
@@ -210,10 +229,13 @@ L13:
         lw      r0,-15(fp)
         lc      r1,5
         ceq     r0,r1
-        brt     L15
+        brf     L21
+        la      r2,L20
+        jmp     (r2)
+L21:
         lc      r0,0
         sw      r0,-3(fp)
-L15:
+L20:
         lw      r0,-12(fp)
         sw      r0,-18(fp)
         lw      r0,-18(fp)
@@ -224,10 +246,13 @@ L15:
         lbu     r0,0(r0)
         lc      r1,101
         ceq     r0,r1
-        brt     L17
+        brf     L24
+        la      r2,L23
+        jmp     (r2)
+L24:
         lc      r0,0
         sw      r0,-3(fp)
-L17:
+L23:
         lw      r0,-12(fp)
         lc      r1,4
         add     r0,r1
@@ -236,30 +261,41 @@ L17:
         lbu     r0,0(r0)
         lc      r1,111
         ceq     r0,r1
-        brt     L19
+        brf     L27
+        la      r2,L26
+        jmp     (r2)
+L27:
         lc      r0,0
         sw      r0,-3(fp)
-L19:
+L26:
         lw      r0,-3(fp)
         lc      r1,1
         ceq     r0,r1
-        brf     L21
+        brt     L30
+        la      r2,L29
+        jmp     (r2)
+L30:
         la      r0,_S1
         push    r0
         la      r0,_puts
         jal     r1,(r0)
         add     sp,3
-L21:
+L29:
         lw      r0,-3(fp)
         lc      r1,1
         ceq     r0,r1
-        brf     L23
+        brt     L33
+        la      r2,L32
+        jmp     (r2)
+L33:
         lc      r0,42
-        bra     L9
-L23:
+        la      r2,L12
+        jmp     (r2)
+L32:
         lc      r0,0
-        bra     L9
-L9:
+        la      r2,L12
+        jmp     (r2)
+L12:
         mov     sp,fp
         pop     r1
         pop     r2
@@ -275,19 +311,19 @@ _S1:
 
 Assembling and running on COR24 emulator...
 
-Assembled 288 bytes
+Assembled 356 bytes
 Running (speed: max IPS, time limit: 10s)...
 
-[UART TX @ 339] 'D'  (0x44)
-[UART TX @ 339] '3'  (0x33)
-[UART TX @ 339] 'O'  (0x4F)
-[UART TX @ 339] 'K'  (0x4B)
-[UART TX @ 339] '\n'
+[UART TX @ 375] 'D'  (0x44)
+[UART TX @ 375] '3'  (0x33)
+[UART TX @ 375] 'O'  (0x4F)
+[UART TX @ 375] 'K'  (0x4B)
+[UART TX @ 375] '\n'
 
 UART output: D3OK
 
 
-Executed 339 instructions
+Executed 375 instructions
 CPU halted (self-branch detected)
 
 === Registers ===
@@ -299,37 +335,42 @@ CPU halted (self-branch detected)
   sp:  0xFEEC00
 
 === Emulator ===
-  Instructions: 340
+  Instructions: 376
   Halted: true
 
 === SRAM 000000-0FFFFF (1 MB) ===
-  000000: 29 78 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)x..%....~e)...8|
-  000010: 00 2A 80 00 00 0D C8 15 00 13 EE 29 00 01 FF 5A  |.*.........)...Z|
-  000020: 4D 09 81 00 69 7A 7B 7C 27 80 7F 7E 65 4D 09 38  |M...iz{|'..~eM.8|
-  000030: 00 C8 15 13 4D 09 38 00 7D 29 07 00 00 25 0C 03  |....M.8.})...%..|
-  000040: 4D 09 45 01 01 A6 09 13 E2 69 7A 7B 7C 27 80 7F  |M.E......iz{|'..|
-  000050: 7E 65 0C FD 44 00 A6 FD 4D 09 38 00 C8 15 0E 4D  |~e..D...M.8....M|
-  000060: FD 45 01 01 A6 FD 4D 09 45 01 01 A6 09 13 E7 4D  |.E....M.E......M|
-  000070: FD 13 FE 69 7A 7B 7C 27 80 7F 7E 65 0C EB 44 01  |...iz{|'..~e..D.|
-  000080: A6 FD 29 FF 00 00 A6 FA 4D FA 2A FF 00 00 16 15  |..).....M.*.....|
-  000090: 02 44 00 A6 FD 44 2A A6 F7 4D F7 45 2A 16 15 02  |.D...D*..M.E*...|
-  0000A0: 44 00 A6 FD 29 14 01 00 A6 F4 4D F4 7D 29 4E 00  |D...).....M.})N.|
-  0000B0: 00 25 0C 03 A6 F1 4D F1 45 05 16 15 02 44 00 A6  |.%....M.E....D..|
-  0000C0: FD 4D F4 A6 EE 4D EE 45 01 01 A6 EE 4D EE 38 00  |.M...M.E....M.8.|
-  0000D0: 45 65 16 15 02 44 00 A6 FD 4D F4 45 04 01 A6 EB  |Ee...D...M.E....|
-  0000E0: 4D EB 38 00 45 6F 16 15 02 44 00 A6 FD 4D FD 45  |M.8.Eo...D...M.E|
-  0000F0: 01 16 14 0A 29 1A 01 00 7D 29 29 00 00 25 0C 03  |....)...}))..%..|
-  000100: 4D FD 45 01 16 14 02 44 2A 13 02 44 00 13 FE 69  |M.E....D*..D...i|
-  000110: 7A 7B 7C 27 48 65 6C 6C 6F 00 44 33 4F 4B 0A 00  |z{|'Hello.D3OK..|
-  000120..0FFFFF: 1048288 bytes all zero
+  000000: 29 93 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)...%....~e)...8|
+  000010: 00 2A 80 00 00 0D C8 14 03 2B 23 00 00 28 2B 0B  |.*.......+#..(+.|
+  000020: 00 00 28 29 00 01 FF 5A 4D 09 81 00 69 7A 7B 7C  |..()...ZM...iz{||
+  000030: 27 80 7F 7E 65 4D 09 38 00 C8 14 03 2B 59 00 00  |'..~eM.8....+Y..|
+  000040: 28 4D 09 38 00 7D 29 07 00 00 25 0C 03 4D 09 45  |(M.8.})...%..M.E|
+  000050: 01 01 A6 09 2B 35 00 00 28 69 7A 7B 7C 27 80 7F  |....+5..(iz{|'..|
+  000060: 7E 65 0C FD 44 00 A6 FD 4D 09 38 00 C8 14 03 2B  |~e..D...M.8....+|
+  000070: 87 00 00 28 4D FD 45 01 01 A6 FD 4D 09 45 01 01  |...(M.E....M.E..|
+  000080: A6 09 2B 68 00 00 28 4D FD 2B 8E 00 00 28 69 7A  |..+h..(M.+...(iz|
+  000090: 7B 7C 27 80 7F 7E 65 0C EB 44 01 A6 FD 29 FF 00  |{|'..~e..D...)..|
+  0000A0: 00 A6 FA 4D FA 2A FF 00 00 16 14 03 2B B5 00 00  |...M.*......+...|
+  0000B0: 28 44 00 A6 FD 44 2A A6 F7 4D F7 45 2A 16 14 03  |(D...D*..M.E*...|
+  0000C0: 2B C9 00 00 28 44 00 A6 FD 29 58 01 00 A6 F4 4D  |+...(D...)X....M|
+  0000D0: F4 7D 29 5E 00 00 25 0C 03 A6 F1 4D F1 45 05 16  |.})^..%....M.E..|
+  0000E0: 14 03 2B EB 00 00 28 44 00 A6 FD 4D F4 A6 EE 4D  |..+...(D...M...M|
+  0000F0: EE 45 01 01 A6 EE 4D EE 38 00 45 65 16 14 03 2B  |.E....M.8.Ee...+|
+  000100: 08 01 00 28 44 00 A6 FD 4D F4 45 04 01 A6 EB 4D  |...(D...M.E....M|
+  000110: EB 38 00 45 6F 16 14 03 2B 21 01 00 28 44 00 A6  |.8.Eo...+!..(D..|
+  000120: FD 4D FD 45 01 16 15 03 2B 39 01 00 28 29 5E 01  |.M.E....+9..()^.|
+  000130: 00 7D 29 31 00 00 25 0C 03 4D FD 45 01 16 15 03  |.})1..%..M.E....|
+  000140: 2B 4C 01 00 28 44 2A 2B 53 01 00 28 44 00 2B 53  |+L..(D*+S..(D.+S|
+  000150: 01 00 28 69 7A 7B 7C 27 48 65 6C 6C 6F 00 44 33  |..(iz{|'Hello.D3|
+  000160: 4F 4B 0A 00 00 00 00 00 00 00 00 00 00 00 00 00  |OK..............|
+  000170..0FFFFF: 1048208 bytes all zero
 
 === Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
 
 === EBR FEE000-FEFFFF (8 KB, stack) ===
   FEE000..FEEBBF: 3008 bytes all zero
-  FEEBC0: 00 00 00 00 00 00 00 00 00 00 3E 00 00 00 00 00  |..........>.....|
-  FEEBD0: D6 EB FE 0A 00 00 FE 00 00 00 00 00 F7 EB FE 1F  |................|
-  FEEBE0: 01 00 18 01 00 15 01 00 05 00 00 14 01 00 2A 00  |..............*.|
+  FEEBC0: 00 00 00 00 00 00 00 00 00 00 4B 00 00 35 00 00  |..........K..5..|
+  FEEBD0: D6 EB FE 0A 00 00 37 01 00 21 01 00 F7 EB FE 63  |......7..!.....c|
+  FEEBE0: 01 00 5C 01 00 59 01 00 05 00 00 58 01 00 2A 00  |..\..Y.....X..*.|
   FEEBF0: 00 FF 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
   FEEC00..FEFFFF: 5120 bytes all zero
 

@@ -21,7 +21,8 @@ _main:
         lw      r0,-3(fp)
         lw      r1,-6(fp)
         add     r0,r1
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L0:
         mov     sp,fp
         pop     r1

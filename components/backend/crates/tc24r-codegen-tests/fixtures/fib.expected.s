@@ -16,9 +16,13 @@ _fib:
         lw      r0,9(fp)
         lc      r1,2
         cls     r0,r1
-        brf     L2
+        brt     L3
+        la      r2,L2
+        jmp     (r2)
+L3:
         lc      r0,1
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L2:
         lw      r0,9(fp)
         lc      r1,1
@@ -38,7 +42,8 @@ L2:
         mov     r1,r0
         pop     r0
         add     r0,r1
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L0:
         mov     sp,fp
         pop     r1
@@ -57,8 +62,9 @@ _main:
         la      r0,_fib
         jal     r1,(r0)
         add     sp,3
-        bra     L3
-L3:
+        la      r2,L4
+        jmp     (r2)
+L4:
         mov     sp,fp
         pop     r1
         pop     r2

@@ -15,13 +15,19 @@ _main:
         mov     fp,sp
         lc      r0,1
         ceq     r0,z
-        brt     L1
+        brf     L3
+        la      r2,L1
+        jmp     (r2)
+L3:
         lc      r0,3
-        bra     L0
-        bra     L2
+        la      r2,L0
+        jmp     (r2)
+        la      r2,L2
+        jmp     (r2)
 L1:
         lc      r0,4
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L2:
 L0:
         mov     sp,fp

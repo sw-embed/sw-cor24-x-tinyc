@@ -14,7 +14,8 @@ _main:
         push    r1
         mov     fp,sp
         lc      r0,42
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L0:
         mov     sp,fp
         pop     r1

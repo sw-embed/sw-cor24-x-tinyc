@@ -23,24 +23,34 @@ _main:
         mov     r1,r0
         lc      r0,0
         ceq     r0,r1
-        brt     L2
+        brf     L5
+        la      r2,L2
+        jmp     (r2)
+L5:
         pop     r0
         push    r0
         mov     r1,r0
         lc      r0,1
         ceq     r0,r1
-        brt     L3
+        brf     L6
+        la      r2,L3
+        jmp     (r2)
+L6:
         pop     r0
-        bra     L4
+        la      r2,L4
+        jmp     (r2)
 L2:
         lc      r0,10
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L3:
         lc      r0,20
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L4:
         lc      r0,30
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L1:
 L0:
         mov     sp,fp

@@ -90,10 +90,10 @@ fn is_short_branch(state: &CodegenState, target: &str) -> bool {
         return can_short_branch(state.instruction_count, label_pos);
     }
 
-    // Forward reference to a local label — optimistically use short branch.
-    // Control-flow constructs (if/while/for) generate forward branches that
-    // span only the body, which is typically well within range.
-    // If this proves wrong, the assembler will error and we can add
-    // a size estimation pass.
-    true
+    // Forward reference to a local label — use long branch to be safe.
+    // We don't know the distance yet, and large function bodies (like
+    // tml24c's eval) can exceed the ±127 byte short branch range.
+    // This is conservative (small functions get slightly larger output)
+    // but never produces assembler errors.
+    false
 }
