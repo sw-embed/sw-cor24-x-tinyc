@@ -37,4 +37,8 @@ pub struct CodegenState {
     pub struct_types: HashMap<String, Type>,
     /// Function return type registry: function name → return type.
     pub function_types: HashMap<String, Type>,
+    /// Instruction counter within the current function (for branch range estimation).
+    pub instruction_count: usize,
+    /// Map from label name to the instruction count when it was emitted.
+    pub label_positions: HashMap<String, usize>,
 }
