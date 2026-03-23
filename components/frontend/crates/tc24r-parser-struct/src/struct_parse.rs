@@ -67,19 +67,33 @@ fn parse_members(
     let mut members = Vec::new();
     let mut offset = 0;
     while !ts.check(&TokenKind::RBrace) {
-        let ty = parse_type_fn(ts)?;
+        let base_ty = parse_type_fn(ts)?;
+        // Parse first member name
         let name = ts.expect_ident()?;
-        ts.expect(TokenKind::Semicolon)?;
-        let size = ty.size();
+        let size = base_ty.size();
         let member_offset = if is_union { 0 } else { offset };
         members.push(StructMember {
             name,
-            ty,
+            ty: base_ty.clone(),
             offset: member_offset,
         });
         if !is_union {
             offset += size;
         }
+        // Comma-separated members of same type: int a, b;
+        while ts.eat(TokenKind::Comma) {
+            let name = ts.expect_ident()?;
+            let member_offset = if is_union { 0 } else { offset };
+            members.push(StructMember {
+                name,
+                ty: base_ty.clone(),
+                offset: member_offset,
+            });
+            if !is_union {
+                offset += size;
+            }
+        }
+        ts.expect(TokenKind::Semicolon)?;
     }
     Ok(members)
 }
