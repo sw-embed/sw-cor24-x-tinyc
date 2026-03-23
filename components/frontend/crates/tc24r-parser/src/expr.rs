@@ -154,7 +154,8 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
             }
         }
         ts.expect(TokenKind::RParen)?;
-        return Ok(Expr::Call { name, args });
+        let call = Expr::Call { name, args };
+        return parse_postfix_chain(ts, call);
     }
     // Postfix ++/-- (these consume the name, not chainable)
     if ts.eat(TokenKind::PlusPlus) {

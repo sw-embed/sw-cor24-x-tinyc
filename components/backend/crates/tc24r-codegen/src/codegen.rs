@@ -23,6 +23,11 @@ impl Codegen {
             self.state.global_types.insert(g.name.clone(), g.ty.clone());
         }
         self.state.struct_types = program.struct_types.clone();
+        for func in &program.functions {
+            self.state
+                .function_types
+                .insert(func.name.clone(), func.return_ty.clone());
+        }
         emit(&mut self.state, "        .text");
         emit(&mut self.state, "");
         emit_start(&mut self.state);

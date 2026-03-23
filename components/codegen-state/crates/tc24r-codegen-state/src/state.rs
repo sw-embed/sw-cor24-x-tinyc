@@ -35,4 +35,6 @@ pub struct CodegenState {
     pub needs_printf: bool,
     /// Struct type registry: tag name → full struct type.
     pub struct_types: HashMap<String, Type>,
+    /// Function return type registry: function name → return type.
+    pub function_types: HashMap<String, Type>,
 }

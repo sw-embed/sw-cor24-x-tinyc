@@ -111,6 +111,13 @@ fn object_type(state: &CodegenState, object: &Expr) -> Type {
                 _ => ptr_ty,
             }
         }
+        Expr::Call { name, .. } => {
+            if let Some(ty) = state.function_types.get(name.as_str()) {
+                ty.clone()
+            } else {
+                Type::Int
+            }
+        }
         Expr::MemberAccess { object: obj, member } => {
             let struct_ty = object_type(state, obj);
             if let Some(m) = struct_ty.find_member(member) {
