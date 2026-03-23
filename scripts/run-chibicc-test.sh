@@ -36,34 +36,42 @@ TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
 # Adapt the test file for tc24r freestanding:
-# - Our include/test.h provides ASSERT as a function-like macro
-# - Strip printf/exit/hosted-C helper declarations
-# - Strip the common file's helper function implementations
-# Note: sed usage here is not portable to macOS BSD sed.
-# TODO: Replace with a Rust tc24r-adapt tool (see docs/known-issues.md)
-sed \
-    -e '/printf/d' \
-    -e '/sprintf/d' \
-    -e '/exit(/d' \
-    -e '/^void assert/d' \
-    -e '/^int ext/d' \
-    -e '/^int \*ext/d' \
-    -e '/^int common_/d' \
-    -e '/^static int common_/d' \
-    -e '/^int false_fn/d' \
-    -e '/^int true_fn/d' \
-    -e '/^int char_fn/d' \
-    -e '/^int short_fn/d' \
-    -e '/^int uchar_fn/d' \
-    -e '/^int ushort_fn/d' \
-    -e '/^static int static_fn/d' \
-    -e '/^int ext_fn/d' \
-    -e '/float/d' \
-    -e '/double/d' \
-    -e '/0b[01]/d' \
-    -e '/0[0-7][0-7]/d' \
-    -e '/assert.*size/d' \
-    "$SRC" > "$TMPDIR/$NAME.c"
+# - Strip lines with printf/sprintf/exit/float/double/long/hosted decls
+# - Strip binary and octal literals our lexer doesn't handle
+# - Our include/test.h provides a freestanding ASSERT
+# Using awk (portable across GNU/BSD) instead of sed.
+awk '
+/printf/   { next }
+/sprintf/  { next }
+/vsprintf/ { next }
+/exit\(/   { next }
+/^void assert/ { next }
+/^int ext/  { next }
+/^int \*ext/ { next }
+/^int common_/ { next }
+/^static int common_/ { next }
+/^int false_fn/ { next }
+/^int true_fn/ { next }
+/^int char_fn/ { next }
+/^int short_fn/ { next }
+/^int uchar_fn/ { next }
+/^int ushort_fn/ { next }
+/^static int static_fn/ { next }
+/^int ext_fn/ { next }
+/float/    { next }
+/double/   { next }
+/long/     { next }
+/short/    { next }
+/_Bool/    { next }
+/0b[01]/   { next }
+/0[0-7][0-7]/ { next }
+/assert.*size/ { next }
+{ print }
+' "$SRC" > "$TMPDIR/$NAME.c"
+
+# Copy our freestanding test.h into the temp dir so it takes precedence
+# over chibicc's test.h (quoted includes check source_dir first)
+cp "$INCLUDE_DIR/test.h" "$TMPDIR/test.h"
 
 # Compile
 if ! "$CC24" "$TMPDIR/$NAME.c" -o "$TMPDIR/$NAME.s" -I "$INCLUDE_DIR" -I "$CHIBICC_TEST" 2>"$TMPDIR/tc24r.err"; then

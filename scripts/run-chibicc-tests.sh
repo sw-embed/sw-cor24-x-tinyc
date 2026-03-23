@@ -8,7 +8,11 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 CHIBICC_TEST="${HOME}/github/softwarewrighter/chibicc/test"
+
+# Build once upfront to avoid stale binary and repeated rebuilds
+cargo build --manifest-path "$ROOT_DIR/components/cli/Cargo.toml" --release --quiet
 
 pass=0
 fail=0
