@@ -93,12 +93,24 @@ fn parse_global_decls(
     globals: &mut Vec<GlobalDecl>,
 ) -> Result<(), CompileError> {
     let base_ty = parse_type(ts)?;
-    globals.push(parse_one_global(ts, base_ty.clone())?);
+    merge_global(globals, parse_one_global(ts, base_ty.clone())?);
     while ts.eat(TokenKind::Comma) {
-        globals.push(parse_one_global(ts, base_ty.clone())?);
+        merge_global(globals, parse_one_global(ts, base_ty.clone())?);
     }
     ts.expect(TokenKind::Semicolon)?;
     Ok(())
+}
+
+/// Merge a global declaration, handling tentative definitions.
+/// `int x; int x = 5;` keeps the initialized version.
+fn merge_global(globals: &mut Vec<GlobalDecl>, new: GlobalDecl) {
+    if let Some(existing) = globals.iter_mut().find(|g| g.name == new.name) {
+        if new.init.is_some() {
+            existing.init = new.init;
+        }
+    } else {
+        globals.push(new);
+    }
 }
 
 fn parse_one_global(ts: &mut TokenStream, base_ty: Type) -> Result<GlobalDecl, CompileError> {
