@@ -6,7 +6,7 @@ The approach is inspired by [chibicc](https://github.com/rui314/chibicc), a smal
 
 ## Project Status
 
-tc24r is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 14 components, ~50 crates, 35 demos all passing. See [docs/status.md](docs/status.md) for detailed status and test counts.
+tc24r is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 14 components, ~50 crates, 36 demos all passing. See [docs/status.md](docs/status.md) for detailed status and test counts.
 
 ### What Works
 

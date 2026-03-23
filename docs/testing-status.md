@@ -6,14 +6,14 @@ Last updated: 2026-03-22
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| tc24r demos | 35 | 35 | 100% | End-to-end compiler + emulator |
+| tc24r demos | 36 | 36 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 25 | 25 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 0 | 11 | 0% | All need stdio.h |
 | bgc examples | 1 | 117 | 1% | 116 blocked on stdio.h |
 
-## tc24r Demos (35/35)
+## tc24r Demos (36/36)
 
 | # | Demo | Features Tested |
 |---|------|----------------|
@@ -52,6 +52,7 @@ Last updated: 2026-03-22
 | 33 | demo33.c | Comma-separated struct/union members (int a, b;) |
 | 34 | demo34.c | Multi-dimensional array declarations (int a[2][3]) |
 | 35 | demo35.c | Struct/union array members (char a[3]) |
+| 36 | demo36.c | Forward-declared struct tags, self-referential structs |
 
 Run: `demos/run-demo<N>.sh`
 

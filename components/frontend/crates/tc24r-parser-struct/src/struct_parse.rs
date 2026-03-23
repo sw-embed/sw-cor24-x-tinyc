@@ -117,14 +117,21 @@ fn parse_member_array(ts: &mut TokenStream, mut ty: Type) -> Result<Type, Compil
     Ok(ty)
 }
 
-fn lookup_named_struct(ts: &TokenStream, tag: &Option<String>) -> Result<Type, CompileError> {
+fn lookup_named_struct(ts: &mut TokenStream, tag: &Option<String>) -> Result<Type, CompileError> {
     let name = tag.as_ref().ok_or_else(|| {
         CompileError::new("expected struct body or tag name", Some(ts.current_span()))
     })?;
-    ts.struct_types.get(name).cloned().ok_or_else(|| {
-        CompileError::new(
-            format!("unknown struct type '{name}'"),
-            Some(ts.current_span()),
-        )
-    })
+    if let Some(ty) = ts.struct_types.get(name) {
+        return Ok(ty.clone());
+    }
+    // Forward declaration: register an incomplete struct placeholder.
+    // This allows `struct foo *p;` before the struct body is defined.
+    // The placeholder will be replaced when the full definition is parsed.
+    let placeholder = Type::Struct {
+        tag: Some(name.clone()),
+        members: Vec::new(),
+        total_size: 0,
+    };
+    ts.struct_types.insert(name.clone(), placeholder.clone());
+    Ok(placeholder)
 }
