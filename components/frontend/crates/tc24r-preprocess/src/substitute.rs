@@ -58,7 +58,9 @@ fn expand_ident(
         return pos + consumed;
     }
     if let Some(replacement) = defines.get(word) {
-        result.push_str(replacement);
+        // Re-expand: the replacement may contain other macros (bug001/bug002)
+        let re_expanded = expand_line(replacement, defines, func_macros);
+        result.push_str(&re_expanded);
     } else {
         result.push_str(word);
     }
