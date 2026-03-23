@@ -2,7 +2,7 @@
 
 use tc24r_ast::{Block, Expr, Stmt};
 use tc24r_codegen_state::CodegenState;
-use tc24r_emit_core::new_label;
+use tc24r_emit_core::{emit_bra, emit_brt, new_label};
 use tc24r_emit_macros::emit;
 use tc24r_stmt_simple::GenStmtFn;
 use tc24r_type_infer::GenExprFn;
@@ -24,15 +24,15 @@ pub fn gen_if(
     gen_expr_fn(cond, state);
     emit!(state, "        ceq     r0,z");
     if else_body.is_some() {
-        emit!(state, "        brt     {else_label}");
+        emit_brt(state, &else_label);
     } else {
-        emit!(state, "        brt     {done_label}");
+        emit_brt(state, &done_label);
     }
 
     emit_block(state, &then_body.stmts, gen_stmt_fn);
 
     if let Some(eb) = else_body {
-        emit!(state, "        bra     {done_label}");
+        emit_bra(state, &done_label);
         emit!(state, "{else_label}:");
         emit_block(state, &eb.stmts, gen_stmt_fn);
     }

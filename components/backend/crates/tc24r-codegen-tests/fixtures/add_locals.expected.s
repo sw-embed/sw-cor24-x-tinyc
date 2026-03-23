@@ -24,7 +24,8 @@ _main:
         mov     r1,r0
         pop     r0
         add     r0,r1
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L0:
         mov     sp,fp
         pop     r1

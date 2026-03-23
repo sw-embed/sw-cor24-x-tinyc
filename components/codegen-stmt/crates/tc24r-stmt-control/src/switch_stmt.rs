@@ -2,7 +2,7 @@
 
 use tc24r_ast::{Expr, Stmt, SwitchCase};
 use tc24r_codegen_state::CodegenState;
-use tc24r_emit_core::new_label;
+use tc24r_emit_core::{emit_bra, emit_brt, new_label};
 use tc24r_emit_macros::emit;
 use tc24r_stmt_simple::GenStmtFn;
 use tc24r_type_infer::GenExprFn;
@@ -41,9 +41,9 @@ pub fn gen_switch(
     // After all comparisons: jump to default or done
     emit!(state, "        pop     r0");
     if default.is_some() {
-        emit!(state, "        bra     {default_label}");
+        emit_bra(state, &default_label);
     } else {
-        emit!(state, "        bra     {done_label}");
+        emit_bra(state, &done_label);
     }
 
     // Emit case bodies (fall-through between them)
@@ -78,5 +78,5 @@ fn gen_case_compare(
     emit!(state, "        mov     r1,r0");
     gen_expr_fn(value, state);
     emit!(state, "        ceq     r0,r1");
-    emit!(state, "        brt     {label}");
+    emit_brt(state, label);
 }

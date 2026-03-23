@@ -1,6 +1,7 @@
 //! Break, continue, and inline assembly statement code generation.
 
 use tc24r_codegen_state::CodegenState;
+use tc24r_emit_core::emit_bra;
 use tc24r_emit_macros::emit;
 
 /// Generate code for a `break` statement.
@@ -9,7 +10,7 @@ use tc24r_emit_macros::emit;
 pub fn gen_break(state: &mut CodegenState) {
     if let Some(label) = state.break_labels.last() {
         let label = label.clone();
-        emit!(state, "        bra     {label}");
+        emit_bra(state, &label);
     }
 }
 
@@ -19,7 +20,7 @@ pub fn gen_break(state: &mut CodegenState) {
 pub fn gen_continue(state: &mut CodegenState) {
     if let Some(label) = state.continue_labels.last() {
         let label = label.clone();
-        emit!(state, "        bra     {label}");
+        emit_bra(state, &label);
     }
 }
 

@@ -6,7 +6,7 @@ Last updated: 2026-03-22
 
 The compiler is functional and can compile real C programs to COR24 assembly
 that runs on hardware (COR24-TB FPGA board) and the cor24-rs emulator.
-38 working demos exercise all implemented features.
+39 working demos exercise all implemented features.
 
 ## Component Architecture
 
@@ -91,7 +91,7 @@ component being its own Cargo workspace under `components/`:
 
 ## Demos
 
-38 demos in the `demos/` directory, each with a run script:
+39 demos in the `demos/` directory, each with a run script:
 
 | Demo | Features Exercised |
 |------|--------------------|
@@ -133,6 +133,7 @@ component being its own Cargo workspace under `components/`:
 | demo36.c | Forward-declared struct tags, self-referential structs |
 | demo37.c | Anonymous struct/union members (C11) |
 | demo38.c | Struct brace initializer (struct s x = {1, 2}) |
+| demo39.c | printf via stdio.h, long branches, varargs syntax |
 
 ## Test Suite
 
@@ -171,6 +172,5 @@ cargo test --manifest-path components/backend/Cargo.toml -- --ignored
 ## Known Limitations
 
 - No float/double (COR24 has no FPU -- out of scope)
-- Branch range limited to signed 8-bit offset (~127 bytes)
 - No optimization passes
 - Single translation unit only

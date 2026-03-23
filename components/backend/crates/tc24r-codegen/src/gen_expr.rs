@@ -1,6 +1,6 @@
 use tc24r_ast::Expr;
 use tc24r_codegen_state::CodegenState;
-use tc24r_emit_core::new_label;
+use tc24r_emit_core::{emit_bra, emit_brt, new_label};
 use tc24r_emit_macros::emit;
 
 use crate::gen_stmt::gen_stmt;
@@ -61,9 +61,9 @@ fn gen_ternary(state: &mut CodegenState, cond: &Expr, then_expr: &Expr, else_exp
 
     gen_expr(cond, state);
     emit!(state, "        ceq     r0,z");
-    emit!(state, "        brt     {else_label}");
+    emit_brt(state, &else_label);
     gen_expr(then_expr, state);
-    emit!(state, "        bra     {done_label}");
+    emit_bra(state, &done_label);
     emit!(state, "{else_label}:");
     gen_expr(else_expr, state);
     emit!(state, "{done_label}:");

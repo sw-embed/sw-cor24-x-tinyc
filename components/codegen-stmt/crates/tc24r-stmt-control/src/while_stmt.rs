@@ -2,7 +2,7 @@
 
 use tc24r_ast::{Block, Expr, Stmt};
 use tc24r_codegen_state::CodegenState;
-use tc24r_emit_core::new_label;
+use tc24r_emit_core::{emit_bra, emit_brt, new_label};
 use tc24r_emit_macros::emit;
 use tc24r_stmt_simple::GenStmtFn;
 use tc24r_type_infer::GenExprFn;
@@ -26,10 +26,10 @@ pub fn gen_while(
     emit!(state, "{loop_label}:");
     gen_expr_fn(cond, state);
     emit!(state, "        ceq     r0,z");
-    emit!(state, "        brt     {done_label}");
+    emit_brt(state, &done_label);
 
     emit_block(state, &body.stmts, gen_stmt_fn);
-    emit!(state, "        bra     {loop_label}");
+    emit_bra(state, &loop_label);
     emit!(state, "{done_label}:");
     state.break_labels.pop();
     state.continue_labels.pop();

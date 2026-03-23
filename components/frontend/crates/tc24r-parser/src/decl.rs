@@ -172,6 +172,13 @@ fn parse_params(ts: &mut TokenStream) -> Result<Vec<Param>, CompileError> {
         return Ok(params);
     }
     loop {
+        // Varargs: ... (accept and ignore)
+        if ts.check(&TokenKind::Dot) {
+            ts.advance(); // .
+            ts.advance(); // .
+            ts.advance(); // .
+            break;
+        }
         let ty = parse_type(ts)?;
         // Unnamed parameters allowed in prototypes: int foo(int, int);
         let name = if ts.check(&TokenKind::Comma) || ts.check(&TokenKind::RParen) {

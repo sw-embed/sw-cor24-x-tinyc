@@ -24,7 +24,8 @@ _main:
         sw      r0,0(r1)
         la      r1,_x
         lw      r0,0(r1)
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L0:
         mov     sp,fp
         pop     r1

@@ -5,7 +5,7 @@
 
 use tc24r_ast::Expr;
 use tc24r_codegen_state::CodegenState;
-use tc24r_emit_core::new_label;
+use tc24r_emit_core::{emit_bra, emit_brf, emit_brt, new_label};
 use tc24r_emit_macros::emit;
 
 /// Callback type for expression code generation.
@@ -17,12 +17,12 @@ pub fn gen_log_and(state: &mut CodegenState, lhs: &Expr, rhs: &Expr, gen_expr_fn
     let done_label = new_label(state);
     gen_expr_fn(lhs, state);
     emit!(state, "        ceq     r0,z");
-    emit!(state, "        brt     {false_label}");
+    emit_brt(state, &false_label);
     gen_expr_fn(rhs, state);
     emit!(state, "        ceq     r0,z");
-    emit!(state, "        brt     {false_label}");
+    emit_brt(state, &false_label);
     emit!(state, "        lc      r0,1");
-    emit!(state, "        bra     {done_label}");
+    emit_bra(state, &done_label);
     emit!(state, "{false_label}:");
     emit!(state, "        lc      r0,0");
     emit!(state, "{done_label}:");
@@ -34,12 +34,12 @@ pub fn gen_log_or(state: &mut CodegenState, lhs: &Expr, rhs: &Expr, gen_expr_fn:
     let done_label = new_label(state);
     gen_expr_fn(lhs, state);
     emit!(state, "        ceq     r0,z");
-    emit!(state, "        brf     {true_label}");
+    emit_brf(state, &true_label);
     gen_expr_fn(rhs, state);
     emit!(state, "        ceq     r0,z");
-    emit!(state, "        brf     {true_label}");
+    emit_brf(state, &true_label);
     emit!(state, "        lc      r0,0");
-    emit!(state, "        bra     {done_label}");
+    emit_bra(state, &done_label);
     emit!(state, "{true_label}:");
     emit!(state, "        lc      r0,1");
     emit!(state, "{done_label}:");

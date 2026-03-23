@@ -25,7 +25,10 @@ L1:
         cls     r0,r1
         mov     r0,c
         ceq     r0,z
-        brt     L2
+        brf     L3
+        la      r2,L2
+        jmp     (r2)
+L3:
         lw      r0,-3(fp)
         push    r0
         lc      r0,1
@@ -33,10 +36,12 @@ L1:
         pop     r0
         add     r0,r1
         sw      r0,-3(fp)
-        bra     L1
+        la      r2,L1
+        jmp     (r2)
 L2:
         lw      r0,-3(fp)
-        bra     L0
+        la      r2,L0
+        jmp     (r2)
 L0:
         mov     sp,fp
         pop     r1

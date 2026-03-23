@@ -31,4 +31,6 @@ pub struct CodegenState {
     pub break_labels: Vec<String>,
     /// Stack of continue-target labels for loops.
     pub continue_labels: Vec<String>,
+    /// Whether the program needs the printf runtime helpers.
+    pub needs_printf: bool,
 }
