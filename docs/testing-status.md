@@ -11,7 +11,7 @@ Last updated: 2026-03-22
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
-| bgc examples | 1 | 117 | 1% | 116 blocked on stdio.h |
+| bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
 ## tc24r Demos (40/40)
 

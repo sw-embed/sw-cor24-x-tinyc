@@ -117,7 +117,7 @@ cargo run -- run path/to/program.s
 | chibicc-subset | 5 | 5 | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | hello_world, functions, pointers, typedef |
-| bgc examples | 0 | 117 | All need stdio.h |
+| bgc examples | 41 | 117 | With stdio/stdlib/string/stdbool stubs |
 
 See [Testing Status](docs/testing-status.md) for detailed tables and blocker analysis.
 
