@@ -46,6 +46,7 @@ impl Lexer<'_> {
         let next = self.peek_char()?;
         let kind = match (ch, next) {
             (b'+', b'+') => TokenKind::PlusPlus,
+            (b'-', b'>') => TokenKind::Arrow,
             (b'-', b'-') => TokenKind::MinusMinus,
             (b'&', b'&') => TokenKind::AmpAmp,
             (b'|', b'|') => TokenKind::PipePipe,

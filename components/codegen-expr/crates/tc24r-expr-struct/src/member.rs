@@ -13,12 +13,10 @@ pub fn gen_member_access(
     state: &mut CodegenState,
     object: &Expr,
     member: &str,
-    _gen_expr_fn: GenExprFn,
+    gen_expr_fn: GenExprFn,
 ) {
-    let (fp_offset, mem_offset, is_char) = resolve_member(state, object, member);
-    let addr_offset = fp_offset + mem_offset;
-    load_immediate(state, addr_offset);
-    emit!(state, "        add     r0,fp");
+    let (mem_offset, is_char) = member_info(state, object, member);
+    emit_member_addr(state, object, mem_offset, gen_expr_fn);
     if is_char {
         emit!(state, "        lbu     r0,0(r0)");
     } else {
@@ -34,12 +32,10 @@ pub fn gen_member_assign(
     value: &Expr,
     gen_expr_fn: GenExprFn,
 ) {
-    let (fp_offset, mem_offset, is_char) = resolve_member(state, object, member);
+    let (mem_offset, is_char) = member_info(state, object, member);
     gen_expr_fn(value, state);
     emit!(state, "        push    r0");
-    let addr_offset = fp_offset + mem_offset;
-    load_immediate(state, addr_offset);
-    emit!(state, "        add     r0,fp");
+    emit_member_addr(state, object, mem_offset, gen_expr_fn);
     emit!(state, "        mov     r1,r0");
     emit!(state, "        pop     r0");
     if is_char {
@@ -49,13 +45,64 @@ pub fn gen_member_assign(
     }
 }
 
-/// Resolve member info: (variable fp_offset, member_offset, is_char).
-fn resolve_member(state: &CodegenState, object: &Expr, member: &str) -> (i32, i32, bool) {
-    let Expr::Ident(name) = object else {
-        panic!("struct member access on non-identifier");
-    };
-    let fp_offset = state.locals[name.as_str()];
-    let ty = &state.local_types[name.as_str()];
+/// Emit code to compute member address into r0.
+fn emit_member_addr(
+    state: &mut CodegenState,
+    object: &Expr,
+    mem_offset: i32,
+    gen_expr_fn: GenExprFn,
+) {
+    match object {
+        Expr::Ident(name) => {
+            // Local struct: fp + var_offset + member_offset
+            let fp_offset = state.locals[name.as_str()];
+            load_immediate(state, fp_offset + mem_offset);
+            emit!(state, "        add     r0,fp");
+        }
+        Expr::Deref(ptr) => {
+            // Pointer to struct: evaluate ptr, add member_offset
+            gen_expr_fn(ptr, state);
+            if mem_offset != 0 {
+                emit!(state, "        push    r0");
+                load_immediate(state, mem_offset);
+                emit!(state, "        pop     r1");
+                emit!(state, "        add     r0,r1");
+            }
+        }
+        _ => {
+            // General case: evaluate object as address, add offset
+            gen_expr_fn(object, state);
+            if mem_offset != 0 {
+                emit!(state, "        push    r0");
+                load_immediate(state, mem_offset);
+                emit!(state, "        pop     r1");
+                emit!(state, "        add     r0,r1");
+            }
+        }
+    }
+}
+
+/// Get member offset and whether it's a char type.
+fn member_info(state: &CodegenState, object: &Expr, member: &str) -> (i32, bool) {
+    let ty = object_type(state, object);
     let m = ty.find_member(member).expect("unknown struct member");
-    (fp_offset, m.offset, m.ty == Type::Char)
+    (m.offset, m.ty == Type::Char)
+}
+
+/// Determine the struct type of the object expression.
+fn object_type<'a>(state: &'a CodegenState, object: &Expr) -> &'a Type {
+    match object {
+        Expr::Ident(name) => &state.local_types[name.as_str()],
+        Expr::Deref(ptr) => {
+            // ptr is a pointer to struct; get the pointee type
+            if let Expr::Ident(name) = ptr.as_ref() {
+                if let Some(Type::Ptr(inner)) = state.local_types.get(name.as_str()) {
+                    return inner;
+                }
+            }
+            // Fallback: shouldn't happen with well-typed code
+            panic!("cannot determine struct type for -> access");
+        }
+        _ => panic!("cannot determine struct type"),
+    }
 }

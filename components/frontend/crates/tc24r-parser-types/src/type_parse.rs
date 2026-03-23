@@ -20,14 +20,20 @@ fn consume_qualifiers(ts: &mut TokenStream) -> bool {
 }
 
 /// Parse a base type keyword (char/int/void/enum/struct/typedef alias).
-fn parse_base_type(
-    ts: &mut TokenStream,
-    had_qualifier: bool,
-) -> Result<Type, CompileError> {
+fn parse_base_type(ts: &mut TokenStream, had_qualifier: bool) -> Result<Type, CompileError> {
     match ts.peek().kind {
-        TokenKind::Char => { ts.advance(); Ok(Type::Char) }
-        TokenKind::Int => { ts.advance(); Ok(Type::Int) }
-        TokenKind::Void => { ts.advance(); Ok(Type::Void) }
+        TokenKind::Char => {
+            ts.advance();
+            Ok(Type::Char)
+        }
+        TokenKind::Int => {
+            ts.advance();
+            Ok(Type::Int)
+        }
+        TokenKind::Void => {
+            ts.advance();
+            Ok(Type::Void)
+        }
         TokenKind::Enum => {
             ts.advance();
             if matches!(ts.peek().kind, TokenKind::Ident(_)) {

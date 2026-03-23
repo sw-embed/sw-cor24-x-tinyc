@@ -1,5 +1,5 @@
-use tc24r_span::Span;
 use std::fmt;
+use tc24r_span::Span;
 
 /// A compilation error with a human-readable message and optional
 /// source location.

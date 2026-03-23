@@ -181,6 +181,14 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
             member,
         });
     }
+    // Arrow: p->x desugared to (*p).x
+    if ts.eat(TokenKind::Arrow) {
+        let member = ts.expect_ident()?;
+        return Ok(Expr::MemberAccess {
+            object: Box::new(Expr::Deref(Box::new(Expr::Ident(name)))),
+            member,
+        });
+    }
     Ok(Expr::Ident(name))
 }
 

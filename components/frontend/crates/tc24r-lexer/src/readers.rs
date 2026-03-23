@@ -159,7 +159,11 @@ impl Lexer<'_> {
         let mut val: u8 = 0;
         while self.pos < self.source.len() && self.source[self.pos].is_ascii_hexdigit() {
             let d = self.source[self.pos];
-            let nibble = if d.is_ascii_digit() { d - b'0' } else { (d | 0x20) - b'a' + 10 };
+            let nibble = if d.is_ascii_digit() {
+                d - b'0'
+            } else {
+                (d | 0x20) - b'a' + 10
+            };
             val = val.wrapping_mul(16).wrapping_add(nibble);
             self.pos += 1;
         }
