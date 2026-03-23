@@ -105,6 +105,11 @@ fn parse_return(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
 
 pub fn parse_local_decl(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     let base_ty = parse_type(ts)?;
+    // Standalone struct definition: `struct tag { ... };`
+    if ts.check(&TokenKind::Semicolon) {
+        ts.advance();
+        return Ok(Stmt::Expr(Expr::IntLit(0)));
+    }
     let first = parse_one_declarator(ts, base_ty.clone())?;
     // Check for comma-separated additional declarators
     if !ts.check(&TokenKind::Comma) {

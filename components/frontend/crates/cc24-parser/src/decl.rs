@@ -34,6 +34,27 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
             cc24_parser_enum::parse_enum_decl(ts)?;
             continue;
         }
+        // Top-level struct/union definition: struct tag { ... };
+        if matches!(ts.peek().kind, TokenKind::Struct | TokenKind::Union) {
+            parse_type(ts)?; // registers the struct in ts.struct_types
+            if ts.eat(TokenKind::Semicolon) {
+                continue; // standalone definition, no variable
+            }
+            // Otherwise: struct tag { ... } var; -- need to parse declarator
+            // Fall through won't work here since we consumed the type.
+            // Parse the variable name and create a global.
+            let name = ts.expect_ident()?;
+            let ty = ts
+                .struct_types
+                .values()
+                .last()
+                .cloned()
+                .unwrap_or(Type::Int);
+            let init = None;
+            ts.expect(TokenKind::Semicolon)?;
+            globals.push(GlobalDecl { name, ty, init });
+            continue;
+        }
         // Top-level typedef
         if ts.eat(TokenKind::Typedef) {
             cc24_parser_typedef::parse_typedef_decl(ts)?;

@@ -13,6 +13,8 @@ pub struct TokenStream {
     pub enum_constants: HashMap<String, i32>,
     /// Typedef aliases: name -> resolved type.
     pub type_aliases: HashMap<String, Type>,
+    /// Named struct types: tag -> Type::Struct.
+    pub struct_types: HashMap<String, Type>,
 }
 
 impl TokenStream {
@@ -22,6 +24,7 @@ impl TokenStream {
             pos: 0,
             enum_constants: HashMap::new(),
             type_aliases: HashMap::new(),
+            struct_types: HashMap::new(),
         }
     }
 

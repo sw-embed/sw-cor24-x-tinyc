@@ -24,7 +24,7 @@ pub fn is_typedef_name(ts: &TokenStream, kind: &TokenKind) -> bool {
 pub fn is_base_type(kind: &TokenKind) -> bool {
     matches!(
         kind,
-        TokenKind::Char | TokenKind::Int | TokenKind::Void | TokenKind::Enum
+        TokenKind::Char | TokenKind::Int | TokenKind::Void | TokenKind::Enum | TokenKind::Struct
     )
 }
 
@@ -65,6 +65,10 @@ pub fn parse_type(ts: &mut TokenStream) -> Result<Type, CompileError> {
                 ts.advance();
             }
             Type::Int // enums are treated as int
+        }
+        TokenKind::Struct => {
+            ts.advance();
+            cc24_parser_struct::parse_struct_type(ts, parse_type)?
         }
         TokenKind::Ident(ref name) if ts.type_aliases.contains_key(name) => {
             let resolved = ts.type_aliases[name].clone();

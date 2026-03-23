@@ -1,5 +1,5 @@
 [package]
-name = "cc24-parser-types"
+name = "cc24-parser-struct"
 version = "0.1.0"
 edition = "2024"
 
@@ -7,5 +7,4 @@ edition = "2024"
 cc24-ast = { path = "../../../core/crates/cc24-ast" }
 cc24-error = { path = "../../../core/crates/cc24-error" }
 cc24-parse-stream = { path = "../cc24-parse-stream" }
-cc24-parser-struct = { path = "../cc24-parser-struct" }
 cc24-token = { path = "../../../core/crates/cc24-token" }

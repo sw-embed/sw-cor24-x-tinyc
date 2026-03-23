@@ -94,6 +94,11 @@ fn scan_expr_locals(state: &mut CodegenState, expr: &Expr) {
                 scan_expr_locals(state, a);
             }
         }
+        Expr::MemberAccess { object, .. } => scan_expr_locals(state, object),
+        Expr::MemberAssign { object, value, .. } => {
+            scan_expr_locals(state, object);
+            scan_expr_locals(state, value);
+        }
         Expr::Ternary {
             cond,
             then_expr,

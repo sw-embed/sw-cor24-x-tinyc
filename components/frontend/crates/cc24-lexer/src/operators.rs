@@ -82,6 +82,7 @@ impl Lexer<'_> {
             b']' => TokenKind::RBracket,
             b';' => TokenKind::Semicolon,
             b',' => TokenKind::Comma,
+            b'.' => TokenKind::Dot,
             b'+' => TokenKind::Plus,
             b'-' => TokenKind::Minus,
             b'*' => TokenKind::Star,

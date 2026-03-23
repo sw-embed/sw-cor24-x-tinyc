@@ -8,4 +8,4 @@ mod types;
 pub use expr::{BinOp, Expr, UnaryOp};
 pub use program::{Function, GlobalDecl, Param, Program};
 pub use stmt::{Block, Stmt};
-pub use types::Type;
+pub use types::{StructMember, Type};

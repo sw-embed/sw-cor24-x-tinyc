@@ -34,6 +34,7 @@ dependencies = [
  "cc24-expr-literal",
  "cc24-expr-ops",
  "cc24-expr-pointer",
+ "cc24-expr-struct",
  "cc24-expr-variable",
  "cc24-ops-divmod",
  "cc24-ops-incdec",
@@ -158,6 +159,16 @@ dependencies = [
  "cc24-codegen-state",
  "cc24-emit-macros",
  "cc24-type-infer",
+]
+
+[[package]]
+name = "cc24-expr-struct"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-codegen-state",
+ "cc24-emit-core",
+ "cc24-emit-macros",
 ]
 
 [[package]]
@@ -290,6 +301,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "cc24-parser-struct"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-error",
+ "cc24-parse-stream",
+ "cc24-token",
+]
+
+[[package]]
 name = "cc24-parser-typedef"
 version = "0.1.0"
 dependencies = [
@@ -307,6 +328,7 @@ dependencies = [
  "cc24-ast",
  "cc24-error",
  "cc24-parse-stream",
+ "cc24-parser-struct",
  "cc24-token",
 ]
 

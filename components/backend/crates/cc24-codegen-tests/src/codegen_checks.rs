@@ -13,6 +13,38 @@ fn codegen_emits_start() {
 }
 
 #[test]
+fn codegen_struct_member_access() {
+    let src = r#"
+        int main() {
+            struct { int x; int y; } p;
+            p.x = 3;
+            p.y = 4;
+            return p.x + p.y;
+        }
+    "#;
+    let output = compile(src);
+    // Struct local should produce member stores and loads
+    assert!(output.contains("sw"));
+    assert!(output.contains("lw"));
+}
+
+#[test]
+fn codegen_named_struct() {
+    let src = r#"
+        int main() {
+            struct point { int x; int y; };
+            struct point p;
+            p.x = 10;
+            p.y = 20;
+            return p.x + p.y;
+        }
+    "#;
+    let output = compile(src);
+    assert!(output.contains("sw"));
+    assert!(output.contains("lw"));
+}
+
+#[test]
 fn codegen_isr_prologue_epilogue() {
     let output = compile("__attribute__((interrupt)) void isr() {} int main() { return 0; }");
     // ISR prologue saves all regs + condition flag

@@ -16,6 +16,7 @@ cc24-expr-variable = { path = "../../../codegen-expr/crates/cc24-expr-variable" 
 cc24-expr-pointer = { path = "../../../codegen-expr/crates/cc24-expr-pointer" }
 cc24-expr-call = { path = "../../../codegen-expr/crates/cc24-expr-call" }
 cc24-expr-ops = { path = "../../../codegen-expr/crates/cc24-expr-ops" }
+cc24-expr-struct = { path = "../../../codegen-expr/crates/cc24-expr-struct" }
 cc24-stmt-simple = { path = "../../../codegen-stmt/crates/cc24-stmt-simple" }
 cc24-stmt-control = { path = "../../../codegen-stmt/crates/cc24-stmt-control" }
 cc24-struct-prologue = { path = "../../../codegen-structure/crates/cc24-struct-prologue" }

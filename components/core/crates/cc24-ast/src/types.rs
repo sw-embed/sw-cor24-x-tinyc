@@ -9,6 +9,20 @@ pub enum Type {
     Ptr(Box<Type>),
     /// Fixed-size array: element type and count.
     Array(Box<Type>, usize),
+    /// Struct type with optional tag name and members.
+    Struct {
+        tag: Option<String>,
+        members: Vec<StructMember>,
+        total_size: i32,
+    },
+}
+
+/// A struct member with name, type, and byte offset from struct base.
+#[derive(Debug, Clone, PartialEq)]
+pub struct StructMember {
+    pub name: String,
+    pub ty: Type,
+    pub offset: i32,
 }
 
 impl Type {
@@ -18,6 +32,7 @@ impl Type {
             Type::Char => 1,
             Type::Int | Type::Void | Type::Ptr(_) => 3,
             Type::Array(elem, count) => elem.size() * (*count as i32),
+            Type::Struct { total_size, .. } => *total_size,
         }
     }
 
@@ -25,6 +40,14 @@ impl Type {
     pub fn element_type(&self) -> Option<&Type> {
         match self {
             Type::Ptr(inner) | Type::Array(inner, _) => Some(inner),
+            _ => None,
+        }
+    }
+
+    /// Look up a struct member by name.
+    pub fn find_member(&self, name: &str) -> Option<&StructMember> {
+        match self {
+            Type::Struct { members, .. } => members.iter().find(|m| m.name == name),
             _ => None,
         }
     }

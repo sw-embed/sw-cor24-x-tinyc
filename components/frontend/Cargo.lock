@@ -91,6 +91,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "cc24-parser-struct"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-error",
+ "cc24-parse-stream",
+ "cc24-token",
+]
+
+[[package]]
 name = "cc24-parser-tests"
 version = "0.1.0"
 dependencies = [
@@ -117,6 +127,7 @@ dependencies = [
  "cc24-ast",
  "cc24-error",
  "cc24-parse-stream",
+ "cc24-parser-struct",
  "cc24-token",
 ]
 

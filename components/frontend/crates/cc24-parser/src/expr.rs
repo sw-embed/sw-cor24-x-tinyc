@@ -173,6 +173,14 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     if ts.eat(TokenKind::MinusMinus) {
         return Ok(Expr::PostDec(name));
     }
+    // Member access: p.x
+    if ts.eat(TokenKind::Dot) {
+        let member = ts.expect_ident()?;
+        return Ok(Expr::MemberAccess {
+            object: Box::new(Expr::Ident(name)),
+            member,
+        });
+    }
     Ok(Expr::Ident(name))
 }
 

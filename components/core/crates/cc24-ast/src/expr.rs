@@ -45,6 +45,17 @@ pub enum Expr {
     PostInc(String),
     /// Post-decrement: i-- (returns old value)
     PostDec(String),
+    /// Struct member access: expr.member
+    MemberAccess {
+        object: Box<Expr>,
+        member: String,
+    },
+    /// Struct member assignment: expr.member = value
+    MemberAssign {
+        object: Box<Expr>,
+        member: String,
+        value: Box<Expr>,
+    },
     /// GCC statement expression: ({ stmt1; stmt2; expr; })
     StmtExpr(crate::Block),
     /// Ternary: cond ? then_expr : else_expr

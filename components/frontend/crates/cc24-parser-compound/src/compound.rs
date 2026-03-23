@@ -38,6 +38,11 @@ pub fn make_assign(lhs: Expr, value: Expr) -> Result<Expr, CompileError> {
             ptr,
             value: Box::new(value),
         }),
+        Expr::MemberAccess { object, member } => Ok(Expr::MemberAssign {
+            object,
+            member,
+            value: Box::new(value),
+        }),
         _ => Err(CompileError::new(
             "left side of assignment must be a variable or dereference",
             None,
@@ -48,7 +53,7 @@ pub fn make_assign(lhs: Expr, value: Expr) -> Result<Expr, CompileError> {
 /// Desugar `lhs op= rhs` into `lhs = lhs op rhs`.
 pub fn desugar_compound(lhs: Expr, op: BinOp, rhs: Expr) -> Result<Expr, CompileError> {
     match &lhs {
-        Expr::Ident(_) | Expr::Deref(_) => {}
+        Expr::Ident(_) | Expr::Deref(_) | Expr::MemberAccess { .. } => {}
         _ => {
             return Err(CompileError::new(
                 "left side of compound assignment must be a variable or dereference",
@@ -69,6 +74,10 @@ fn clone_lvalue(expr: &Expr) -> Expr {
     match expr {
         Expr::Ident(name) => Expr::Ident(name.clone()),
         Expr::Deref(inner) => Expr::Deref(Box::new(clone_lvalue(inner))),
+        Expr::MemberAccess { object, member } => Expr::MemberAccess {
+            object: Box::new(clone_lvalue(object)),
+            member: member.clone(),
+        },
         _ => unreachable!("clone_lvalue called on non-lvalue"),
     }
 }

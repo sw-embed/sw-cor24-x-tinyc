@@ -21,6 +21,8 @@ pub enum TokenKind {
     Extern,
     Const,
     Enum,
+    Struct,
+    Union,
     Typedef,
 
     // Literals
@@ -39,6 +41,7 @@ pub enum TokenKind {
     RBracket,
     Semicolon,
     Comma,
+    Dot,
 
     // Operators
     Plus,

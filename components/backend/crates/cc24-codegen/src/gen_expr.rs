@@ -39,6 +39,14 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
                 gen_stmt(s, state);
             }
         }
+        Expr::MemberAccess { object, member } => {
+            cc24_expr_struct::gen_member_access(state, object, member, gen_expr)
+        }
+        Expr::MemberAssign {
+            object,
+            member,
+            value,
+        } => cc24_expr_struct::gen_member_assign(state, object, member, value, gen_expr),
         Expr::Ternary {
             cond,
             then_expr,
