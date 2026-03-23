@@ -139,8 +139,9 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
         ty = Type::Ptr(Box::new(ty));
     }
     let name = ts.expect_ident()?;
-    // Check for array: int a[N]
-    let ty = if ts.eat(TokenKind::LBracket) {
+    // Check for array: int a[N] or int a[N][M]
+    let mut ty = ty;
+    while ts.eat(TokenKind::LBracket) {
         let TokenKind::IntLit(size) = ts.peek().kind else {
             return Err(CompileError::new(
                 "expected array size",
@@ -149,10 +150,8 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
         };
         ts.advance();
         ts.expect(TokenKind::RBracket)?;
-        Type::Array(Box::new(ty), size as usize)
-    } else {
-        ty
-    };
+        ty = Type::Array(Box::new(ty), size as usize);
+    }
     let init = if ts.eat(TokenKind::Assign) {
         Some(parse_expr(ts)?)
     } else {

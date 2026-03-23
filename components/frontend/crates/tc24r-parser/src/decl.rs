@@ -119,7 +119,7 @@ fn parse_one_global(ts: &mut TokenStream, base_ty: Type) -> Result<GlobalDecl, C
         ty = Type::Ptr(Box::new(ty));
     }
     let name = ts.expect_ident()?;
-    if ts.eat(TokenKind::LBracket) {
+    while ts.eat(TokenKind::LBracket) {
         let TokenKind::IntLit(size) = ts.peek().kind else {
             return Err(CompileError::new(
                 "expected array size",
