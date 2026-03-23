@@ -155,16 +155,26 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         ts.expect(TokenKind::RParen)?;
         return Ok(Expr::Call { name, args });
     }
-    // Array indexing: a[i] -> *(a + i)
+    // Array indexing: a[i] -> *(a + i), a[i][j] -> *(*(a + i) + j)
     if ts.eat(TokenKind::LBracket) {
         let index = parse_expr(ts)?;
         ts.expect(TokenKind::RBracket)?;
-        let base = Expr::Ident(name);
-        return Ok(Expr::Deref(Box::new(Expr::BinOp {
+        let mut result = Expr::Deref(Box::new(Expr::BinOp {
             op: tc24r_ast::BinOp::Add,
-            lhs: Box::new(base),
+            lhs: Box::new(Expr::Ident(name)),
             rhs: Box::new(index),
-        })));
+        }));
+        // Chain additional dimensions: a[i][j][k]...
+        while ts.eat(TokenKind::LBracket) {
+            let index = parse_expr(ts)?;
+            ts.expect(TokenKind::RBracket)?;
+            result = Expr::Deref(Box::new(Expr::BinOp {
+                op: tc24r_ast::BinOp::Add,
+                lhs: Box::new(result),
+                rhs: Box::new(index),
+            }));
+        }
+        return Ok(result);
     }
     // Postfix ++/--
     if ts.eat(TokenKind::PlusPlus) {
