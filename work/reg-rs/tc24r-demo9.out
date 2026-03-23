@@ -42,12 +42,12 @@ Compiling demo9.c -> demo9.s
 
 Assembling and running on COR24 emulator (--uart-input "A")...
 
-Assembled 92 bytes
+Assembled 81 bytes
 Running (speed: max IPS, time limit: 5s)...
 
 [UART RX] 'A'  (0x41)
 
-Executed 10037 instructions
+Executed 10035 instructions
 CPU halted (self-branch detected)
 
 === Registers ===
@@ -59,23 +59,22 @@ CPU halted (self-branch detected)
   sp:  0xFEEC00
 
 === Emulator ===
-  Instructions: 10038
+  Instructions: 10036
   Halted: true
 
 === SRAM 000000-0FFFFF (1 MB) ===
   000000: 29 22 00 00 25 13 FC 7D 7E 7F 64 7F 80 65 29 00  |)"..%..}~.d..e).|
-  000010: 01 FF 38 00 2A 59 00 00 A4 00 69 7C 7B D0 7B 7A  |..8.*Y....i|{.{z|
+  000010: 01 FF 38 00 2A 4E 00 00 A4 00 69 7C 7B D0 7B 7A  |..8.*N....i|{.{z|
   000020: 79 68 80 7F 7E 65 29 07 00 00 67 29 10 00 FF 5A  |yh..~e)...g)...Z|
-  000030: 44 01 81 00 2A 59 00 00 4B 00 45 00 16 15 03 2B  |D...*Y..K.E....+|
-  000040: 49 00 00 28 2B 34 00 00 28 2A 59 00 00 4B 00 2B  |I..(+4..(*Y..K.+|
-  000050: 54 00 00 28 69 7A 7B 7C 27 41 00 00 00 00 00 00  |T..(iz{|'A......|
-  000060..0FFFFF: 1048480 bytes all zero
+  000030: 44 01 81 00 2A 4E 00 00 4B 00 45 00 16 14 00 13  |D...*N..K.E.....|
+  000040: F1 2A 4E 00 00 4B 00 13 FE 69 7A 7B 7C 27 41 00  |.*N..K...iz{|'A.|
+  000050..0FFFFF: 1048496 bytes all zero
 
 === Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
 
 === EBR FEE000-FEFFFF (8 KB, stack) ===
   FEE000..FEEBDF: 3040 bytes all zero
-  FEEBE0: 00 00 00 00 00 00 00 00 F7 EB FE 01 00 00 34 00  |..............4.|
+  FEEBE0: 00 00 00 00 00 00 00 00 F7 EB FE 01 00 00 00 00  |................|
   FEEBF0: 00 00 00 00 00 00 00 05 00 00 00 00 00 00 00 00  |................|
   FEEC00..FEFFFF: 5120 bytes all zero
 

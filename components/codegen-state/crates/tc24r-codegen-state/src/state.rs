@@ -41,4 +41,29 @@ pub struct CodegenState {
     pub instruction_count: usize,
     /// Map from label name to the instruction count when it was emitted.
     pub label_positions: HashMap<String, usize>,
+    /// Deferred short branches that need post-pass validation.
+    /// Each entry: (byte offset in `out` where the line starts, instruction count
+    /// at emission, target label, branch kind).
+    pub deferred_branches: Vec<DeferredBranch>,
+}
+
+/// A short branch emitted optimistically, to be validated after all labels are known.
+pub struct DeferredBranch {
+    /// Byte offset in `state.out` where this branch line starts.
+    pub out_offset: usize,
+    /// The full line text (e.g., "        bra     L36").
+    pub line: String,
+    /// Instruction count when the branch was emitted.
+    pub instruction_count: usize,
+    /// Target label name.
+    pub target: String,
+    /// Branch kind (for generating the correct long-form replacement).
+    pub kind: BranchKind,
+}
+
+#[derive(Clone, Copy)]
+pub enum BranchKind {
+    Bra,
+    Brt,
+    Brf,
 }

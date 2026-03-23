@@ -47,17 +47,12 @@ L2:
         lw      r0,0(r1)
         lc      r1,0
         ceq     r0,r1
-        brt     L4
-        la      r2,L3
-        jmp     (r2)
-L4:
-        la      r2,L2
-        jmp     (r2)
+        brf     L3
+        bra     L2
 L3:
         la      r1,_rx_char
         lw      r0,0(r1)
-        la      r2,L1
-        jmp     (r2)
+        bra     L1
 L1:
         mov     sp,fp
         pop     r1

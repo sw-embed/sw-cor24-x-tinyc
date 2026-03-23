@@ -14,8 +14,7 @@ _main:
         push    r1
         mov     fp,sp
         la      r0,1000
-        la      r2,L0
-        jmp     (r2)
+        bra     L0
 L0:
         mov     sp,fp
         pop     r1

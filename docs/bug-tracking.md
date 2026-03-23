@@ -101,15 +101,18 @@ but forward branches (where the target label hasn't been emitted yet)
 optimistically defaulted to short form. Large function bodies like
 tml24c's eval exceeded the short branch range.
 
-**Fix:** Changed forward-branch default from `true` (optimistic) to
-`false` (conservative). All forward branches now use long form
-(`la r2,target; jmp (r2)`). Backward branches still use the
-cor24-isa `can_short_branch()` check for short form when safe.
+**Fix:** Implemented deferred branch resolution. Forward branches are
+emitted as short form optimistically, then validated in a post-pass
+(`resolve_branches()`) after the full function is generated and all
+label positions are known. Out-of-range branches are expanded to long
+form by text replacement in the output buffer.
 
-Trade-off: small functions produce slightly larger output (demo2
-went from 140 to 159 instructions), but no assembler errors ever
-occur. A future two-pass approach could recover short branches for
-small forward distances.
+Also fixed the `emit!` macro (tc24r-emit-macros) to track instruction
+counts and label positions — previously only the `emit()` function
+in emit-core did this, but most codegen uses the macro.
+
+Result: small functions keep short branches (demo2: 140 instructions),
+large functions auto-expand far branches (tml24c: assembles cleanly).
 
 ---
 

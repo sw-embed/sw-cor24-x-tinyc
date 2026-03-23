@@ -16,8 +16,7 @@ _add:
         lw      r0,9(fp)
         lw      r1,12(fp)
         add     r0,r1
-        la      r2,L0
-        jmp     (r2)
+        bra     L0
 L0:
         mov     sp,fp
         pop     r1
@@ -38,8 +37,7 @@ _main:
         la      r0,_add
         jal     r1,(r0)
         add     sp,6
-        la      r2,L1
-        jmp     (r2)
+        bra     L1
 L1:
         mov     sp,fp
         pop     r1

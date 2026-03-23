@@ -24,14 +24,34 @@
 /// ```
 #[macro_export]
 macro_rules! emit {
-    ($state:expr, $lit:literal) => {
-        $state.out.push_str(&format!($lit));
+    ($state:expr, $lit:literal) => {{
+        let line = format!($lit);
+        $state.out.push_str(&line);
         $state.out.push('\n');
-    };
-    ($state:expr, $fmt:literal, $($arg:tt)*) => {
-        $state.out.push_str(&format!($fmt, $($arg)*));
+        let trimmed = line.trim();
+        if !trimmed.is_empty() {
+            if trimmed.ends_with(':') {
+                let label = &trimmed[..trimmed.len() - 1];
+                $state.label_positions.insert(label.to_string(), $state.instruction_count);
+            } else {
+                $state.instruction_count += 1;
+            }
+        }
+    }};
+    ($state:expr, $fmt:literal, $($arg:tt)*) => {{
+        let line = format!($fmt, $($arg)*);
+        $state.out.push_str(&line);
         $state.out.push('\n');
-    };
+        let trimmed = line.trim();
+        if !trimmed.is_empty() {
+            if trimmed.ends_with(':') {
+                let label = &trimmed[..trimmed.len() - 1];
+                $state.label_positions.insert(label.to_string(), $state.instruction_count);
+            } else {
+                $state.instruction_count += 1;
+            }
+        }
+    }};
 }
 
 /// Emit multiple lines of assembly in one call.
@@ -60,6 +80,7 @@ macro_rules! emit_lines {
         $(
             $state.out.push_str($line);
             $state.out.push('\n');
+            $state.instruction_count += 1;
         )+
     };
 }
@@ -78,10 +99,12 @@ macro_rules! emit_lines {
 /// ```
 #[macro_export]
 macro_rules! emit_label {
-    ($state:expr, $name:expr) => {
-        $state.out.push_str(&format!("{}:", $name));
+    ($state:expr, $name:expr) => {{
+        let label_name = $name;
+        $state.out.push_str(&format!("{}:", label_name));
         $state.out.push('\n');
-    };
+        $state.label_positions.insert(label_name.to_string(), $state.instruction_count);
+    }};
 }
 
 /// Emit an assembly comment line.

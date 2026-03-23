@@ -1,11 +1,15 @@
 //! Basic emit and label helpers.
+//!
+//! Branch strategy: emit short branches optimistically for all local labels.
+//! After each function is generated, `resolve_branches()` checks deferred
+//! forward branches against known label positions using cor24-isa range
+//! constants, and expands any out-of-range branches to long form.
 
 use cor24_isa::branch::can_short_branch;
-use tc24r_codegen_state::CodegenState;
+use tc24r_codegen_state::{BranchKind, CodegenState, DeferredBranch};
 
 /// Append one line of assembly to the output buffer.
-/// Also increments the instruction counter (for branch range estimation)
-/// and auto-records label positions for branch range checking.
+/// Auto-detects label lines and records their positions for branch range checking.
 pub fn emit(state: &mut CodegenState, line: &str) {
     state.out.push_str(line);
     state.out.push('\n');
@@ -14,13 +18,11 @@ pub fn emit(state: &mut CodegenState, line: &str) {
         return;
     }
     if trimmed.ends_with(':') {
-        // Label line — record its position (strip the colon)
         let label = &trimmed[..trimmed.len() - 1];
         state
             .label_positions
             .insert(label.to_string(), state.instruction_count);
     } else {
-        // Instruction line
         state.instruction_count += 1;
     }
 }
@@ -33,67 +35,147 @@ pub fn new_label(state: &mut CodegenState) -> String {
 }
 
 /// Emit an unconditional branch to target.
-///
-/// Uses short `bra` when the target is within short-branch range
-/// (based on instruction count distance). Falls back to long form
-/// (la r2 + jmp) for far targets.
 pub fn emit_bra(state: &mut CodegenState, target: &str) {
-    if is_short_branch(state, target) {
-        emit(state, &format!("        bra     {target}"));
-    } else {
+    if target.starts_with('_') {
+        // Global labels — always long form
         emit(state, &format!("        la      r2,{target}"));
         emit(state, "        jmp     (r2)");
+        return;
     }
+    // Backward branch — check distance now
+    if let Some(&label_pos) = state.label_positions.get(target) {
+        if can_short_branch(state.instruction_count, label_pos) {
+            emit(state, &format!("        bra     {target}"));
+        } else {
+            emit(state, &format!("        la      r2,{target}"));
+            emit(state, "        jmp     (r2)");
+        }
+        return;
+    }
+    // Forward branch — emit short optimistically, defer for validation
+    let line = format!("        bra     {target}");
+    let out_offset = state.out.len();
+    emit(state, &line);
+    state.deferred_branches.push(DeferredBranch {
+        out_offset,
+        line,
+        instruction_count: state.instruction_count - 1, // emit() already incremented
+        target: target.to_string(),
+        kind: BranchKind::Bra,
+    });
 }
 
 /// Emit a branch-if-true (carry flag set) to target.
 pub fn emit_brt(state: &mut CodegenState, target: &str) {
-    if is_short_branch(state, target) {
-        emit(state, &format!("        brt     {target}"));
-    } else {
-        let skip = new_label(state);
-        emit(state, &format!("        brf     {skip}"));
-        emit(state, &format!("        la      r2,{target}"));
-        emit(state, "        jmp     (r2)");
-        emit(state, &format!("{skip}:"));
+    if target.starts_with('_') {
+        emit_long_brt(state, target);
+        return;
     }
+    if let Some(&label_pos) = state.label_positions.get(target) {
+        if can_short_branch(state.instruction_count, label_pos) {
+            emit(state, &format!("        brt     {target}"));
+        } else {
+            emit_long_brt(state, target);
+        }
+        return;
+    }
+    let line = format!("        brt     {target}");
+    let out_offset = state.out.len();
+    emit(state, &line);
+    state.deferred_branches.push(DeferredBranch {
+        out_offset,
+        line,
+        instruction_count: state.instruction_count - 1,
+        target: target.to_string(),
+        kind: BranchKind::Brt,
+    });
 }
 
 /// Emit a branch-if-false (carry flag clear) to target.
 pub fn emit_brf(state: &mut CodegenState, target: &str) {
-    if is_short_branch(state, target) {
-        emit(state, &format!("        brf     {target}"));
-    } else {
-        let skip = new_label(state);
-        emit(state, &format!("        brt     {skip}"));
-        emit(state, &format!("        la      r2,{target}"));
-        emit(state, "        jmp     (r2)");
-        emit(state, &format!("{skip}:"));
+    if target.starts_with('_') {
+        emit_long_brf(state, target);
+        return;
     }
+    if let Some(&label_pos) = state.label_positions.get(target) {
+        if can_short_branch(state.instruction_count, label_pos) {
+            emit(state, &format!("        brf     {target}"));
+        } else {
+            emit_long_brf(state, target);
+        }
+        return;
+    }
+    let line = format!("        brf     {target}");
+    let out_offset = state.out.len();
+    emit(state, &line);
+    state.deferred_branches.push(DeferredBranch {
+        out_offset,
+        line,
+        instruction_count: state.instruction_count - 1,
+        target: target.to_string(),
+        kind: BranchKind::Brf,
+    });
 }
 
-/// Determine if a short branch can safely reach the target.
+fn emit_long_brt(state: &mut CodegenState, target: &str) {
+    let skip = new_label(state);
+    emit(state, &format!("        brf     {skip}"));
+    emit(state, &format!("        la      r2,{target}"));
+    emit(state, "        jmp     (r2)");
+    emit(state, &format!("{skip}:"));
+}
+
+fn emit_long_brf(state: &mut CodegenState, target: &str) {
+    let skip = new_label(state);
+    emit(state, &format!("        brt     {skip}"));
+    emit(state, &format!("        la      r2,{target}"));
+    emit(state, "        jmp     (r2)");
+    emit(state, &format!("{skip}:"));
+}
+
+/// Resolve deferred forward branches after a function is fully generated.
 ///
-/// For backward branches (target already emitted), checks the instruction
-/// distance using cor24-isa's conservative range estimate.
-/// For forward branches (target not yet emitted), uses short form optimistically
-/// since forward branches within a single control-flow construct are typically close.
-/// Global/function labels (starting with '_') always use long form.
-fn is_short_branch(state: &CodegenState, target: &str) -> bool {
-    // Global labels (e.g., _main, _halt) are potentially far — always long
-    if target.starts_with('_') {
-        return false;
+/// Checks each deferred short branch against the now-known label positions.
+/// Out-of-range branches are expanded to long form by replacing the short
+/// branch line in `state.out`. Processes from end to start so byte offsets
+/// of earlier entries remain valid.
+pub fn resolve_branches(state: &mut CodegenState) {
+    // Process in reverse order so replacements don't shift earlier offsets
+    let branches: Vec<DeferredBranch> = state.deferred_branches.drain(..).collect();
+    for branch in branches.iter().rev() {
+        let Some(&label_pos) = state.label_positions.get(&branch.target) else {
+            // Label not found — leave as-is (will be a link error or it's in another function)
+            continue;
+        };
+        if can_short_branch(branch.instruction_count, label_pos) {
+            // Short branch is valid — no change needed
+            continue;
+        }
+        // Need to expand to long form
+        let short_line_with_newline = format!("{}\n", branch.line);
+        let long_replacement = match branch.kind {
+            BranchKind::Bra => {
+                format!(
+                    "        la      r2,{}\n        jmp     (r2)\n",
+                    branch.target
+                )
+            }
+            BranchKind::Brt => {
+                let skip = new_label(state);
+                format!(
+                    "        brf     {skip}\n        la      r2,{}\n        jmp     (r2)\n{skip}:\n",
+                    branch.target
+                )
+            }
+            BranchKind::Brf => {
+                let skip = new_label(state);
+                format!(
+                    "        brt     {skip}\n        la      r2,{}\n        jmp     (r2)\n{skip}:\n",
+                    branch.target
+                )
+            }
+        };
+        let end = branch.out_offset + short_line_with_newline.len();
+        state.out.replace_range(branch.out_offset..end, &long_replacement);
     }
-
-    // If the label has already been emitted, check actual distance
-    if let Some(&label_pos) = state.label_positions.get(target) {
-        return can_short_branch(state.instruction_count, label_pos);
-    }
-
-    // Forward reference to a local label — use long branch to be safe.
-    // We don't know the distance yet, and large function bodies (like
-    // tml24c's eval) can exceed the ±127 byte short branch range.
-    // This is conservative (small functions get slightly larger output)
-    // but never produces assembler errors.
-    false
 }

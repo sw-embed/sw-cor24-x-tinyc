@@ -7,4 +7,4 @@
 
 mod state;
 
-pub use state::CodegenState;
+pub use state::{BranchKind, CodegenState, DeferredBranch};
