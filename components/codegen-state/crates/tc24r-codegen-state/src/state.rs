@@ -33,4 +33,6 @@ pub struct CodegenState {
     pub continue_labels: Vec<String>,
     /// Whether the program needs the printf runtime helpers.
     pub needs_printf: bool,
+    /// Struct type registry: tag name → full struct type.
+    pub struct_types: HashMap<String, Type>,
 }

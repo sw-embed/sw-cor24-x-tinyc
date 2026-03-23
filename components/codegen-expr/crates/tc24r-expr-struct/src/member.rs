@@ -85,24 +85,58 @@ fn emit_member_addr(
 /// Get member offset and whether it's a char type.
 fn member_info(state: &CodegenState, object: &Expr, member: &str) -> (i32, bool) {
     let ty = object_type(state, object);
-    let m = ty.find_member(member).expect("unknown struct member");
+    let m = ty.find_member(member).unwrap_or_else(|| {
+        panic!("unknown struct member '{member}' in type {ty:?}")
+    });
     (m.offset, m.ty == Type::Char)
 }
 
 /// Determine the struct type of the object expression.
-fn object_type<'a>(state: &'a CodegenState, object: &Expr) -> &'a Type {
-    match object {
-        Expr::Ident(name) => &state.local_types[name.as_str()],
-        Expr::Deref(ptr) => {
-            // ptr is a pointer to struct; get the pointee type
-            if let Expr::Ident(name) = ptr.as_ref() {
-                if let Some(Type::Ptr(inner)) = state.local_types.get(name.as_str()) {
-                    return inner;
-                }
+/// Walks the expression tree to resolve nested member accesses.
+fn object_type(state: &CodegenState, object: &Expr) -> Type {
+    let ty = match object {
+        Expr::Ident(name) => {
+            if let Some(ty) = state.local_types.get(name.as_str()) {
+                ty.clone()
+            } else if let Some(ty) = state.global_types.get(name.as_str()) {
+                ty.clone()
+            } else {
+                Type::Int
             }
-            // Fallback: shouldn't happen with well-typed code
-            panic!("cannot determine struct type for -> access");
         }
-        _ => panic!("cannot determine struct type"),
+        Expr::Deref(ptr) => {
+            let ptr_ty = object_type(state, ptr);
+            match ptr_ty {
+                Type::Ptr(inner) => *inner,
+                _ => ptr_ty,
+            }
+        }
+        Expr::MemberAccess { object: obj, member } => {
+            let struct_ty = object_type(state, obj);
+            if let Some(m) = struct_ty.find_member(member) {
+                m.ty.clone()
+            } else {
+                Type::Int
+            }
+        }
+        _ => Type::Int,
+    };
+    // Resolve incomplete struct placeholders via the struct registry
+    resolve_struct(state, ty)
+}
+
+/// If a struct type is an empty placeholder (forward-declared),
+/// look up the full definition from the struct registry.
+fn resolve_struct(state: &CodegenState, ty: Type) -> Type {
+    match &ty {
+        Type::Struct { tag: Some(name), members, .. } if members.is_empty() => {
+            if let Some(full) = state.struct_types.get(name) {
+                full.clone()
+            } else {
+                ty
+            }
+        }
+        Type::Ptr(inner) => Type::Ptr(Box::new(resolve_struct(state, *inner.clone()))),
+        _ => ty,
     }
 }

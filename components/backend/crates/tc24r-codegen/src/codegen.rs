@@ -22,6 +22,7 @@ impl Codegen {
             self.state.globals.insert(g.name.clone());
             self.state.global_types.insert(g.name.clone(), g.ty.clone());
         }
+        self.state.struct_types = program.struct_types.clone();
         emit(&mut self.state, "        .text");
         emit(&mut self.state, "");
         emit_start(&mut self.state);

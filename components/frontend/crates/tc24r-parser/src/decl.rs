@@ -67,7 +67,11 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
             functions.push(parse_function(ts, is_interrupt)?);
         }
     }
-    Ok(Program { functions, globals })
+    Ok(Program {
+        functions,
+        globals,
+        struct_types: ts.struct_types.clone(),
+    })
 }
 
 fn is_global_decl(ts: &TokenStream) -> bool {

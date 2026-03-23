@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use tc24r_span::Span;
 
 use crate::{Block, Expr, Type};
@@ -7,6 +9,7 @@ use crate::{Block, Expr, Type};
 pub struct Program {
     pub functions: Vec<Function>,
     pub globals: Vec<GlobalDecl>,
+    pub struct_types: HashMap<String, Type>,
 }
 
 /// A top-level global variable declaration.
