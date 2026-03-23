@@ -125,6 +125,26 @@ would require:
 
 This is a large effort and low priority compared to language features.
 
+## Rename: cc24 -> tc24r
+
+The project will be renamed from `cc24` to `tc24r` (Tiny C-compiler for COR24
+in Rust). This is part of a series of small toolchain projects:
+
+- **tc24r** -- Tiny C-compiler for COR24 in Rust
+- **tml24** -- Tiny Macro Lisp for COR24
+
+### Rename scope
+
+- GitHub repository URL (user renames first, then provides new URL)
+- All Cargo crate names (`cc24-*` -> `tc24r-*`)
+- Binary name (`cc24` -> `tc24r`)
+- Documentation references, README, and license headers
+- Build scripts, CI configuration, and test fixtures
+- Internal module paths and imports
+
+The GitHub rename will happen first. Once the new URL is confirmed, all crate
+names, docs, and scripts will be updated in a single coordinated pass.
+
 ## Diagnostics
 
 - Better error messages with source line display and caret pointing to the error

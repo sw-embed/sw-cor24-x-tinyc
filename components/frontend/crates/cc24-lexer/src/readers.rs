@@ -152,6 +152,21 @@ impl Lexer<'_> {
 }
 
 impl Lexer<'_> {
+    /// Read hex digits and return the accumulated byte value.
+    /// Leaves `self.pos` on the last hex digit consumed (caller will advance).
+    fn read_hex_escape_value(&mut self) -> u8 {
+        self.pos += 1; // skip 'x'
+        let mut val: u8 = 0;
+        while self.pos < self.source.len() && self.source[self.pos].is_ascii_hexdigit() {
+            let d = self.source[self.pos];
+            let nibble = if d.is_ascii_digit() { d - b'0' } else { (d | 0x20) - b'a' + 10 };
+            val = val.wrapping_mul(16).wrapping_add(nibble);
+            self.pos += 1;
+        }
+        self.pos -= 1; // back up so caller can advance
+        val
+    }
+
     fn read_char_lit(&mut self, start: usize) -> Result<Token, CompileError> {
         self.pos += 1; // skip opening '
         if self.pos >= self.source.len() {
@@ -168,29 +183,10 @@ impl Lexer<'_> {
                 Some(b'0') => 0,
                 Some(b'\\') => b'\\',
                 Some(b'\'') => b'\'',
-                Some(b'a') => 7, // bell
-                Some(b'b') => 8, // backspace
+                Some(b'a') => 7,
+                Some(b'b') => 8,
                 Some(b'r') => b'\r',
-                Some(b'x') => {
-                    // Hex escape: '\xNN'
-                    self.pos += 1;
-                    let mut val: u8 = 0;
-                    while self.pos < self.source.len() && self.source[self.pos].is_ascii_hexdigit()
-                    {
-                        let d = self.source[self.pos];
-                        let nibble = if d.is_ascii_digit() {
-                            d - b'0'
-                        } else {
-                            (d | 0x20) - b'a' + 10
-                        };
-                        val = val.wrapping_mul(16).wrapping_add(nibble);
-                        self.pos += 1;
-                    }
-                    // Don't advance past last hex digit
-                    // (the outer code will advance by 1 for the value byte)
-                    self.pos -= 1;
-                    val
-                }
+                Some(b'x') => self.read_hex_escape_value(),
                 _ => {
                     return Err(CompileError::new(
                         "unknown char escape",
