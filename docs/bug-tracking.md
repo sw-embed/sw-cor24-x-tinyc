@@ -141,6 +141,32 @@ of `.word` or `.byte` directives based on element type and count.
 
 ---
 
+### BUG-006: Global char array treated as pointer instead of array
+
+**Filed by:** tml24c
+**Fixed:** 2026-03-23
+**Component:** `tc24r-expr-variable` (load.rs)
+
+Indexing into a global `char` array generated `lw` (load word — treats
+as pointer) instead of `la` (load address — array decay). Writes went
+to wrong addresses.
+
+```c
+char pool[100];
+pool[0] = 65;
+// generated: la r1,_pool; lw r0,0(r1)  ← loads *pool (wrong)
+// expected:  la r0,_pool               ← address of pool (correct)
+```
+
+**Root cause:** `gen_ident()` checked `state.local_types` for array
+decay but not `state.global_types`. Global arrays fell through to the
+regular global load path which dereferences with `lw`/`lbu`.
+
+**Fix:** Added `state.global_types` check for `Type::Array` alongside
+the existing `local_types` check.
+
+---
+
 ## Open
 
 (none)

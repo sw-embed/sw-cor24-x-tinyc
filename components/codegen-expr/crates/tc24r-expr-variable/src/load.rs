@@ -7,7 +7,10 @@ use tc24r_emit_macros::emit;
 
 /// Load a variable into r0. Arrays decay to a pointer (address of first element).
 pub fn gen_ident(state: &mut CodegenState, name: &str) {
-    if let Some(Type::Array(..)) = state.local_types.get(name) {
+    // Array decay: local or global arrays produce their address, not a load
+    if matches!(state.local_types.get(name), Some(Type::Array(..)))
+        || matches!(state.global_types.get(name), Some(Type::Array(..)))
+    {
         gen_addr_of(state, name);
         return;
     }
