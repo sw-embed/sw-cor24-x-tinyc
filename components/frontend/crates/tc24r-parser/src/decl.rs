@@ -34,26 +34,29 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
             tc24r_parser_enum::parse_enum_decl(ts)?;
             continue;
         }
-        // Top-level struct/union definition: struct tag { ... };
+        // Top-level struct/union: definition, variable, or function return type.
+        // Only intercept struct definitions (with { body }) and struct variable
+        // declarations. Functions returning struct pointers fall through to
+        // is_global_decl / parse_function.
         if matches!(ts.peek().kind, TokenKind::Struct | TokenKind::Union) {
-            parse_type(ts)?; // registers the struct in ts.struct_types
-            if ts.eat(TokenKind::Semicolon) {
-                continue; // standalone definition, no variable
+            if is_struct_def_or_var(ts) {
+                parse_type(ts)?; // registers the struct in ts.struct_types
+                if ts.eat(TokenKind::Semicolon) {
+                    continue; // standalone definition: struct tag { ... };
+                }
+                let name = ts.expect_ident()?;
+                let ty = ts
+                    .struct_types
+                    .values()
+                    .last()
+                    .cloned()
+                    .unwrap_or(Type::Int);
+                let init = None;
+                ts.expect(TokenKind::Semicolon)?;
+                globals.push(GlobalDecl { name, ty, init });
+                continue;
             }
-            // Otherwise: struct tag { ... } var; -- need to parse declarator
-            // Fall through won't work here since we consumed the type.
-            // Parse the variable name and create a global.
-            let name = ts.expect_ident()?;
-            let ty = ts
-                .struct_types
-                .values()
-                .last()
-                .cloned()
-                .unwrap_or(Type::Int);
-            let init = None;
-            ts.expect(TokenKind::Semicolon)?;
-            globals.push(GlobalDecl { name, ty, init });
-            continue;
+            // Otherwise: function returning struct pointer — fall through
         }
         // Top-level typedef
         if ts.eat(TokenKind::Typedef) {
@@ -74,6 +77,33 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
     })
 }
 
+/// Check if a struct/union at top level is a definition or variable
+/// (not a function returning struct *).
+/// struct tag { ... };  → true (definition)
+/// struct tag var;      → true (variable)
+/// struct tag *func();  → false (function returning pointer)
+fn is_struct_def_or_var(ts: &TokenStream) -> bool {
+    let mut i = 1; // skip struct/union keyword
+    // Skip optional tag name
+    if matches!(ts.lookahead(i), TokenKind::Ident(_)) {
+        i += 1;
+    }
+    // If next is { → definition (handle it)
+    if matches!(ts.lookahead(i), TokenKind::LBrace) {
+        return true;
+    }
+    // If next is ; → standalone forward declaration
+    if matches!(ts.lookahead(i), TokenKind::Semicolon) {
+        return true;
+    }
+    // If next is an ident (variable name) → variable declaration
+    if matches!(ts.lookahead(i), TokenKind::Ident(_)) {
+        return true;
+    }
+    // Otherwise (e.g., * → function returning struct pointer) → false
+    false
+}
+
 fn is_global_decl(ts: &TokenStream) -> bool {
     let mut i = 0;
     // Skip storage-class specifiers
@@ -83,7 +113,28 @@ fn is_global_decl(ts: &TokenStream) -> bool {
     if !is_base_type(ts.lookahead(i)) && !is_typedef_name(ts, ts.lookahead(i)) {
         return false;
     }
-    i += 1;
+    // Skip the base type tokens: struct/union/enum + optional tag name
+    if matches!(
+        ts.lookahead(i),
+        TokenKind::Struct | TokenKind::Union | TokenKind::Enum
+    ) {
+        i += 1;
+        // Skip tag name if present
+        if matches!(ts.lookahead(i), TokenKind::Ident(_)) {
+            i += 1;
+        }
+        // Skip struct body { ... } if present
+        if matches!(ts.lookahead(i), TokenKind::LBrace) {
+            // Can't easily count braces in lookahead; not a global decl if body follows
+            return false;
+        }
+    } else {
+        i += 1;
+        // Skip additional type keywords: long int, unsigned char, etc.
+        while is_base_type(ts.lookahead(i)) {
+            i += 1;
+        }
+    }
     // Skip pointer stars: int **ptr
     while matches!(ts.lookahead(i), TokenKind::Star) {
         i += 1;

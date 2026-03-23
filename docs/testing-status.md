@@ -6,14 +6,14 @@ Last updated: 2026-03-22
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| tc24r demos | 42 | 42 | 100% | End-to-end compiler + emulator |
+| tc24r demos | 43 | 43 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 25 | 25 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
-## tc24r Demos (42/42)
+## tc24r Demos (43/43)
 
 | # | Demo | Features Tested |
 |---|------|----------------|
@@ -59,6 +59,7 @@ Last updated: 2026-03-22
 | 40 | demo40.c | malloc/free/calloc via stdlib.h (bump allocator) |
 | 41 | demo41.c | getc/atoi, strlen/strcmp/strcpy via string.h |
 | 42 | demo42.c | Nested struct member access, linked list traversal |
+| 43 | demo43.c | Lisp cons cells (struct pointer return, car/cdr chains) |
 
 Run: `demos/run-demo<N>.sh`
 
