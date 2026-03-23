@@ -142,6 +142,7 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     if let Some(&val) = ts.enum_constants.get(&name) {
         return Ok(Expr::IntLit(val));
     }
+    // Function call: foo(args...)
     if ts.eat(TokenKind::LParen) {
         let mut args = Vec::new();
         if !ts.check(&TokenKind::RParen) {
@@ -155,51 +156,47 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         ts.expect(TokenKind::RParen)?;
         return Ok(Expr::Call { name, args });
     }
-    // Array indexing: a[i] -> *(a + i), a[i][j] -> *(*(a + i) + j)
-    if ts.eat(TokenKind::LBracket) {
-        let index = parse_expr(ts)?;
-        ts.expect(TokenKind::RBracket)?;
-        let mut result = Expr::Deref(Box::new(Expr::BinOp {
-            op: tc24r_ast::BinOp::Add,
-            lhs: Box::new(Expr::Ident(name)),
-            rhs: Box::new(index),
-        }));
-        // Chain additional dimensions: a[i][j][k]...
-        while ts.eat(TokenKind::LBracket) {
-            let index = parse_expr(ts)?;
-            ts.expect(TokenKind::RBracket)?;
-            result = Expr::Deref(Box::new(Expr::BinOp {
-                op: tc24r_ast::BinOp::Add,
-                lhs: Box::new(result),
-                rhs: Box::new(index),
-            }));
-        }
-        return Ok(result);
-    }
-    // Postfix ++/--
+    // Postfix ++/-- (these consume the name, not chainable)
     if ts.eat(TokenKind::PlusPlus) {
         return Ok(Expr::PostInc(name));
     }
     if ts.eat(TokenKind::MinusMinus) {
         return Ok(Expr::PostDec(name));
     }
-    // Member access: p.x
-    if ts.eat(TokenKind::Dot) {
-        let member = ts.expect_ident()?;
-        return Ok(Expr::MemberAccess {
-            object: Box::new(Expr::Ident(name)),
-            member,
-        });
+    // Start with the identifier, then chain postfix ops: [], ., ->
+    let mut result = Expr::Ident(name);
+    result = parse_postfix_chain(ts, result)?;
+    Ok(result)
+}
+
+/// Parse chained postfix operations: a[i].b->c[j] etc.
+fn parse_postfix_chain(ts: &mut TokenStream, mut expr: Expr) -> Result<Expr, CompileError> {
+    loop {
+        if ts.eat(TokenKind::LBracket) {
+            let index = parse_expr(ts)?;
+            ts.expect(TokenKind::RBracket)?;
+            expr = Expr::Deref(Box::new(Expr::BinOp {
+                op: tc24r_ast::BinOp::Add,
+                lhs: Box::new(expr),
+                rhs: Box::new(index),
+            }));
+        } else if ts.eat(TokenKind::Dot) {
+            let member = ts.expect_ident()?;
+            expr = Expr::MemberAccess {
+                object: Box::new(expr),
+                member,
+            };
+        } else if ts.eat(TokenKind::Arrow) {
+            let member = ts.expect_ident()?;
+            expr = Expr::MemberAccess {
+                object: Box::new(Expr::Deref(Box::new(expr))),
+                member,
+            };
+        } else {
+            break;
+        }
     }
-    // Arrow: p->x desugared to (*p).x
-    if ts.eat(TokenKind::Arrow) {
-        let member = ts.expect_ident()?;
-        return Ok(Expr::MemberAccess {
-            object: Box::new(Expr::Deref(Box::new(Expr::Ident(name)))),
-            member,
-        });
-    }
-    Ok(Expr::Ident(name))
+    Ok(expr)
 }
 
 /// Parse `sizeof(type)` or `sizeof(expr)` after the `sizeof` token.
