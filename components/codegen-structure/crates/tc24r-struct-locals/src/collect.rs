@@ -63,6 +63,23 @@ pub fn collect_locals_stmt(state: &mut CodegenState, stmt: &Stmt) {
             }
             collect_locals_block(state, &body.stmts);
         }
+        Stmt::Switch {
+            expr,
+            cases,
+            default,
+        } => {
+            scan_expr_locals(state, expr);
+            for case in cases {
+                for s in &case.stmts {
+                    collect_locals_stmt(state, s);
+                }
+            }
+            if let Some(stmts) = default {
+                for s in stmts {
+                    collect_locals_stmt(state, s);
+                }
+            }
+        }
         Stmt::Block(block) => {
             collect_locals_block(state, &block.stmts);
         }

@@ -1,6 +1,6 @@
 //! Control flow statement parsing (if, while, for, asm).
 
-use tc24r_ast::Stmt;
+use tc24r_ast::{Stmt, SwitchCase};
 use tc24r_error::CompileError;
 use tc24r_parse_stream::TokenStream;
 use tc24r_token::TokenKind;
@@ -85,6 +85,53 @@ pub fn parse_asm(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     ts.expect(TokenKind::RParen)?;
     ts.expect(TokenKind::Semicolon)?;
     Ok(Stmt::Asm(s))
+}
+
+pub fn parse_switch(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
+    ts.expect(TokenKind::LParen)?;
+    let expr = parse_expr(ts)?;
+    ts.expect(TokenKind::RParen)?;
+    ts.expect(TokenKind::LBrace)?;
+
+    let mut cases = Vec::new();
+    let mut default = None;
+
+    while !ts.check(&TokenKind::RBrace) {
+        if ts.eat(TokenKind::Case) {
+            let value = parse_expr(ts)?;
+            ts.expect(TokenKind::Colon)?;
+            let stmts = parse_case_body(ts)?;
+            cases.push(SwitchCase { value, stmts });
+        } else if ts.eat(TokenKind::Default) {
+            ts.expect(TokenKind::Colon)?;
+            let stmts = parse_case_body(ts)?;
+            default = Some(stmts);
+        } else {
+            return Err(CompileError::new(
+                "expected case or default in switch",
+                Some(ts.current_span()),
+            ));
+        }
+    }
+
+    ts.expect(TokenKind::RBrace)?;
+    Ok(Stmt::Switch {
+        expr,
+        cases,
+        default,
+    })
+}
+
+/// Parse statements inside a case/default until the next case, default, or `}`.
+fn parse_case_body(ts: &mut TokenStream) -> Result<Vec<Stmt>, CompileError> {
+    let mut stmts = Vec::new();
+    while !ts.check(&TokenKind::Case)
+        && !ts.check(&TokenKind::Default)
+        && !ts.check(&TokenKind::RBrace)
+    {
+        stmts.push(crate::stmt::parse_stmt(ts)?);
+    }
+    Ok(stmts)
 }
 
 pub fn parse_do_while(ts: &mut TokenStream) -> Result<Stmt, CompileError> {

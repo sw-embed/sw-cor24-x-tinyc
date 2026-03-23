@@ -24,6 +24,14 @@ pub enum TokenKind {
     Struct,
     Union,
     Typedef,
+    Switch,
+    Case,
+    Default,
+    Long,
+    Short,
+    Signed,
+    Unsigned,
+    Inline,
 
     // Literals
     IntLit(i32),

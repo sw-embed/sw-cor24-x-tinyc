@@ -1,0 +1,1 @@
+int main() { int x = 1; switch (x) { case 0: return 10; case 1: return 20; default: return 30; } }

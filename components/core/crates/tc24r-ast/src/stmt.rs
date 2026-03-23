@@ -9,6 +9,13 @@ pub struct Block {
     pub stmts: Vec<Stmt>,
 }
 
+/// A single case arm in a switch statement.
+#[derive(Debug)]
+pub struct SwitchCase {
+    pub value: Expr,
+    pub stmts: Vec<Stmt>,
+}
+
 /// A single statement.
 #[derive(Debug)]
 pub enum Stmt {
@@ -37,6 +44,11 @@ pub enum Stmt {
         cond: Option<Expr>,
         inc: Option<Expr>,
         body: Block,
+    },
+    Switch {
+        expr: Expr,
+        cases: Vec<SwitchCase>,
+        default: Option<Vec<Stmt>>,
     },
     Break,
     Continue,

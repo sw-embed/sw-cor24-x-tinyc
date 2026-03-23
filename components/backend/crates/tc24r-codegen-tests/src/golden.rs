@@ -34,3 +34,8 @@ fn golden_control_flow() {
     golden_test("fib");
     golden_test("globals");
 }
+
+#[test]
+fn golden_switch() {
+    golden_test("switch");
+}

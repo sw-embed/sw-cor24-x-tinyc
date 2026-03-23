@@ -118,6 +118,9 @@ impl Lexer<'_> {
             b'a' => '\x07',
             b'b' => '\x08',
             b'r' => '\r',
+            b'v' => '\x0B',
+            b'f' => '\x0C',
+            b'e' => '\x1B',
             b'\'' => '\'',
             b'x' => {
                 // Hex escape: \xNN
@@ -239,6 +242,14 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "struct" => TokenKind::Struct,
         "union" => TokenKind::Union,
         "typedef" => TokenKind::Typedef,
+        "switch" => TokenKind::Switch,
+        "case" => TokenKind::Case,
+        "default" => TokenKind::Default,
+        "long" => TokenKind::Long,
+        "short" => TokenKind::Short,
+        "signed" => TokenKind::Signed,
+        "unsigned" => TokenKind::Unsigned,
+        "inline" => TokenKind::Inline,
         _ => TokenKind::Ident(text.to_string()),
     }
 }

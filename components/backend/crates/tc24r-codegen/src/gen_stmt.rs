@@ -42,6 +42,18 @@ pub fn gen_stmt(stmt: &Stmt, state: &mut CodegenState) {
             gen_expr,
             gen_stmt,
         ),
+        Stmt::Switch {
+            expr,
+            cases,
+            default,
+        } => tc24r_stmt_control::gen_switch(
+            state,
+            expr,
+            cases,
+            default.as_deref(),
+            gen_expr,
+            gen_stmt,
+        ),
         Stmt::Break => tc24r_stmt_simple::gen_break(state),
         Stmt::Continue => tc24r_stmt_simple::gen_continue(state),
         Stmt::Asm(text) => tc24r_stmt_simple::gen_asm(state, text),
