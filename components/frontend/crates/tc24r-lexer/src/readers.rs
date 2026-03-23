@@ -142,12 +142,9 @@ impl Lexer<'_> {
                 value.push(val as char);
                 return Ok(());
             }
-            other => {
-                return Err(CompileError::new(
-                    format!("unknown escape: \\{}", other as char),
-                    Some(Span::new(self.pos - 1, 2)),
-                ));
-            }
+            // Unknown escapes: emit the character literally (C allows
+            // implementation-defined behavior for unknown escape sequences)
+            other => other as char,
         };
         value.push(escaped);
         Ok(())
