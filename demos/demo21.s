@@ -187,7 +187,7 @@ L22:
 L24:
         lw      r0,-12(fp)
         lc      r1,1
-        srl     r0,r1
+        sra     r0,r1
         sw      r0,-12(fp)
         lw      r0,-12(fp)
         lc      r1,4

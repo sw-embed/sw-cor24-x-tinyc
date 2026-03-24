@@ -88,7 +88,7 @@ _bitops:
         sw      r0,-12(fp)
         lw      r0,-12(fp)
         lc      r1,1
-        srl     r0,r1
+        sra     r0,r1
         sw      r0,-15(fp)
         lw      r0,-15(fp)
         bra     L4

@@ -195,6 +195,38 @@ use the safe push/pop path, preserving the target address in r1.
 
 ---
 
+### BUG-008: Right shift uses logical instead of arithmetic on signed integers
+
+**Filed by:** tml24c (analysis of `fixnum_val()` workaround)
+**Fixed:** 2026-03-23
+**Component:** `tc24r-ops-bitwise` (bitwise.rs)
+
+The `>>` operator on signed `int` values generated `srl` (shift right
+logical, zero-fills) instead of `sra` (shift right arithmetic,
+sign-extends). This produced incorrect results for negative values:
+`-84 >> 2` returned 4194283 instead of -21.
+
+```c
+int neg = -84;
+neg >> 2;  // generated: srl r0,r1 (logical) → 4194283
+           // expected:  sra r0,r1 (arithmetic) → -21
+```
+
+**Root cause:** `gen_shr()` unconditionally emitted `srl`. COR24 has
+both `srl` (logical, opcode 0x19) and `sra` (arithmetic, opcode 0x18)
+but the compiler only used `srl`.
+
+**Analysis:** The emulator is correct — `sra` sign-extends and `srl`
+zero-fills, matching their documented semantics. This was a compiler
+bug, not an emulator bug.
+
+**Fix:** Changed `gen_shr()` to emit `sra` (arithmetic shift). Added
+`gen_shr_logical()` for future `unsigned int` support. Per C99 §6.5.7,
+right shift of signed values is implementation-defined; we choose
+arithmetic (matching GCC/Clang convention).
+
+---
+
 ## Open
 
 (none)
