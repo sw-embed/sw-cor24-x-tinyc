@@ -22,12 +22,16 @@ fn consume_qualifiers(ts: &mut TokenStream) -> bool {
 /// Parse a base type keyword (char/int/void/enum/struct/typedef alias).
 fn parse_base_type(ts: &mut TokenStream, had_qualifier: bool) -> Result<Type, CompileError> {
     // Consume type modifiers: long, short, signed, unsigned
-    // On COR24, all integer types are 24-bit, so these are accepted and ignored.
+    // On COR24, all integer types are 24-bit; long/short are accepted and treated as int.
     let mut had_modifier = false;
+    let mut is_unsigned = false;
     while matches!(
         ts.peek().kind,
         TokenKind::Long | TokenKind::Short | TokenKind::Signed | TokenKind::Unsigned
     ) {
+        if ts.peek().kind == TokenKind::Unsigned {
+            is_unsigned = true;
+        }
         ts.advance();
         had_modifier = true;
     }
@@ -39,9 +43,11 @@ fn parse_base_type(ts: &mut TokenStream, had_qualifier: bool) -> Result<Type, Co
         }
         TokenKind::Int => {
             ts.advance();
-            Ok(Type::Int)
+            if is_unsigned { Ok(Type::UnsignedInt) } else { Ok(Type::Int) }
         }
-        _ if had_modifier => Ok(Type::Int), // "long" alone, "unsigned" alone, etc.
+        _ if had_modifier => {
+            if is_unsigned { Ok(Type::UnsignedInt) } else { Ok(Type::Int) }
+        }
         TokenKind::Void => {
             ts.advance();
             Ok(Type::Void)

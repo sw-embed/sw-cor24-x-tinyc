@@ -4,12 +4,12 @@
 //! compare instruction and branches directly to `skip_label` when the
 //! condition is false — avoiding boolean materialization.
 
-use tc24r_ast::Expr;
+use tc24r_ast::{Expr, Type};
 use tc24r_codegen_state::CodegenState;
 use tc24r_emit_core::{emit_brf, emit_brt};
 use tc24r_emit_macros::emit;
 use tc24r_ops_compare::{gen_compare_branch, gen_compare_branch_true, is_comparison_op};
-use tc24r_type_infer::{GenExprFn, gen_simple_into_r1, is_simple_expr};
+use tc24r_type_infer::{GenExprFn, expr_type, gen_simple_into_r1, is_simple_expr};
 
 /// Evaluate `cond` and branch to `skip_label` when the condition is false.
 ///
@@ -34,7 +34,8 @@ pub fn gen_condition_skip(
                 emit!(state, "        mov     r1,r0");
                 emit!(state, "        pop     r0");
             }
-            gen_compare_branch(state, *op, skip_label);
+            let is_unsigned = matches!(expr_type(state, lhs), Some(Type::UnsignedInt));
+            gen_compare_branch(state, *op, skip_label, is_unsigned);
             return;
         }
     }
@@ -65,7 +66,8 @@ pub fn gen_condition_loop(
                 emit!(state, "        mov     r1,r0");
                 emit!(state, "        pop     r0");
             }
-            gen_compare_branch_true(state, *op, loop_label);
+            let is_unsigned = matches!(expr_type(state, lhs), Some(Type::UnsignedInt));
+            gen_compare_branch_true(state, *op, loop_label, is_unsigned);
             return;
         }
     }

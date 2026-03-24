@@ -5,6 +5,7 @@
 pub enum Type {
     Char,
     Int,
+    UnsignedInt,
     Void,
     Ptr(Box<Type>),
     /// Fixed-size array: element type and count.
@@ -30,7 +31,7 @@ impl Type {
     pub fn size(&self) -> i32 {
         match self {
             Type::Char => 1,
-            Type::Int | Type::Void | Type::Ptr(_) => 3,
+            Type::Int | Type::UnsignedInt | Type::Void | Type::Ptr(_) => 3,
             Type::Array(elem, count) => elem.size() * (*count as i32),
             Type::Struct { total_size, .. } => *total_size,
         }

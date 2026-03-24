@@ -22,12 +22,6 @@ pub fn gen_compare_eq(state: &mut CodegenState, negate: bool) {
 }
 
 /// Relational comparison. Assumes r0=lhs, r1=rhs already evaluated.
-///
-/// `kind` selects the comparison:
-/// - `Lt`: r0 < r1
-/// - `Gt`: r0 > r1
-/// - `Le`: r0 <= r1
-/// - `Ge`: r0 >= r1
 pub fn gen_compare_rel(state: &mut CodegenState, kind: RelKind) {
     match kind {
         RelKind::Lt => {
@@ -70,44 +64,42 @@ pub fn is_comparison_op(op: BinOp) -> bool {
     )
 }
 
-/// Emit a comparison of r0 vs r1 and branch to `skip_label` when the
-/// condition is FALSE. Used for branch fusion in if/while/for conditions.
-///
-/// For `if (a != b) { body }`, we want to skip body when a == b:
-/// - Ne → ceq r0,r1; branch-if-true (skip when equal)
-/// - Eq → ceq r0,r1; branch-if-false (skip when not equal)
-///
-/// NOTE: This emits COR24-specific branch instructions (ceq, cls, brt, brf).
-pub fn gen_compare_branch(state: &mut CodegenState, op: BinOp, skip_label: &str) {
+/// Select the compare-less instruction: `cls` (signed) or `clu` (unsigned).
+fn cmp_less(is_unsigned: bool) -> &'static str {
+    if is_unsigned { "clu" } else { "cls" }
+}
+
+/// Emit a comparison and branch to `label` when the condition is FALSE.
+pub fn gen_compare_branch(
+    state: &mut CodegenState,
+    op: BinOp,
+    skip_label: &str,
+    is_unsigned: bool,
+) {
+    let cmp = cmp_less(is_unsigned);
     match op {
         BinOp::Eq => {
-            // skip body when NOT equal
             emit!(state, "        ceq     r0,r1");
             emit_brf(state, skip_label);
         }
         BinOp::Ne => {
-            // skip body when equal
             emit!(state, "        ceq     r0,r1");
             emit_brt(state, skip_label);
         }
         BinOp::Lt => {
-            // skip body when NOT (r0 < r1)
-            emit!(state, "        cls     r0,r1");
+            emit!(state, "        {cmp}     r0,r1");
             emit_brf(state, skip_label);
         }
         BinOp::Ge => {
-            // skip body when r0 < r1
-            emit!(state, "        cls     r0,r1");
+            emit!(state, "        {cmp}     r0,r1");
             emit_brt(state, skip_label);
         }
         BinOp::Gt => {
-            // skip body when NOT (r1 < r0)
-            emit!(state, "        cls     r1,r0");
+            emit!(state, "        {cmp}     r1,r0");
             emit_brf(state, skip_label);
         }
         BinOp::Le => {
-            // skip body when r1 < r0
-            emit!(state, "        cls     r1,r0");
+            emit!(state, "        {cmp}     r1,r0");
             emit_brt(state, skip_label);
         }
         _ => panic!("gen_compare_branch called with non-comparison op: {op:?}"),
@@ -115,8 +107,13 @@ pub fn gen_compare_branch(state: &mut CodegenState, op: BinOp, skip_label: &str)
 }
 
 /// Like `gen_compare_branch` but branches when the condition is TRUE.
-/// Used for do-while loops (loop back when condition holds).
-pub fn gen_compare_branch_true(state: &mut CodegenState, op: BinOp, loop_label: &str) {
+pub fn gen_compare_branch_true(
+    state: &mut CodegenState,
+    op: BinOp,
+    loop_label: &str,
+    is_unsigned: bool,
+) {
+    let cmp = cmp_less(is_unsigned);
     match op {
         BinOp::Eq => {
             emit!(state, "        ceq     r0,r1");
@@ -127,19 +124,19 @@ pub fn gen_compare_branch_true(state: &mut CodegenState, op: BinOp, loop_label: 
             emit_brf(state, loop_label);
         }
         BinOp::Lt => {
-            emit!(state, "        cls     r0,r1");
+            emit!(state, "        {cmp}     r0,r1");
             emit_brt(state, loop_label);
         }
         BinOp::Ge => {
-            emit!(state, "        cls     r0,r1");
+            emit!(state, "        {cmp}     r0,r1");
             emit_brf(state, loop_label);
         }
         BinOp::Gt => {
-            emit!(state, "        cls     r1,r0");
+            emit!(state, "        {cmp}     r1,r0");
             emit_brt(state, loop_label);
         }
         BinOp::Le => {
-            emit!(state, "        cls     r1,r0");
+            emit!(state, "        {cmp}     r1,r0");
             emit_brf(state, loop_label);
         }
         _ => panic!("gen_compare_branch_true called with non-comparison op: {op:?}"),
