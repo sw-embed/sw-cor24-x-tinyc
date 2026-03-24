@@ -230,21 +230,12 @@ arithmetic (matching GCC/Clang convention).
 ### BUG-009: Large local char arrays corrupt stack (from tml24c docs/bugs.md)
 
 **Filed by:** tml24c
-**Status:** Cannot reproduce (2026-03-23)
-**Component:** `tc24r-struct-prologue` (prologue.rs)
+**Status:** Not a tc24r bug — mis-diagnosed GC bug in tml24c
+**Component:** n/a
 
-Reported: `char buf[128]` in a function caused subsequent while loops
-to not execute. The `sub sp, 131` instruction was suspected of not
-allocating correct stack space.
-
-**Investigation:** Tested the exact reported pattern (`char buf[128];
-int i = 0; while (i < 5) { buf[i] = ...; i++; }`) — works correctly.
-The prologue code already handles large frames: `add sp,-N` for N ≤ 127,
-`sub sp,N` (4-byte instruction) for larger frames.
-
-Likely fixed by one of the earlier session changes (codegen optimizations,
-branch resolution, or macro instruction counting). The tml24c workaround
-(reducing buffer to 32 bytes) is no longer necessary.
+Originally reported as `char buf[128]` corrupting the stack. The actual
+root cause was a garbage collection bug in tml24c, not a compiler issue.
+The tc24r prologue handles large frames correctly (`sub sp,N` for N > 127).
 
 ---
 
