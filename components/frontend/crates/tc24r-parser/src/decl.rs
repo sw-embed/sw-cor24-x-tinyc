@@ -45,12 +45,24 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
                     continue; // standalone definition: struct tag { ... };
                 }
                 let name = ts.expect_ident()?;
-                let ty = ts
+                let mut ty = ts
                     .struct_types
                     .values()
                     .last()
                     .cloned()
                     .unwrap_or(Type::Int);
+                // Handle array suffixes: struct symbol symtab[8];
+                while ts.eat(TokenKind::LBracket) {
+                    let TokenKind::IntLit(size) = ts.peek().kind else {
+                        return Err(CompileError::new(
+                            "expected array size",
+                            Some(ts.current_span()),
+                        ));
+                    };
+                    ts.advance();
+                    ts.expect(TokenKind::RBracket)?;
+                    ty = Type::Array(Box::new(ty), size as usize);
+                }
                 let init = None;
                 ts.expect(TokenKind::Semicolon)?;
                 globals.push(GlobalDecl { name, ty, init });

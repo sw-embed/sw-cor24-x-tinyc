@@ -215,6 +215,27 @@ fn bug006_global_char_array_decay() {
 }
 
 #[test]
+fn bug011_global_struct_array_parse() {
+    // BUG-011: global struct array declaration fails to parse
+    // "expected Semicolon, got LBracket" for struct symbol symtab[8]
+    let src = r#"
+        struct symbol { int name_char; int value; };
+        struct symbol symtab[8];
+        int main() {
+            symtab[0].name_char = 65;
+            symtab[0].value = 100;
+            return symtab[0].name_char + symtab[0].value;
+        }
+    "#;
+    let output = compile(src);
+    // Should compile without parse error
+    assert!(output.contains("_main:"), "main should be generated");
+    // Should allocate space for 8 structs (at least 16 .word directives for 8 * 2 members)
+    let word_count = output.matches(".word").count();
+    assert!(word_count >= 16, "struct symbol symtab[8] should emit at least 16 .word directives, got {word_count}");
+}
+
+#[test]
 fn bug010_ptr_index_member_access() {
     // BUG-010: ptr[i].member panics — array subscript on struct pointer
     // resolves to Int instead of the struct type

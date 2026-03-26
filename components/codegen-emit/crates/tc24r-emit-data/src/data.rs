@@ -25,14 +25,17 @@ pub fn emit_data_section(state: &mut CodegenState, program: &Program) {
                 emit!(state, "        .byte   {val}");
             }
             Type::Array(elem_ty, count) => {
-                // Emit `count` zero-initialized elements
-                let directive = if **elem_ty == Type::Char {
-                    ".byte"
+                // Emit zero-initialized elements
+                if **elem_ty == Type::Char {
+                    for _ in 0..*count {
+                        emit!(state, "        .byte   0");
+                    }
                 } else {
-                    ".word"
-                };
-                for _ in 0..*count {
-                    emit!(state, "        {directive}   0");
+                    // Each element may span multiple words (e.g. structs)
+                    let words_per_elem = (elem_ty.size() + 2) / 3; // ceil(size / 3)
+                    for _ in 0..(*count * words_per_elem as usize) {
+                        emit!(state, "        .word   0");
+                    }
                 }
             }
             _ => {

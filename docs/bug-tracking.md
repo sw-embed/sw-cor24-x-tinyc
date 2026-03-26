@@ -266,6 +266,37 @@ preserve pointer types through pointer arithmetic, matching the existing
 
 ---
 
+### BUG-011: Global struct array fails to parse
+
+**Filed by:** p24p
+**Fixed:** 2026-03-25
+**Component:** `tc24r-parser` (decl.rs), `tc24r-emit-data` (data.rs)
+
+`struct symbol symtab[8];` at global scope failed with "expected
+Semicolon, got LBracket". Global `int` arrays worked fine.
+
+```c
+struct symbol { int name_char; int value; };
+struct symbol symtab[8];   // ERROR: expected Semicolon, got LBracket
+```
+
+**Root cause (parser):** The struct variable declaration path in
+`parse_program()` consumed the struct name and variable name but
+immediately expected a semicolon without handling array bracket suffixes.
+The regular global declaration path in `parse_one_global()` already
+handled `[N]` but struct declarations were intercepted before reaching it.
+
+**Root cause (data emission):** `emit_data_section()` emitted one
+`.word` per array element regardless of element type. For struct arrays,
+each element spans multiple words (e.g. 2-word struct needs 2 `.word`
+directives per element, not 1).
+
+**Fix:** Added array bracket parsing loop to the struct variable
+declaration path (matching `parse_one_global()`). Fixed data emission
+to calculate words per element using `ceil(elem.size() / 3)`.
+
+---
+
 ## Open
 
 (none)

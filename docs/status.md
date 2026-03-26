@@ -6,7 +6,7 @@ Last updated: 2026-03-25
 
 The compiler is functional and can compile real C programs to COR24 assembly
 that runs on hardware (COR24-TB FPGA board) and the cor24-rs emulator.
-47 working demos exercise all implemented features.
+48 working demos exercise all implemented features.
 
 ## Component Architecture
 
@@ -91,7 +91,7 @@ component being its own Cargo workspace under `components/`:
 
 ## Demos
 
-47 demos in the `demos/` directory, each with a run script:
+48 demos in the `demos/` directory, each with a run script:
 
 | Demo | Features Exercised |
 |------|--------------------|
@@ -142,6 +142,7 @@ component being its own Cargo workspace under `components/`:
 | demo45.c | Lisp eval: reader + eval + builtins — (+ 40 2) => 42 |
 | demo46.c | unsigned int: signed/unsigned shifts (sra/srl), comparisons (cls/clu) |
 | demo47.c | ptr[i].member: struct pointer array indexing (BUG-010 fix) |
+| demo48.c | Global struct array declaration and lookup (BUG-011 fix) |
 
 ## Test Suite
 

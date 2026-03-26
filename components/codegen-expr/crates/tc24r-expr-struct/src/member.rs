@@ -130,10 +130,10 @@ fn object_type(state: &CodegenState, object: &Expr) -> Type {
         | Expr::BinOp { op: BinOp::Sub, lhs, .. } => {
             // Pointer arithmetic preserves pointer type (e.g. arr + i)
             let lhs_ty = object_type(state, lhs);
-            if matches!(lhs_ty, Type::Ptr(_)) {
-                lhs_ty
-            } else {
-                Type::Int
+            match lhs_ty {
+                Type::Ptr(_) => lhs_ty,
+                Type::Array(inner, _) => Type::Ptr(inner), // array decay
+                _ => Type::Int,
             }
         }
         _ => Type::Int,

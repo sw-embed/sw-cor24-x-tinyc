@@ -6,8 +6,8 @@ Last updated: 2026-03-25
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| tc24r demos | 47 | 47 | 100% | End-to-end compiler + emulator |
-| reg-rs regressions | 27 | 27 | 100% | Output stability checks |
+| tc24r demos | 48 | 48 | 100% | End-to-end compiler + emulator |
+| reg-rs regressions | 28 | 28 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
@@ -64,6 +64,7 @@ Last updated: 2026-03-25
 | 45 | demo45.c | Lisp eval: reader + eval + builtins — (+ 40 2) => 42 |
 | 46 | demo46.c | unsigned int: signed/unsigned shifts (sra/srl), comparisons (cls/clu) |
 | 47 | demo47.c | ptr[i].member: struct pointer array indexing (BUG-010 fix) |
+| 48 | demo48.c | Global struct array declaration and lookup (BUG-011 fix) |
 
 Run: `demos/run-demo<N>.sh`
 
