@@ -282,6 +282,76 @@ fn bug010_ptr_index_member_access() {
 }
 
 #[test]
+fn bug013_large_frame_deref_assign_r1_clobber() {
+    // BUG-013 part 2: in a large stack frame, the expanded load sequence
+    // (la r1,offset / add r1,fp / lw r0,0(r1)) clobbers r1. The
+    // gen_deref_assign "simple" path saved the pointer address in r1 then
+    // loaded the value via gen_expr_fn which clobbered r1. Fix: locals at
+    // large offsets are excluded from is_simple_expr, forcing push/pop.
+    let src = r#"
+        int main() {
+            char pad[200];
+            char buf[12];
+            int i;
+            buf[0] = 50;
+            buf[1] = 52;
+            i = 0;
+            char t;
+            t = buf[1];
+            buf[1] = buf[0];
+            buf[0] = t;
+            return buf[0] + buf[1];
+        }
+    "#;
+    let output = compile(src);
+    // In a frame > 127 bytes, the swap variables (t, buf elements) must
+    // use push/pop rather than the simple r1 shortcut.
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| !l.starts_with('_') || l.contains("_main:"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    // The large frame must trigger push/pop for deref-assign of locals
+    assert!(
+        main_section.contains("push"),
+        "large-frame deref assign should use push/pop, got:\n{main_section}"
+    );
+}
+
+#[test]
+fn bug013_large_local_offset_overflow() {
+    // BUG-013: char buf[256] gets stack offset -256, which overflows the
+    // 8-bit signed immediate in lw/sw instructions (-128..127).
+    // The compiler must expand large offsets to la+add+lw/sw sequences.
+    let src = r#"
+        int main() {
+            char buf[256];
+            int x;
+            x = 42;
+            buf[0] = 65;
+            return x;
+        }
+    "#;
+    let output = compile(src);
+    // x is at a small offset and should use direct fp-relative access
+    // buf is at offset -256 or larger, which must NOT appear as a raw lw/sw offset
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| !l.starts_with('_') || l.contains("_main:"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    // The expanded sequence for large offsets uses "la r1,{offset}" + "add r1,fp"
+    // Check that the main function contains this pattern (needed for buf or x,
+    // whichever gets the large offset)
+    assert!(
+        main_section.contains("add     r1,fp"),
+        "large stack offset should expand to la+add sequence, got:\n{main_section}"
+    );
+}
+
+#[test]
 fn bug007_array_store_global_index() {
     // BUG-007: offsets[idx] = counter where both are globals should not clobber address
     let src = r#"

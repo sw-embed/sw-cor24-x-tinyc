@@ -1,7 +1,7 @@
 //! Variable load helpers.
 
 use tc24r_codegen_state::CodegenState;
-use tc24r_emit_core::load_immediate;
+use tc24r_emit_core::{fp_load_word_r0, load_immediate};
 use tc24r_emit_macros::emit;
 
 /// Load a named variable into r0.
@@ -11,7 +11,7 @@ pub fn gen_load_by_name(state: &mut CodegenState, name: &str) {
         emit!(state, "        lw      r0,0(r1)");
     } else {
         let offset = state.locals[name];
-        emit!(state, "        lw      r0,{offset}(fp)");
+        fp_load_word_r0(state, offset);
     }
 }
 

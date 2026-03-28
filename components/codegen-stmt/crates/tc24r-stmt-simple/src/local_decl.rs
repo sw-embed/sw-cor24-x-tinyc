@@ -2,7 +2,7 @@
 
 use tc24r_ast::Expr;
 use tc24r_codegen_state::CodegenState;
-use tc24r_emit_macros::emit;
+use tc24r_emit_core::fp_store_word_r0;
 use tc24r_type_infer::GenExprFn;
 
 /// Generate code for a local variable declaration with optional initializer.
@@ -18,6 +18,6 @@ pub fn gen_local_decl(
     if let Some(init_expr) = init {
         gen_expr_fn(init_expr, state);
         let offset = state.locals[name];
-        emit!(state, "        sw      r0,{offset}(fp)");
+        fp_store_word_r0(state, offset);
     }
 }

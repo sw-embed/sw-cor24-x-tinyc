@@ -6,6 +6,7 @@
 
 use tc24r_ast::Expr;
 use tc24r_codegen_state::CodegenState;
+use tc24r_emit_core::fp_load_word_r1;
 use tc24r_emit_macros::emit;
 
 /// Returns true if `expr` can be loaded into a register without side effects
@@ -17,9 +18,14 @@ pub fn is_simple_expr(expr: &Expr, state: &CodegenState) -> bool {
     match expr {
         Expr::IntLit(_) => true,
         Expr::Ident(name) => {
-            // Local variables are a single load instruction.
-            // Globals require 2 instructions (la + lw) but are still simple.
-            state.locals.contains_key(name) || state.globals.contains(name)
+            if let Some(&offset) = state.locals.get(name) {
+                // Locals at small offsets are a single lw — no r1 clobber.
+                // Large offsets require la r1,off / add r1,fp / lw r0,0(r1)
+                // which clobbers r1, so they are NOT simple.
+                (-128..=127).contains(&offset)
+            } else {
+                state.globals.contains(name)
+            }
         }
         _ => false,
     }
@@ -56,7 +62,7 @@ pub fn gen_simple_into_r1(expr: &Expr, state: &mut CodegenState) {
                 }
             } else {
                 let offset = state.locals[name];
-                emit!(state, "        lw      r1,{offset}(fp)");
+                fp_load_word_r1(state, offset);
             }
         }
         _ => panic!("gen_simple_into_r1 called on non-simple expr: {expr:?}"),

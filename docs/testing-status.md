@@ -1,19 +1,19 @@
 # Testing Status
 
-Last updated: 2026-03-25
+Last updated: 2026-03-28
 
 ## Summary
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| tc24r demos | 49 | 49 | 100% | End-to-end compiler + emulator |
+| tc24r demos | 50 | 50 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 29 | 29 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
-## tc24r Demos (46/46)
+## tc24r Demos (50/50)
 
 | # | Demo | Features Tested |
 |---|------|----------------|
@@ -66,6 +66,7 @@ Last updated: 2026-03-25
 | 47 | demo47.c | ptr[i].member: struct pointer array indexing (BUG-010 fix) |
 | 48 | demo48.c | Global struct array declaration and lookup (BUG-011 fix) |
 | 49 | demo49.c | (ptr+offset)->member: paren ptr arithmetic arrow access (BUG-012 fix) |
+| 50 | demo50.c | Large local array (char buf[256]) with nested calls (BUG-013 fix) |
 
 Run: `demos/run-demo<N>.sh`
 

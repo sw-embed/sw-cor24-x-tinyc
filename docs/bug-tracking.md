@@ -322,6 +322,49 @@ expression return paths in `parse_primary()`.
 
 ---
 
+### BUG-013: Large stack frame offset overflow corrupts locals
+
+**Filed by:** tml24c (`format` function stack corruption)
+**Fixed:** 2026-03-28
+**Component:** `tc24r-emit-core` (immediate.rs), `tc24r-emit-load-store` (load.rs, store.rs), `tc24r-stmt-simple` (local_decl.rs), `tc24r-type-infer` (simple.rs)
+
+Functions with large stack frames (locals totaling > 127 bytes, e.g.
+`char buf[256]`) generated `lw`/`sw` instructions with offsets that
+overflowed the 8-bit signed immediate range (-128..127). The assembler
+silently truncated the offset, causing reads/writes to hit wrong memory
+locations — typically the saved frame pointer at `fp+0`.
+
+```c
+void apply_primitive(...) {
+    char buf[256];  // offset -256 → truncated to 0 → clobbers saved fp
+    int sentinel;   // offset -259 → also truncated
+    // nested function calls corrupt buf[0] and sentinel
+}
+```
+
+**Root cause (part 1 — offset overflow):** Four emission sites emitted
+fp-relative offsets directly into `lw`/`sw` instructions without range
+checking: `gen_load_by_name`, `gen_store_by_name`, `gen_local_decl`,
+and `gen_simple_into_r1`.
+
+**Root cause (part 2 — r1 clobber regression):** The expanded offset
+sequence (`la r1,offset` / `add r1,fp` / `lw r0,0(r1)`) clobbers r1.
+The `gen_deref_assign` "simple" optimization saved the pointer address
+in r1 then loaded the value via `gen_expr_fn`, which now destroyed r1
+for large-offset variables. Symptom: `number->string 42` returned "44"
+because the char swap in the digit-reversal loop read wrong bytes.
+
+**Fix (part 1):** Added `fp_load_word_r0`, `fp_store_word_r0`, and
+`fp_load_word_r1` helpers to `tc24r-emit-core` that expand to
+`la r1,{offset}` / `add r1,fp` / `lw/sw r0,0(r1)` when the offset
+is outside -128..127. All four emission sites now use these helpers.
+
+**Fix (part 2):** Updated `is_simple_expr` to return false for local
+variables at offsets outside -128..127, forcing the safe push/pop path
+instead of the r1-clobbering shortcut.
+
+---
+
 ## Open
 
 (none)

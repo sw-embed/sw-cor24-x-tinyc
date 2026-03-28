@@ -1,12 +1,12 @@
 # tc24r Project Status
 
-Last updated: 2026-03-25
+Last updated: 2026-03-28
 
 ## Current State
 
 The compiler is functional and can compile real C programs to COR24 assembly
 that runs on hardware (COR24-TB FPGA board) and the cor24-rs emulator.
-49 working demos exercise all implemented features.
+50 working demos exercise all implemented features.
 
 ## Component Architecture
 
@@ -91,7 +91,7 @@ component being its own Cargo workspace under `components/`:
 
 ## Demos
 
-49 demos in the `demos/` directory, each with a run script:
+50 demos in the `demos/` directory, each with a run script:
 
 | Demo | Features Exercised |
 |------|--------------------|
@@ -144,6 +144,7 @@ component being its own Cargo workspace under `components/`:
 | demo47.c | ptr[i].member: struct pointer array indexing (BUG-010 fix) |
 | demo48.c | Global struct array declaration and lookup (BUG-011 fix) |
 | demo49.c | (ptr+offset)->member: paren ptr arithmetic arrow access (BUG-012 fix) |
+| demo50.c | Large local array (char buf[256]) with nested calls (BUG-013 fix) |
 
 ## Test Suite
 

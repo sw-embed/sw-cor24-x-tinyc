@@ -15,6 +15,6 @@
 ## Project Structure
 
 - `components/` - Rust crates organized by compiler phase (core, frontend, backend, codegen-*, cli, testing)
-- `demos/` - 49 end-to-end demo scripts (run-demo*.sh) with C source files
+- `demos/` - 50 end-to-end demo scripts (run-demo*.sh) with C source files
 - `work/reg-rs/` - reg-rs regression test definitions (.rgt) and baselines (.out)
 - `docs/` - Design docs, testing strategy, known issues
