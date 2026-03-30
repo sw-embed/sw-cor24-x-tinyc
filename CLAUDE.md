@@ -1,11 +1,18 @@
-# tc24r - C compiler for COR24 (24-bit RISC) ISA
+# sw-cor24-tinyc - C compiler for COR24 (24-bit RISC) ISA
+
+Forked from sw-vibe-coding/tc24r into sw-embed/sw-cor24-tinyc.
 
 ## Build & Test
 
 - No workspace-level Cargo.toml; build individual components:
   `cargo build --manifest-path components/cli/Cargo.toml --release`
+- Build all: `scripts/build.sh`
 - Run reg-rs regression tests: `reg-rs run -p tc24r`
 - Run a single demo: `bash demos/run-demo.sh`
+
+## Dependencies
+
+- `../sw-cor24-emulator/isa` — COR24 ISA definitions (path dep from codegen-emit)
 
 ## Key Rules
 

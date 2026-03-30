@@ -3,6 +3,10 @@
 version = 4
 
 [[package]]
+name = "cor24-isa"
+version = "0.1.0"
+
+[[package]]
 name = "tc24r-ast"
 version = "0.1.0"
 dependencies = [
@@ -20,6 +24,7 @@ dependencies = [
 name = "tc24r-emit-core"
 version = "0.1.0"
 dependencies = [
+ "cor24-isa",
  "tc24r-codegen-state",
  "tc24r-emit-macros",
 ]

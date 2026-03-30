@@ -112,13 +112,13 @@ diff tests/return_42.s tests/expected/return_42.s
 as24 < tests/return_42.s | longlgo > tests/return_42.lgo
 ```
 
-### For Emulator Testing (cor24-rs)
+### For Emulator Testing (sw-cor24-emulator)
 
-The cor24-rs project provides a COR24 emulator written in Rust:
+The sw-cor24-emulator project provides a COR24 emulator written in Rust:
 
 ```bash
 # Assemble and run in emulator
-cd ~/github/sw-embed/cor24-rs
+cd ~/github/sw-embed/sw-cor24-emulator
 cargo run -- run path/to/program.s
 ```
 

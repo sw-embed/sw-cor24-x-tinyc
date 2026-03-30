@@ -104,8 +104,8 @@ tc24r program.c -o program.s
 # Assemble (requires as24 from COR24-TB archive)
 as24 < program.s | longlgo > program.lgo
 
-# Run on emulator (cor24-rs)
-cd ~/github/sw-embed/cor24-rs
+# Run on emulator (sw-cor24-emulator)
+cd ~/github/sw-embed/sw-cor24-emulator
 cargo run -- run path/to/program.s
 ```
 

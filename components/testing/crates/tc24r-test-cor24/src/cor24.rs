@@ -11,7 +11,7 @@ pub fn cor24_run_path() -> Option<std::path::PathBuf> {
     }
     let home = std::env::var("HOME").ok()?;
     let path = std::path::PathBuf::from(home)
-        .join("github/sw-embed/cor24-rs/rust-to-cor24/target/release/cor24-run");
+        .join("github/sw-embed/sw-cor24-emulator/rust-to-cor24/target/release/cor24-run");
     if path.exists() { Some(path) } else { None }
 }
 
