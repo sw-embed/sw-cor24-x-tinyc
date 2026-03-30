@@ -63,7 +63,8 @@ CPU halted (self-branch detected)
   FEEC00..FEFFFF: 5120 bytes all zero
 
 === I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
-  FF0000 LED:  0x00  [........]  BTN S2: released
+  LED D2:  0x01  off
+  BTN S2:  0x01  released
   FF0010 IntEn:  0x00  UART RX IRQ: disabled
   FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
   UART TX log:   "D13OK\n"

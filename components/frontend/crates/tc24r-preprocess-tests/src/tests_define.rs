@@ -36,3 +36,24 @@ fn no_partial_match() {
     let output = preprocess(input, None, &[]);
     assert_eq!(output, "int FOOBAR = 2;\n");
 }
+
+#[test]
+fn define_strips_line_comment() {
+    let input = "#define FOO 10 // this is a comment\nint x = FOO;\n";
+    let output = preprocess(input, None, &[]);
+    assert_eq!(output, "int x = 10;\n");
+}
+
+#[test]
+fn define_preserves_slash_in_string() {
+    let input = "#define URL \"http://example.com\"\nchar *s = URL;\n";
+    let output = preprocess(input, None, &[]);
+    assert_eq!(output, "char *s = \"http://example.com\";\n");
+}
+
+#[test]
+fn func_macro_strips_line_comment() {
+    let input = "#define ADD(a, b) ((a)+(b)) // sum\nint x = ADD(1, 2);\n";
+    let output = preprocess(input, None, &[]);
+    assert_eq!(output, "int x = ((1)+(2));\n");
+}

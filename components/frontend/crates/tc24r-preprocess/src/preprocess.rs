@@ -176,6 +176,43 @@ fn try_parse_func_define(rest: &str) -> Option<(String, FuncMacro)> {
 fn parse_simple_define(rest: &str) -> Option<(String, String)> {
     let mut parts = rest.splitn(2, |c: char| c.is_ascii_whitespace());
     let name = parts.next()?.to_string();
-    let value = parts.next().unwrap_or("").trim().to_string();
+    let raw = parts.next().unwrap_or("").trim();
+    let value = strip_line_comment(raw).to_string();
     Some((name, value))
+}
+
+/// Strip a `//` line comment from a define value, respecting string literals.
+/// Used by both simple defines and function-like macro bodies.
+/// Returns the trimmed portion before the comment (or the whole string if none).
+pub(crate) fn strip_line_comment(s: &str) -> &str {
+    let bytes = s.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'"' {
+            // Skip string literal
+            i += 1;
+            while i < bytes.len() && bytes[i] != b'"' {
+                if bytes[i] == b'\\' {
+                    i += 1; // skip escaped char
+                }
+                i += 1;
+            }
+            i += 1; // skip closing quote
+        } else if bytes[i] == b'\'' {
+            // Skip char literal
+            i += 1;
+            while i < bytes.len() && bytes[i] != b'\'' {
+                if bytes[i] == b'\\' {
+                    i += 1;
+                }
+                i += 1;
+            }
+            i += 1;
+        } else if i + 1 < bytes.len() && bytes[i] == b'/' && bytes[i + 1] == b'/' {
+            return s[..i].trim_end();
+        } else {
+            i += 1;
+        }
+    }
+    s
 }

@@ -365,6 +365,35 @@ instead of the r1-clobbering shortcut.
 
 ---
 
+### BUG-014: `#define` values include `//` line comments
+
+**Filed by:** manual testing
+**Fixed:** 2026-03-29
+**Component:** `tc24r-preprocess` (preprocess.rs, func_macro.rs)
+
+`#define FOO 10 // comment` expanded `FOO` to `10 // comment` instead
+of just `10`. When `FOO` appeared mid-expression, the `//` commented
+out everything after it on that line, causing silent parse failures or
+wrong results.
+
+```c
+#define SIZE 10 // array size
+int arr[SIZE];  // expanded to: int arr[10 // array size];
+                // the ]; is commented out → parse error
+```
+
+**Root cause:** The preprocessor's `parse_simple_define` took everything
+after the macro name as the replacement value. Comment stripping happens
+in the lexer (post-preprocessing), but macro expansion happens during
+preprocessing — so the comment text gets baked into the expanded output.
+The same issue affected function-like macro bodies.
+
+**Fix:** Added `strip_line_comment()` that scans for `//` outside of
+string and char literals. Applied to both `parse_simple_define` values
+and `parse_params_and_body` (function-like macro bodies).
+
+---
+
 ## Open
 
 (none)

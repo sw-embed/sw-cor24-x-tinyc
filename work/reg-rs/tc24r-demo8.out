@@ -70,7 +70,7 @@ Assembling and running on COR24 emulator...
 Assembled 255 bytes
 Running (speed: max IPS, time limit: 10s)...
 
-[UART TX @ 600] 'D'  (0x44)
+LEDs: [91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m  (0x00)  [UART TX @ 600] 'D'  (0x44)
 [UART TX @ 600] '8'  (0x38)
 [UART TX @ 600] 'O'  (0x4F)
 [UART TX @ 600] 'K'  (0x4B)
@@ -124,15 +124,9 @@ CPU halted (self-branch detected)
   FEEC00..FEFFFF: 5120 bytes all zero
 
 === I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
-  FF0000 LED:  0x00  [........]  BTN S2: released
+  LED D2:  0x00  ON (active-low)
+  BTN S2:  0x01  released
   FF0010 IntEn:  0x00  UART RX IRQ: disabled
   FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
   UART TX log:   "D8OK\n"
 
-=== Validation ===
-  [PASS] CPU halted cleanly
-  [PASS] r0 = 42 (ANSWER constant expanded)
-  [PASS] LED D2 on (LED_REG/LED_ON expanded)
-  [PASS] UART output contains 'D8OK'
-
-Demo 8 PASSED

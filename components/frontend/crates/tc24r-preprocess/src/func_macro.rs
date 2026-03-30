@@ -16,7 +16,7 @@ pub fn parse_params_and_body(after_paren: &str) -> Option<(Vec<String>, String)>
     let close = find_close_paren(after_paren)?;
     let param_str = &after_paren[..close];
     let params = parse_param_names(param_str);
-    let body = after_paren[close + 1..].trim().to_string();
+    let body = crate::preprocess::strip_line_comment(after_paren[close + 1..].trim()).to_string();
     Some((params, body))
 }
 
