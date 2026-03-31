@@ -2,7 +2,7 @@
 
 ## Fork from sw-vibe-coding/tc24r (2026-03-30)
 
-Forked `sw-vibe-coding/tc24r` to `sw-embed/sw-cor24-tinyc` as part of COR24
+Forked `sw-vibe-coding/tc24r` to `sw-embed/sw-cor24-x-tinyc` as part of COR24
 ecosystem consolidation under the `sw-embed` GitHub organization.
 
 ### Changes from fork

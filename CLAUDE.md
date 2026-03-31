@@ -1,6 +1,6 @@
-# sw-cor24-tinyc - C compiler for COR24 (24-bit RISC) ISA
+# sw-cor24-x-tinyc - C compiler for COR24 (24-bit RISC) ISA
 
-Forked from sw-vibe-coding/tc24r into sw-embed/sw-cor24-tinyc.
+Forked from sw-vibe-coding/tc24r into sw-embed/sw-cor24-x-tinyc.
 
 ## Build & Test
 
