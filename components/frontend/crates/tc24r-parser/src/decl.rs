@@ -11,6 +11,73 @@ use tc24r_parse_stream::try_parse_interrupt_attr;
 pub use tc24r_parser_types::parse_type;
 use tc24r_parser_types::{is_base_type, is_storage_class, is_typedef_name};
 
+/// Parse a constant integer expression between array brackets.
+/// Supports integer literals, +, -, *, /, parentheses.
+pub(crate) fn parse_const_array_size(ts: &mut TokenStream) -> Result<usize, CompileError> {
+    let val = const_add_sub(ts)?;
+    if val < 0 {
+        return Err(CompileError::new(
+            "array size must be positive",
+            Some(ts.current_span()),
+        ));
+    }
+    Ok(val as usize)
+}
+
+fn const_add_sub(ts: &mut TokenStream) -> Result<i32, CompileError> {
+    let mut left = const_mul_div(ts)?;
+    loop {
+        if ts.eat(TokenKind::Plus) {
+            left += const_mul_div(ts)?;
+        } else if ts.eat(TokenKind::Minus) {
+            left -= const_mul_div(ts)?;
+        } else {
+            break;
+        }
+    }
+    Ok(left)
+}
+
+fn const_mul_div(ts: &mut TokenStream) -> Result<i32, CompileError> {
+    let mut left = const_primary(ts)?;
+    loop {
+        if ts.eat(TokenKind::Star) {
+            left *= const_primary(ts)?;
+        } else if ts.eat(TokenKind::Slash) {
+            let right = const_primary(ts)?;
+            if right == 0 {
+                return Err(CompileError::new(
+                    "division by zero in constant expression",
+                    Some(ts.current_span()),
+                ));
+            }
+            left /= right;
+        } else {
+            break;
+        }
+    }
+    Ok(left)
+}
+
+fn const_primary(ts: &mut TokenStream) -> Result<i32, CompileError> {
+    if let TokenKind::IntLit(v) = ts.peek().kind {
+        ts.advance();
+        return Ok(v);
+    }
+    if ts.eat(TokenKind::LParen) {
+        let val = const_add_sub(ts)?;
+        ts.expect(TokenKind::RParen)?;
+        return Ok(val);
+    }
+    if ts.eat(TokenKind::Minus) {
+        return Ok(-const_primary(ts)?);
+    }
+    Err(CompileError::new(
+        "expected integer constant in array size",
+        Some(ts.current_span()),
+    ))
+}
+
 /// Check if current position is an enum definition (`enum {` or `enum tag {`).
 fn is_enum_definition(ts: &TokenStream) -> bool {
     if !matches!(ts.peek().kind, TokenKind::Enum) {
@@ -53,15 +120,9 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
                     .unwrap_or(Type::Int);
                 // Handle array suffixes: struct symbol symtab[8];
                 while ts.eat(TokenKind::LBracket) {
-                    let TokenKind::IntLit(size) = ts.peek().kind else {
-                        return Err(CompileError::new(
-                            "expected array size",
-                            Some(ts.current_span()),
-                        ));
-                    };
-                    ts.advance();
+                    let size = parse_const_array_size(ts)?;
                     ts.expect(TokenKind::RBracket)?;
-                    ty = Type::Array(Box::new(ty), size as usize);
+                    ty = Type::Array(Box::new(ty), size);
                 }
                 let init = None;
                 ts.expect(TokenKind::Semicolon)?;
@@ -197,15 +258,9 @@ fn parse_one_global(ts: &mut TokenStream, base_ty: Type) -> Result<GlobalDecl, C
     }
     let name = ts.expect_ident()?;
     while ts.eat(TokenKind::LBracket) {
-        let TokenKind::IntLit(size) = ts.peek().kind else {
-            return Err(CompileError::new(
-                "expected array size",
-                Some(ts.current_span()),
-            ));
-        };
-        ts.advance();
+        let size = parse_const_array_size(ts)?;
         ts.expect(TokenKind::RBracket)?;
-        ty = Type::Array(Box::new(ty), size as usize);
+        ty = Type::Array(Box::new(ty), size);
     }
     let init = if ts.eat(TokenKind::Assign) {
         Some(crate::expr::parse_expr(ts)?)
@@ -223,15 +278,9 @@ fn parse_global_fn_ptr(ts: &mut TokenStream, return_ty: Type) -> Result<GlobalDe
     // Optional array suffix: (*table[4])
     let mut is_array = None;
     if ts.eat(TokenKind::LBracket) {
-        let TokenKind::IntLit(size) = ts.peek().kind else {
-            return Err(CompileError::new(
-                "expected array size in function pointer",
-                Some(ts.current_span()),
-            ));
-        };
-        ts.advance();
+        let size = parse_const_array_size(ts)?;
         ts.expect(TokenKind::RBracket)?;
-        is_array = Some(size as usize);
+        is_array = Some(size);
     }
     ts.expect(TokenKind::RParen)?; // )
     // Consume parameter list: (int, int, ...)

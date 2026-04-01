@@ -6,7 +6,7 @@ use tc24r_parse_stream::TokenStream;
 use tc24r_token::TokenKind;
 
 use crate::control;
-use crate::decl::parse_type;
+use crate::decl::{parse_const_array_size, parse_type};
 use crate::expr::parse_expr;
 use tc24r_parser_types::is_type_start;
 
@@ -146,15 +146,9 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
     // Check for array: int a[N] or int a[N][M]
     let mut ty = ty;
     while ts.eat(TokenKind::LBracket) {
-        let TokenKind::IntLit(size) = ts.peek().kind else {
-            return Err(CompileError::new(
-                "expected array size",
-                Some(ts.current_span()),
-            ));
-        };
-        ts.advance();
+        let size = parse_const_array_size(ts)?;
         ts.expect(TokenKind::RBracket)?;
-        ty = Type::Array(Box::new(ty), size as usize);
+        ty = Type::Array(Box::new(ty), size);
     }
     // Struct/array brace initializer: struct s x = {1, 2};
     if ts.eat(TokenKind::Assign) {
@@ -180,15 +174,9 @@ fn parse_fn_ptr_declarator(ts: &mut TokenStream, return_ty: Type) -> Result<Stmt
     // Optional array suffix: (*table[4])
     let mut is_array = None;
     if ts.eat(TokenKind::LBracket) {
-        let TokenKind::IntLit(size) = ts.peek().kind else {
-            return Err(CompileError::new(
-                "expected array size in function pointer",
-                Some(ts.current_span()),
-            ));
-        };
-        ts.advance();
+        let size = parse_const_array_size(ts)?;
         ts.expect(TokenKind::RBracket)?;
-        is_array = Some(size as usize);
+        is_array = Some(size);
     }
     ts.expect(TokenKind::RParen)?; // )
     // Consume parameter list: (int, int, ...)
