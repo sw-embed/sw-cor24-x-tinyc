@@ -2,4 +2,4 @@
 
 mod call;
 
-pub use call::gen_call;
+pub use call::{gen_call, gen_indirect_call};

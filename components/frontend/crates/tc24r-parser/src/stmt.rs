@@ -138,6 +138,10 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
     while ts.eat(TokenKind::Star) {
         ty = Type::Ptr(Box::new(ty));
     }
+    // Function pointer: int (*fp)(int, int) or int (*table[4])(int)
+    if ts.check(&TokenKind::LParen) && matches!(ts.lookahead(1), TokenKind::Star) {
+        return parse_fn_ptr_declarator(ts, ty);
+    }
     let name = ts.expect_ident()?;
     // Check for array: int a[N] or int a[N][M]
     let mut ty = ty;
@@ -165,6 +169,66 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
         ty,
         init: None,
     })
+}
+
+/// Parse a function pointer declarator: (*name)(params) or (*name[N])(params)
+/// Produces LocalDecl with Ptr(return_ty) or Array(Ptr(return_ty), N).
+fn parse_fn_ptr_declarator(ts: &mut TokenStream, return_ty: Type) -> Result<Stmt, CompileError> {
+    ts.expect(TokenKind::LParen)?; // (
+    ts.expect(TokenKind::Star)?; // *
+    let name = ts.expect_ident()?;
+    // Optional array suffix: (*table[4])
+    let mut is_array = None;
+    if ts.eat(TokenKind::LBracket) {
+        let TokenKind::IntLit(size) = ts.peek().kind else {
+            return Err(CompileError::new(
+                "expected array size in function pointer",
+                Some(ts.current_span()),
+            ));
+        };
+        ts.advance();
+        ts.expect(TokenKind::RBracket)?;
+        is_array = Some(size as usize);
+    }
+    ts.expect(TokenKind::RParen)?; // )
+    // Consume parameter list: (int, int, ...)
+    ts.expect(TokenKind::LParen)?;
+    skip_fn_ptr_params(ts)?;
+    ts.expect(TokenKind::RParen)?;
+    let ptr_ty = Type::Ptr(Box::new(return_ty));
+    let ty = if let Some(size) = is_array {
+        Type::Array(Box::new(ptr_ty), size)
+    } else {
+        ptr_ty
+    };
+    // Optional initializer
+    let init = if ts.eat(TokenKind::Assign) {
+        Some(parse_expr(ts)?)
+    } else {
+        None
+    };
+    Ok(Stmt::LocalDecl { name, ty, init })
+}
+
+/// Skip a function pointer parameter list (balanced parens).
+pub(crate) fn skip_fn_ptr_params(ts: &mut TokenStream) -> Result<(), CompileError> {
+    if ts.check(&TokenKind::RParen) {
+        return Ok(());
+    }
+    loop {
+        while !ts.check(&TokenKind::RParen) && !ts.check(&TokenKind::Comma) {
+            if ts.eat(TokenKind::LParen) {
+                skip_fn_ptr_params(ts)?;
+                ts.expect(TokenKind::RParen)?;
+            } else {
+                ts.advance();
+            }
+        }
+        if !ts.eat(TokenKind::Comma) {
+            break;
+        }
+    }
+    Ok(())
 }
 
 /// Parse brace initializer: struct s x = {1, 2};

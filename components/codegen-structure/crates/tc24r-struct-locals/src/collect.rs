@@ -111,6 +111,12 @@ fn scan_expr_locals(state: &mut CodegenState, expr: &Expr) {
                 scan_expr_locals(state, a);
             }
         }
+        Expr::IndirectCall { callee, args } => {
+            scan_expr_locals(state, callee);
+            for a in args {
+                scan_expr_locals(state, a);
+            }
+        }
         Expr::MemberAccess { object, .. } => scan_expr_locals(state, object),
         Expr::MemberAssign { object, value, .. } => {
             scan_expr_locals(state, object);

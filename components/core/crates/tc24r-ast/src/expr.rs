@@ -14,6 +14,11 @@ pub enum Expr {
         name: String,
         args: Vec<Expr>,
     },
+    /// Indirect call through expression: expr(args)
+    IndirectCall {
+        callee: Box<Expr>,
+        args: Vec<Expr>,
+    },
     BinOp {
         op: BinOp,
         lhs: Box<Expr>,

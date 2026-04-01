@@ -11,4 +11,6 @@ mod tests_basic;
 #[cfg(test)]
 mod tests_enum;
 #[cfg(test)]
+mod tests_fnptr;
+#[cfg(test)]
 mod tests_types;

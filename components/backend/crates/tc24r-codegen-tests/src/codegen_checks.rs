@@ -380,3 +380,52 @@ fn bug007_array_store_global_index() {
         "do_store should push to preserve address when loading global RHS"
     );
 }
+
+// --- Function pointer tests ---
+
+#[test]
+fn codegen_fn_ptr_variable_call() {
+    // fp = add; fp(3, 4) — variable call should use indirect jal
+    let src = r#"
+        int add(int a, int b) { return a + b; }
+        int main() {
+            int (*fp)(int, int) = add;
+            return fp(3, 4);
+        }
+    "#;
+    let output = compile(src);
+    // The call to fp should load fp's value (a stack variable), NOT use la r0,_fp
+    // It should still use jal r1,(r0) for the call
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| l.contains("_main:") || !l.starts_with('_'))
+        .collect::<Vec<_>>()
+        .join("\n");
+    // Should NOT have la r0,_fp (that would mean calling a function named fp)
+    assert!(
+        !main_section.contains("la      r0,_fp"),
+        "variable call should not emit la r0,_fp (direct call), got:\n{main_section}"
+    );
+    // Should have jal (for the indirect call)
+    assert!(
+        main_section.contains("jal     r1,(r0)"),
+        "variable call should emit jal r1,(r0), got:\n{main_section}"
+    );
+}
+
+#[test]
+fn codegen_fn_ptr_indirect_call() {
+    // table[0](5) — IndirectCall through array subscript
+    let src = r#"
+        int double(int x) { return x + x; }
+        int main() {
+            int (*table[4])(int);
+            table[0] = double;
+            return table[0](5);
+        }
+    "#;
+    let output = compile(src);
+    assert!(output.contains("_main:"), "main should be generated");
+    assert!(output.contains("_double:"), "double should be generated");
+}

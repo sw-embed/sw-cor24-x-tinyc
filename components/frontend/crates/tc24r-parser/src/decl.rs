@@ -5,7 +5,7 @@ use tc24r_error::CompileError;
 use tc24r_parse_stream::TokenStream;
 use tc24r_token::TokenKind;
 
-use crate::stmt::parse_block;
+use crate::stmt::{parse_block, skip_fn_ptr_params};
 use tc24r_parse_stream::try_parse_interrupt_attr;
 
 pub use tc24r_parser_types::parse_type;
@@ -247,13 +247,33 @@ fn parse_params(ts: &mut TokenStream) -> Result<Vec<Param>, CompileError> {
             break;
         }
         let ty = parse_type(ts)?;
-        // Unnamed parameters allowed in prototypes: int foo(int, int);
-        let name = if ts.check(&TokenKind::Comma) || ts.check(&TokenKind::RParen) {
-            String::new()
+        // Function pointer parameter: int (*f)(int)
+        if ts.check(&TokenKind::LParen) && matches!(ts.lookahead(1), TokenKind::Star) {
+            ts.advance(); // (
+            ts.advance(); // *
+            let name = if ts.check(&TokenKind::RParen) {
+                String::new() // unnamed: int (*)(int)
+            } else {
+                ts.expect_ident()?
+            };
+            ts.expect(TokenKind::RParen)?;
+            // Consume parameter type list
+            ts.expect(TokenKind::LParen)?;
+            skip_fn_ptr_params(ts)?;
+            ts.expect(TokenKind::RParen)?;
+            params.push(Param {
+                name,
+                ty: Type::Ptr(Box::new(ty)),
+            });
         } else {
-            ts.expect_ident()?
-        };
-        params.push(Param { name, ty });
+            // Unnamed parameters allowed in prototypes: int foo(int, int);
+            let name = if ts.check(&TokenKind::Comma) || ts.check(&TokenKind::RParen) {
+                String::new()
+            } else {
+                ts.expect_ident()?
+            };
+            params.push(Param { name, ty });
+        }
         if !ts.eat(TokenKind::Comma) {
             break;
         }

@@ -47,6 +47,9 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
             member,
             value,
         } => tc24r_expr_struct::gen_member_assign(state, object, member, value, gen_expr),
+        Expr::IndirectCall { callee, args } => {
+            tc24r_expr_call::gen_indirect_call(state, callee, args, gen_expr)
+        }
         Expr::Ternary {
             cond,
             then_expr,

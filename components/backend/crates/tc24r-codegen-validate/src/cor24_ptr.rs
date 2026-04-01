@@ -39,6 +39,34 @@ fn cor24_div_mod() {
 }
 
 #[test]
+fn cor24_fn_ptr_basic() {
+    assert_assembles_cor24(
+        "fn_ptr_basic",
+        "int add(int a, int b) { return a + b; } \
+         int main() { int (*fp)(int, int) = add; return fp(3, 4); }",
+    );
+}
+
+#[test]
+fn cor24_fn_ptr_array() {
+    assert_assembles_cor24(
+        "fn_ptr_array",
+        "int dbl(int x) { return x + x; } \
+         int main() { int (*t[4])(int); t[0] = dbl; return t[0](5); }",
+    );
+}
+
+#[test]
+fn cor24_fn_ptr_param() {
+    assert_assembles_cor24(
+        "fn_ptr_param",
+        "int dbl(int x) { return x + x; } \
+         int apply(int (*f)(int), int x) { return f(x); } \
+         int main() { return apply(dbl, 5); }",
+    );
+}
+
+#[test]
 fn cor24_char_ptr_arithmetic() {
     // char *p points to a char, p + 1 should advance by 1 byte
     assert_assembles_cor24(

@@ -6,6 +6,7 @@ use tc24r_emit_load_store::{gen_addr_of, gen_load_by_name};
 use tc24r_emit_macros::emit;
 
 /// Load a variable into r0. Arrays decay to a pointer (address of first element).
+/// Function names used as values produce their code address (for function pointers).
 pub fn gen_ident(state: &mut CodegenState, name: &str) {
     // Array decay: local or global arrays produce their address, not a load
     if matches!(state.local_types.get(name), Some(Type::Array(..)))
@@ -22,6 +23,11 @@ pub fn gen_ident(state: &mut CodegenState, name: &str) {
         } else {
             emit!(state, "        lw      r0,0(r1)");
         }
+    } else if state.locals.contains_key(name) {
+        gen_load_by_name(state, name);
+    } else if state.function_types.contains_key(name) {
+        // Function name used as value: load its code address
+        emit!(state, "        la      r0,_{name}");
     } else {
         gen_load_by_name(state, name);
     }

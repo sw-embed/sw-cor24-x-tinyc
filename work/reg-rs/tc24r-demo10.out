@@ -63,7 +63,7 @@ int main() {
 }
 ---
 
-Compiling demo10.c -> demo10.s (with -I /Users/mike/github/sw-vibe-coding/tc24r/include)
+Compiling demo10.c -> demo10.s (with -I /Users/mike/github/sw-embed/sw-cor24-x-tinyc/include)
 
 Generated assembly:
 ---

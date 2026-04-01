@@ -196,6 +196,22 @@ fn parse_postfix_chain(ts: &mut TokenStream, mut expr: Expr) -> Result<Expr, Com
                 lhs: Box::new(expr),
                 rhs: Box::new(index),
             }));
+        } else if ts.eat(TokenKind::LParen) {
+            // Indirect call: expr(args) — for table[n](arg), (*fp)(arg), etc.
+            let mut args = Vec::new();
+            if !ts.check(&TokenKind::RParen) {
+                loop {
+                    args.push(parse_expr(ts)?);
+                    if !ts.eat(TokenKind::Comma) {
+                        break;
+                    }
+                }
+            }
+            ts.expect(TokenKind::RParen)?;
+            expr = Expr::IndirectCall {
+                callee: Box::new(expr),
+                args,
+            };
         } else if ts.eat(TokenKind::Dot) {
             let member = ts.expect_ident()?;
             expr = Expr::MemberAccess {
