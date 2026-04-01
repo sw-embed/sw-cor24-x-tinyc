@@ -1,0 +1,8 @@
+number = 1
+slug = "parse-cast-expressions"
+status = "in-progress"
+description = "Implement cast expression parsing in tc24r. Detect (type)expr prefix in expre..."
+role = "legacy"
+context_files = []
+created_at = "2026-04-01T05:46:43"
+task_type = "rust-project-init"

@@ -1,0 +1,1 @@
+Implement cast expression parsing in tc24r. Detect (type)expr prefix in expression parser (expr.rs). Distinguish from parenthesized expressions by lookahead: if token after ( is a type keyword, parse as cast. Add Expr::Cast { ty, expr } AST node. Support (int)x, (char *)p, (void *)0. Include nested casts like (int)(char)x.
