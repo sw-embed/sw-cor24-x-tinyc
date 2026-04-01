@@ -15,6 +15,7 @@ pub fn substitute_params(body: &str, params: &[String], args: &[String]) -> Stri
 }
 
 /// Token-aware substitution: replace identifiers matching keys in `map`.
+/// Handles stringification: `#param` becomes `"arg"`.
 fn token_substitute(body: &str, map: &HashMap<&str, &str>) -> String {
     let bytes = body.as_bytes();
     let mut result = String::with_capacity(body.len());
@@ -25,6 +26,29 @@ fn token_substitute(body: &str, map: &HashMap<&str, &str>) -> String {
             result.push('"');
             i += 1;
             i = copy_string_into(&mut result, bytes, i);
+        } else if bytes[i] == b'#' && !is_token_paste(bytes, i) {
+            // Stringification: #param → "arg"
+            i += 1;
+            // Skip whitespace between # and parameter name
+            while i < bytes.len() && bytes[i] == b' ' {
+                i += 1;
+            }
+            if i < bytes.len() && is_ident_start(bytes[i]) {
+                let start = i;
+                while i < bytes.len() && is_ident_char(bytes[i]) {
+                    i += 1;
+                }
+                let word = &body[start..i];
+                if let Some(arg) = map.get(word) {
+                    stringify_into(&mut result, arg);
+                } else {
+                    // Not a parameter — pass through as-is
+                    result.push('#');
+                    result.push_str(word);
+                }
+            } else {
+                result.push('#');
+            }
         } else if is_ident_start(bytes[i]) {
             let start = i;
             while i < bytes.len() && is_ident_char(bytes[i]) {
@@ -42,6 +66,23 @@ fn token_substitute(body: &str, map: &HashMap<&str, &str>) -> String {
         }
     }
     result
+}
+
+/// Check if `#` at position `i` is part of `##` (token paste), not stringification.
+fn is_token_paste(bytes: &[u8], i: usize) -> bool {
+    i + 1 < bytes.len() && bytes[i + 1] == b'#'
+}
+
+/// Convert an argument to a string literal: wrap in quotes, escape internal quotes and backslashes.
+fn stringify_into(out: &mut String, arg: &str) {
+    out.push('"');
+    for ch in arg.chars() {
+        if ch == '"' || ch == '\\' {
+            out.push('\\');
+        }
+        out.push(ch);
+    }
+    out.push('"');
 }
 
 fn is_ident_start(b: u8) -> bool {
@@ -74,5 +115,57 @@ mod tests {
             &["42".into(), "42".into()],
         );
         assert_eq!(result, "assert(42,42,\"x\")");
+    }
+
+    #[test]
+    fn stringify_basic() {
+        let result = substitute_params(
+            "assert(x, y, #y)",
+            &["x".into(), "y".into()],
+            &["42".into(), "5+20-4".into()],
+        );
+        assert_eq!(result, "assert(42, 5+20-4, \"5+20-4\")");
+    }
+
+    #[test]
+    fn stringify_with_quotes() {
+        let result = substitute_params(
+            "#x",
+            &["x".into()],
+            &["\"hello\"".into()],
+        );
+        assert_eq!(result, "\"\\\"hello\\\"\"");
+    }
+
+    #[test]
+    fn stringify_non_param_passthrough() {
+        let result = substitute_params(
+            "#unknown",
+            &["x".into()],
+            &["42".into()],
+        );
+        assert_eq!(result, "#unknown");
+    }
+
+    #[test]
+    fn stringify_whitespace_after_hash() {
+        let result = substitute_params(
+            "# x",
+            &["x".into()],
+            &["42".into()],
+        );
+        assert_eq!(result, "\"42\"");
+    }
+
+    #[test]
+    fn stringify_chibicc_assert() {
+        // #define ASSERT(x, y) assert(x, y, #y)
+        // ASSERT(21, 5+20-4)
+        let result = substitute_params(
+            "assert(x, y, #y)",
+            &["x".into(), "y".into()],
+            &["21".into(), "5+20-4".into()],
+        );
+        assert_eq!(result, "assert(21, 5+20-4, \"5+20-4\")");
     }
 }

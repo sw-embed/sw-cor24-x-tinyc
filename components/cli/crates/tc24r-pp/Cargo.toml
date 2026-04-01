@@ -1,0 +1,11 @@
+[package]
+name = "tc24r-pp"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "tc24r-pp"
+path = "src/main.rs"
+
+[dependencies]
+tc24r-preprocess = { path = "../../../frontend/crates/tc24r-preprocess" }

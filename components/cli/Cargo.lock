@@ -313,6 +313,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "tc24r-pp"
+version = "0.1.0"
+dependencies = [
+ "tc24r-preprocess",
+]
+
+[[package]]
 name = "tc24r-preprocess"
 version = "0.1.0"
 
