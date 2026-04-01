@@ -147,6 +147,12 @@ fn is_global_decl(ts: &TokenStream) -> bool {
             i += 1;
         }
     }
+    // Function pointer: int (*fp)(int, int)
+    if matches!(ts.lookahead(i), TokenKind::LParen)
+        && matches!(ts.lookahead(i + 1), TokenKind::Star)
+    {
+        return true;
+    }
     // Skip pointer stars: int **ptr
     while matches!(ts.lookahead(i), TokenKind::Star) {
         i += 1;
@@ -185,6 +191,10 @@ fn parse_one_global(ts: &mut TokenStream, base_ty: Type) -> Result<GlobalDecl, C
     while ts.eat(TokenKind::Star) {
         ty = Type::Ptr(Box::new(ty));
     }
+    // Function pointer: int (*fp)(int, int)
+    if ts.check(&TokenKind::LParen) && matches!(ts.lookahead(1), TokenKind::Star) {
+        return parse_global_fn_ptr(ts, ty);
+    }
     let name = ts.expect_ident()?;
     while ts.eat(TokenKind::LBracket) {
         let TokenKind::IntLit(size) = ts.peek().kind else {
@@ -197,6 +207,44 @@ fn parse_one_global(ts: &mut TokenStream, base_ty: Type) -> Result<GlobalDecl, C
         ts.expect(TokenKind::RBracket)?;
         ty = Type::Array(Box::new(ty), size as usize);
     }
+    let init = if ts.eat(TokenKind::Assign) {
+        Some(crate::expr::parse_expr(ts)?)
+    } else {
+        None
+    };
+    Ok(GlobalDecl { name, ty, init })
+}
+
+/// Parse a global function pointer: (*name)(params) or (*name[N])(params)
+fn parse_global_fn_ptr(ts: &mut TokenStream, return_ty: Type) -> Result<GlobalDecl, CompileError> {
+    ts.expect(TokenKind::LParen)?; // (
+    ts.expect(TokenKind::Star)?; // *
+    let name = ts.expect_ident()?;
+    // Optional array suffix: (*table[4])
+    let mut is_array = None;
+    if ts.eat(TokenKind::LBracket) {
+        let TokenKind::IntLit(size) = ts.peek().kind else {
+            return Err(CompileError::new(
+                "expected array size in function pointer",
+                Some(ts.current_span()),
+            ));
+        };
+        ts.advance();
+        ts.expect(TokenKind::RBracket)?;
+        is_array = Some(size as usize);
+    }
+    ts.expect(TokenKind::RParen)?; // )
+    // Consume parameter list: (int, int, ...)
+    ts.expect(TokenKind::LParen)?;
+    skip_fn_ptr_params(ts)?;
+    ts.expect(TokenKind::RParen)?;
+    let ptr_ty = Type::Ptr(Box::new(return_ty));
+    let ty = if let Some(size) = is_array {
+        Type::Array(Box::new(ptr_ty), size)
+    } else {
+        ptr_ty
+    };
+    // Optional initializer
     let init = if ts.eat(TokenKind::Assign) {
         Some(crate::expr::parse_expr(ts)?)
     } else {
