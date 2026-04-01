@@ -1,19 +1,19 @@
 # Testing Status
 
-Last updated: 2026-03-28
+Last updated: 2026-04-01
 
 ## Summary
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| tc24r demos | 50 | 50 | 100% | End-to-end compiler + emulator |
+| tc24r demos | 55 | 55 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 29 | 29 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
-## tc24r Demos (50/50)
+## tc24r Demos (55/55)
 
 | # | Demo | Features Tested |
 |---|------|----------------|
@@ -67,6 +67,11 @@ Last updated: 2026-03-28
 | 48 | demo48.c | Global struct array declaration and lookup (BUG-011 fix) |
 | 49 | demo49.c | (ptr+offset)->member: paren ptr arithmetic arrow access (BUG-012 fix) |
 | 50 | demo50.c | Large local array (char buf[256]) with nested calls (BUG-013 fix) |
+| 51 | demo51.c | Function pointer: basic variable call |
+| 52 | demo52.c | Function pointer: array dispatch table |
+| 53 | demo53.c | Function pointer: passed as parameter |
+| 54 | demo54.c | Global function pointer declaration |
+| 55 | demo55.c | Constant expression in array size |
 
 Run: `demos/run-demo<N>.sh`
 
@@ -202,6 +207,8 @@ Run: `scripts/run-chibicc-tests.sh`
 - sizeof(type[N]) array type arguments
 - Line continuation (backslash-newline)
 - Unknown escape sequences accepted literally
+- Function pointers: local/global declarations, arrays, parameter passing, indirect calls
+- Constant expressions in array sizes (int buf[ROWS * COLS])
 
 ## beej-c-guide Examples (4/11)
 
