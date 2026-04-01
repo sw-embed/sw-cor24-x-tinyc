@@ -105,72 +105,64 @@ Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 | pragma-once | #pragma once inclusion guard |
 | stdhdr | System header inclusion |
 
-### Compile Fail (36) — Categorized
+### Compile Fail (35) — Categorized
 
-#### Out of Scope: Floating Point (3 tests)
+#### Out of Scope (5 tests)
 
-COR24 has no FPU. These tests are permanently out of scope.
+| Test | Reason |
+|------|--------|
+| float | No FPU on COR24 |
+| atomic | `<stdatomic.h>` — OS-level feature |
+| tls | `<pthread.h>` — OS threading |
+| varargs | `<stdarg.h>` — ABI-level variadic calling convention |
+| unicode | UTF-8 identifiers — low priority for embedded |
 
-| Test | Notes |
-|------|-------|
-| cast | float/double cast operations |
-| constexpr | float/double constant expressions |
-| float | Dedicated float/double test suite |
+#### Actionable: Parser/Codegen Features (24 tests)
 
-#### Out of Scope: Hosted C / Standard Library (4 tests)
+Preprocessor stringification (#) is now supported. Remaining failures
+are parser or codegen level. See `.agentrail/plan.md` for the saga
+addressing these in priority order.
 
-tc24r is a freestanding compiler. Tests requiring hosted headers are out of scope.
+| Test | Blocking Feature | Saga Phase |
+|------|-----------------|------------|
+| arith | Cast expressions `(type)expr` | Phase 0 |
+| builtin | Cast expressions | Phase 0 |
+| cast | Cast expressions | Phase 0 |
+| pointer | Cast expressions / complex pointer decls | Phase 0 |
+| sizeof | Cast expressions / sizeof complex types | Phase 0 |
+| attribute | Missing `stddef.h` stub | Phase 1 |
+| offsetof | Missing `stddef.h` stub | Phase 1 |
+| stdhdr | Missing `stdalign.h` stub | Phase 1 |
+| control | goto/labels, empty `for(;;)` | Phase 2 |
+| variable | goto/labels, complex declarations | Phase 2 |
+| complit | Compound literals `(type){init}` | Phase 3 |
+| initializer | Brace initializers in expressions | Phase 3 |
+| alignof | `_Alignof` / `_Alignas` keywords | Phase 4 |
+| compat | `_Noreturn` specifier | Phase 4 |
+| typeof | `typeof` operator | Phase 4 |
+| extern | `inline` function specifier | Phase 4 |
+| bitfield | Struct bitfield syntax `int x : 5` | Phase 5 |
+| asm | Extended asm syntax (multi-string) | Phase 5 |
+| constexpr | Complex enum/const initializer expressions | Phase 5 |
+| string | Multi-char / wide char literals | Phase 5 |
+| literal | Numeric literal edge cases | Phase 5 |
+| pragma-once | Relative include path resolution | Phase 5 |
+| function | Return type parsing edge case | Phase 5 |
+| vla | Variable-length arrays | Phase 5 |
 
-| Test | Blocker |
-|------|---------|
-| atomic | `<stdatomic.h>` |
-| attribute | `"stddef.h"` |
-| tls | `<stdio.h>`, _Thread_local |
-| varargs | `<stdarg.h>`, variadic functions |
+#### Compiles but not yet passing via test harness (6 tests)
 
-#### Partially Blocked by Float (9 tests)
+These compile when tested directly but the chibicc test awk filter
+strips needed declarations. Harness improvements in Phase 6.
 
-These tests contain some float/double usage mixed with integer tests.
-Progress possible by stripping float portions.
-
-| Test | Primary Blocker | Also Uses Float |
-|------|----------------|-----------------|
-| arith | Preprocessor test macros | float/double arithmetic |
-| builtin | __builtin functions | float types |
-| control | Preprocessor test macros | float literals |
-| function | Preprocessor test macros | float params |
-| generic | Passes (float parts skipped) | float in _Generic |
-| offsetof | `<stddef.h>` | double in struct |
-| sizeof | Preprocessor test macros | sizeof(float) |
-| stdhdr | Passes (float in headers) | float typedefs |
-| usualconv | Preprocessor test macros | float promotions |
-
-#### Actionable: Missing Language Features (20 tests)
-
-| Test | Blocking Feature |
-|------|-----------------|
-| alignof | _Alignof, _Alignas keywords |
-| alloca | Preprocessor test macros (#define ASSERT) |
-| asm | Extended inline asm syntax |
-| bitfield | Struct bitfield syntax (int x : 5) |
-| compat | _Noreturn, restrict, volatile qualifiers |
-| commonsym | Preprocessor test macros |
-| complit | Compound literals, complex struct init |
-| control | goto/labels, switch enhancements |
-| decl | Complex declaration parsing |
-| extern | inline keyword |
-| initializer | Designated initializers, short type |
-| line | #line directive, __LINE__, __FILE__ |
-| literal | Line continuation (backslash-newline) |
-| macro | Complex macro expansion, #include errors |
-| pointer | Array of pointers declaration |
-| sizeof | Preprocessor test macros |
-| string | \v escape, wide/unicode string literals |
-| typedef | Multiple declarators in typedef |
-| typeof | typeof operator |
-| unicode | UTF-8/Unicode character handling |
-| variable | Complex declarations, scoping |
-| vla | Variable-length arrays |
+| Test | Status |
+|------|--------|
+| alloca | Compiles after ASSERT macro fix |
+| commonsym | Compiles, passes (r0=0) when extern decls preserved |
+| line | Compiles but codegen panic on some patterns |
+| macro | Compiles but stack overflow on recursive macro |
+| usualconv | Compiles after float/long lines stripped |
+| decl | Compiles after type modifier lines stripped |
 
 Run: `scripts/run-chibicc-tests.sh`
 
@@ -209,6 +201,7 @@ Run: `scripts/run-chibicc-tests.sh`
 - Unknown escape sequences accepted literally
 - Function pointers: local/global declarations, arrays, parameter passing, indirect calls
 - Constant expressions in array sizes (int buf[ROWS * COLS])
+- Preprocessor stringification operator (#param → "arg")
 
 ## beej-c-guide Examples (4/11)
 
@@ -253,5 +246,6 @@ Testing against `/home/mike/bgc_download/bgc_source/examples/*.c`.
   values will see different results.
 - **Local variable scoping**: Statement expression locals share stack
   with outer scope locals of the same name (flat allocation).
-- **Preprocessor**: No #line, __LINE__, __FILE__. No complex macro
-  expansion (stringification, token pasting).
+- **Preprocessor**: No #line, __LINE__, __FILE__. No token pasting (##).
+  Stringification (#) is supported. Recursive macro expansion may
+  stack overflow on deeply nested patterns.
