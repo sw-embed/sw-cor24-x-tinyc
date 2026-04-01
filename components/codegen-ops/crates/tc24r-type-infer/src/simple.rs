@@ -50,8 +50,10 @@ pub fn gen_simple_into_r1(expr: &Expr, state: &mut CodegenState) {
         }
         Expr::Ident(name) => {
             if state.globals.contains(name) {
-                let is_char =
-                    state.global_types.get(name) == Some(&tc24r_ast::Type::Char);
+                let is_char = matches!(
+                    state.global_types.get(name),
+                    Some(tc24r_ast::Type::Char | tc24r_ast::Type::UnsignedChar)
+                );
                 // For globals: load address into r1, then load value.
                 // We use r1 as both address holder and destination.
                 emit!(state, "        la      r1,_{name}");

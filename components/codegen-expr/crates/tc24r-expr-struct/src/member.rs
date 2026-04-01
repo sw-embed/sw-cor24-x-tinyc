@@ -88,7 +88,7 @@ fn member_info(state: &CodegenState, object: &Expr, member: &str) -> (i32, bool)
     let m = ty.find_member(member).unwrap_or_else(|| {
         panic!("unknown struct member '{member}' in type {ty:?}")
     });
-    (m.offset, m.ty == Type::Char)
+    (m.offset, m.ty == Type::Char || m.ty == Type::UnsignedChar)
 }
 
 /// Determine the struct type of the object expression.

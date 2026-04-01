@@ -22,7 +22,9 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
         }
         Expr::AddrOf(name) => tc24r_expr_variable::gen_addr_of(state, name),
         Expr::Deref(ptr) => tc24r_expr_pointer::gen_deref(state, ptr, gen_expr),
-        Expr::Cast { expr: inner, .. } => gen_expr(inner, state),
+        Expr::Cast { ty, expr: inner } => {
+            tc24r_expr_pointer::gen_cast(state, ty, inner, gen_expr)
+        }
         Expr::DerefAssign { ptr, value } => {
             tc24r_expr_pointer::gen_deref_assign(state, ptr, value, gen_expr)
         }

@@ -39,7 +39,7 @@ fn parse_base_type(ts: &mut TokenStream, had_qualifier: bool) -> Result<Type, Co
     match ts.peek().kind {
         TokenKind::Char => {
             ts.advance();
-            Ok(Type::Char)
+            if is_unsigned { Ok(Type::UnsignedChar) } else { Ok(Type::Char) }
         }
         TokenKind::Int => {
             ts.advance();

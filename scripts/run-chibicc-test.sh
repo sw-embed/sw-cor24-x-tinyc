@@ -66,6 +66,8 @@ awk '
 /0b[01]/   { next }
 /0[0-7][0-7]/ { next }
 /assert.*size/ { next }
+/[0-9]\.[0-9]/  { next }
+/[0-9]e[0-9]/   { next }
 { print }
 ' "$SRC" > "$TMPDIR/$NAME.c"
 

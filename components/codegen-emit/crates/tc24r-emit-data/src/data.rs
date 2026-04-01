@@ -21,12 +21,12 @@ pub fn emit_data_section(state: &mut CodegenState, program: &Program) {
             _ => 0,
         };
         match &g.ty {
-            Type::Char => {
+            Type::Char | Type::UnsignedChar => {
                 emit!(state, "        .byte   {val}");
             }
             Type::Array(elem_ty, count) => {
                 // Emit zero-initialized elements
-                if **elem_ty == Type::Char {
+                if **elem_ty == Type::Char || **elem_ty == Type::UnsignedChar {
                     for _ in 0..*count {
                         emit!(state, "        .byte   0");
                     }

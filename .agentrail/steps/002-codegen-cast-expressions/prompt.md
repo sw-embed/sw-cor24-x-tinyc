@@ -1,0 +1,1 @@
+Implement cast codegen for narrowing/widening: (char)x should mask to 8 bits with sign extension, (unsigned char)x should mask to 8 bits zero-extended. Pointer casts remain no-ops. Also fix the chibicc test awk filter to strip lines containing float literals (e.g. 3.0, 3.99) since COR24 has no FPU. Then verify cast.c chibicc test passes.

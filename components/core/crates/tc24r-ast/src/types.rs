@@ -4,6 +4,7 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum Type {
     Char,
+    UnsignedChar,
     Int,
     UnsignedInt,
     Void,
@@ -30,7 +31,7 @@ impl Type {
     /// Size in bytes for this type.
     pub fn size(&self) -> i32 {
         match self {
-            Type::Char => 1,
+            Type::Char | Type::UnsignedChar => 1,
             Type::Int | Type::UnsignedInt | Type::Void | Type::Ptr(_) => 3,
             Type::Array(elem, count) => elem.size() * (*count as i32),
             Type::Struct { total_size, .. } => *total_size,

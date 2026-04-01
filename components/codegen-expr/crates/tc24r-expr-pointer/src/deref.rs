@@ -64,6 +64,6 @@ fn is_global_var(expr: &Expr, state: &CodegenState) -> bool {
 fn is_char_ptr(state: &CodegenState, ptr: &Expr) -> bool {
     matches!(
         expr_type(state, ptr),
-        Some(Type::Ptr(inner)) if *inner == Type::Char
+        Some(Type::Ptr(inner)) if *inner == Type::Char || *inner == Type::UnsignedChar
     )
 }

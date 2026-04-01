@@ -1,0 +1,8 @@
+number = 2
+slug = "codegen-cast-expressions"
+status = "in-progress"
+description = "Implement cast codegen for narrowing/widening: (char)x should mask to 8 bits ..."
+role = "legacy"
+context_files = []
+created_at = "2026-04-01T12:59:16"
+task_type = "rust-clippy-fix"
