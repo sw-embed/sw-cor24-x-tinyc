@@ -47,6 +47,9 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     if ts.eat(TokenKind::Sizeof) {
         return parse_sizeof(ts);
     }
+    if ts.eat(TokenKind::Offsetof) {
+        return parse_offsetof(ts);
+    }
     if ts.eat(TokenKind::Plus) {
         // Unary + is identity, just parse the operand
         return parse_unary(ts);
@@ -262,4 +265,20 @@ fn parse_sizeof(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     let _expr = parse_unary(ts)?;
     ts.expect(TokenKind::RParen)?;
     Ok(Expr::IntLit(3))
+}
+
+/// Parse `offsetof(type, member)` after the `offsetof` token.
+fn parse_offsetof(ts: &mut TokenStream) -> Result<Expr, CompileError> {
+    ts.expect(TokenKind::LParen)?;
+    let ty = parse_type(ts)?;
+    ts.expect(TokenKind::Comma)?;
+    let member = ts.expect_ident()?;
+    ts.expect(TokenKind::RParen)?;
+    match ty.find_member(&member) {
+        Some(m) => Ok(Expr::IntLit(m.offset)),
+        None => Err(CompileError::new(
+            format!("no member '{member}' in type"),
+            Some(ts.current_span()),
+        )),
+    }
 }

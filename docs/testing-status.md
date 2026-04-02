@@ -7,9 +7,9 @@ Last updated: 2026-04-01
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
 | tc24r demos | 55 | 55 | 100% | End-to-end compiler + emulator |
-| reg-rs regressions | 29 | 29 | 100% | Output stability checks |
+| reg-rs regressions | 33 | 33 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
-| chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
+| chibicc full | 7 | 41 | 17% | cast, const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
@@ -90,20 +90,21 @@ features. Located in `tests/chibicc-subset/`.
 
 Run: `scripts/run-subset-tests.sh`
 
-## chibicc Full Tests (6/41)
+## chibicc Full Tests (7/41)
 
 Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 
-### Passing (6)
+### Passing (7)
 
 | Test | Notes |
 |------|-------|
+| cast | Cast expressions `(type)expr` |
 | const | const type qualifiers |
 | decl | Declarations with type modifiers |
 | enum | enum declarations and usage |
 | generic | _Generic keyword support |
 | pragma-once | #pragma once inclusion guard |
-| stdhdr | System header inclusion |
+| stdhdr | System header inclusion (stdalign.h, stdbool.h, stddef.h, stdnoreturn.h) |
 
 ### Compile Fail (35) — Categorized
 
@@ -125,14 +126,12 @@ addressing these in priority order.
 
 | Test | Blocking Feature | Saga Phase |
 |------|-----------------|------------|
-| arith | Cast expressions `(type)expr` | Phase 0 |
-| builtin | Cast expressions | Phase 0 |
-| cast | Cast expressions | Phase 0 |
-| pointer | Cast expressions / complex pointer decls | Phase 0 |
-| sizeof | Cast expressions / sizeof complex types | Phase 0 |
-| attribute | Missing `stddef.h` stub | Phase 1 |
-| offsetof | Missing `stddef.h` stub | Phase 1 |
-| stdhdr | Missing `stdalign.h` stub | Phase 1 |
+| arith | Octal literals, complex expressions | Phase 5 |
+| builtin | `__builtin_types_compatible_p` | Phase 5 |
+| pointer | Complex pointer decls | Phase 5 |
+| sizeof | `sizeof expr` without parens | Phase 5 |
+| attribute | `__attribute__`, compound literals, `_Alignof` | Phase 4-5 |
+| offsetof | Struct offsets differ (COR24 3-byte int vs x86 4-byte) | x86-specific |
 | control | goto/labels, empty `for(;;)` | Phase 2 |
 | variable | goto/labels, complex declarations | Phase 2 |
 | complit | Compound literals `(type){init}` | Phase 3 |
@@ -202,6 +201,10 @@ Run: `scripts/run-chibicc-tests.sh`
 - Function pointers: local/global declarations, arrays, parameter passing, indirect calls
 - Constant expressions in array sizes (int buf[ROWS * COLS])
 - Preprocessor stringification operator (#param → "arg")
+- Cast expressions `(type)expr` with narrowing/widening codegen
+- Implicit string literal concatenation ("a" "b" → "ab")
+- Freestanding stub headers: stddef.h, stdalign.h, stdbool.h, stdnoreturn.h, stdarg.h
+- `offsetof(type, member)` as compiler builtin
 
 ## beej-c-guide Examples (4/11)
 

@@ -17,6 +17,7 @@ pub enum TokenKind {
     For,
     Asm,
     Sizeof,
+    Offsetof,
     Static,
     Extern,
     Const,
