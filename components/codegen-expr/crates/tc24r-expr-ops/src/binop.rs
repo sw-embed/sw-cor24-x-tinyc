@@ -19,6 +19,11 @@ pub fn gen_binop_dispatch(
     gen_expr_fn: GenExprFn,
 ) {
     match op {
+        BinOp::Comma => {
+            gen_expr_fn(lhs, state);
+            gen_expr_fn(rhs, state);
+            return;
+        }
         BinOp::LogAnd => return gen_log_and(state, lhs, rhs, gen_expr_fn),
         BinOp::LogOr => return gen_log_or(state, lhs, rhs, gen_expr_fn),
         BinOp::Add | BinOp::Sub => return gen_add_sub(state, op, lhs, rhs, gen_expr_fn),
@@ -64,7 +69,7 @@ fn dispatch_simple(state: &mut CodegenState, op: BinOp, is_unsigned: bool) {
         }
         BinOp::Div => gen_divmod_call(state, false),
         BinOp::Mod => gen_divmod_call(state, true),
-        BinOp::Add | BinOp::Sub | BinOp::LogAnd | BinOp::LogOr => unreachable!(),
+        BinOp::Add | BinOp::Sub | BinOp::LogAnd | BinOp::LogOr | BinOp::Comma => unreachable!(),
     }
 }
 

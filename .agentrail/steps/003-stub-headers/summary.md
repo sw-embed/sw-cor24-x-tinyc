@@ -1,0 +1,1 @@
+Added freestanding stub headers (stddef.h, stdalign.h, stdnoreturn.h, stdarg.h) and implemented offsetof(type, member) as a parser builtin. stdhdr test now passes with real header resolution (7/41 chibicc). attribute and offsetof tests remain blocked on __attribute__ syntax and x86-specific offset values.

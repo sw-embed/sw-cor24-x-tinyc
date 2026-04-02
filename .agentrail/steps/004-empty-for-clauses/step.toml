@@ -1,6 +1,6 @@
 number = 4
 slug = "empty-for-clauses"
-status = "pending"
+status = "in-progress"
 description = "Support empty clauses in for loops: for(;;), for(;cond;), for(init;;inc). Par..."
 role = "production"
 context_files = []

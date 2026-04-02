@@ -1,6 +1,6 @@
 //! Expression entry point, assignment, unary, and primary parsing.
 
-use tc24r_ast::{Expr, Type, UnaryOp};
+use tc24r_ast::{BinOp, Expr, Type, UnaryOp};
 use tc24r_error::CompileError;
 use tc24r_parse_stream::TokenStream;
 use tc24r_parser_compound::{desugar_compound, eat_compound_assign, make_assign};
@@ -10,12 +10,22 @@ use tc24r_token::TokenKind;
 use crate::bitwise::parse_log_or;
 use crate::stmt::parse_block;
 
-/// Parse an expression.
+/// Parse an expression (includes comma operator at lowest precedence).
 pub fn parse_expr(ts: &mut TokenStream) -> Result<Expr, CompileError> {
-    parse_assign(ts)
+    let mut lhs = parse_assign(ts)?;
+    while ts.eat(TokenKind::Comma) {
+        let rhs = parse_assign(ts)?;
+        lhs = Expr::BinOp {
+            op: BinOp::Comma,
+            lhs: Box::new(lhs),
+            rhs: Box::new(rhs),
+        };
+    }
+    Ok(lhs)
 }
 
-fn parse_assign(ts: &mut TokenStream) -> Result<Expr, CompileError> {
+/// Parse an assignment expression (used in function args, initializers).
+pub fn parse_assign(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     let expr = parse_ternary(ts)?;
     if ts.eat(TokenKind::Assign) {
         let value = parse_assign(ts)?;
@@ -172,7 +182,7 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         let mut args = Vec::new();
         if !ts.check(&TokenKind::RParen) {
             loop {
-                args.push(parse_expr(ts)?);
+                args.push(parse_assign(ts)?);
                 if !ts.eat(TokenKind::Comma) {
                     break;
                 }
@@ -211,7 +221,7 @@ fn parse_postfix_chain(ts: &mut TokenStream, mut expr: Expr) -> Result<Expr, Com
             let mut args = Vec::new();
             if !ts.check(&TokenKind::RParen) {
                 loop {
-                    args.push(parse_expr(ts)?);
+                    args.push(parse_assign(ts)?);
                     if !ts.eat(TokenKind::Comma) {
                         break;
                     }

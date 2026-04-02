@@ -34,6 +34,10 @@ pub fn parse_body(ts: &mut TokenStream) -> Result<Block, CompileError> {
 
 /// Parse a single statement.
 pub fn parse_stmt(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
+    // Null statement: bare `;`
+    if ts.eat(TokenKind::Semicolon) {
+        return Ok(Stmt::Expr(Expr::IntLit(0)));
+    }
     // Bare block: { ... } used as scope
     if ts.check(&TokenKind::LBrace) {
         let block = parse_block(ts)?;

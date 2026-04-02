@@ -92,6 +92,7 @@ pub enum BinOp {
     Ge,
     LogAnd,
     LogOr,
+    Comma,
 }
 
 /// Unary operator.
