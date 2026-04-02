@@ -1,0 +1,1 @@
+Added null statement support (bare semicolons) and C comma operator. Null statements fix ({ ;;; 5; }) patterns in chibicc control.c. Comma operator implemented at lowest precedence with proper disambiguation from function call argument commas. For-loop empty clauses were already supported. control.c still blocked by goto/labels (step 005) and comma-as-lvalue GCC extension.

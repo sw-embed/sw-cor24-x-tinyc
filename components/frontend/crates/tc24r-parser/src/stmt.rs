@@ -160,6 +160,13 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
         return parse_fn_ptr_declarator(ts, ty);
     }
     let name = ts.expect_ident()?;
+    // Local function prototype: int foo(int x); — accept and ignore
+    if ts.check(&TokenKind::LParen) {
+        ts.advance();
+        skip_fn_ptr_params(ts)?;
+        ts.expect(TokenKind::RParen)?;
+        return Ok(Stmt::Expr(Expr::IntLit(0)));
+    }
     // Check for array: int a[N] or int a[N][M]
     let mut ty = ty;
     while ts.eat(TokenKind::LBracket) {

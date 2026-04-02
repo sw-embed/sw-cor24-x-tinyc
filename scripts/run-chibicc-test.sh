@@ -58,6 +58,10 @@ awk '
 /^int ushort_fn/ { next }
 /^static int static_fn/ { next }
 /^int ext_fn/ { next }
+/ext_fn1/  { next }
+/ext_fn2/  { next }
+/extern.*ext/  { next }
+/ext[0-9]/ { next }
 /float/    { next }
 /double/   { next }
 /long/     { next }

@@ -1,0 +1,1 @@
+Added _Noreturn, restrict, volatile, auto keywords to lexer/parser. Added array parameter syntax (int a[restrict static N]) with pointer decay. Chibicc compat.c now passes (9/41).

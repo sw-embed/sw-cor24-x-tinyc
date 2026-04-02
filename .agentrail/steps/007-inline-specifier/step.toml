@@ -1,6 +1,6 @@
 number = 7
 slug = "inline-specifier"
-status = "pending"
+status = "in-progress"
 description = "Verify inline function specifier works on function definitions (it's already ..."
 role = "production"
 context_files = []

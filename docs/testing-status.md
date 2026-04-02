@@ -9,7 +9,7 @@ Last updated: 2026-04-01
 | tc24r demos | 55 | 55 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 33 | 33 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
-| chibicc full | 9 | 41 | 21% | cast, compat, const, control, decl, enum, generic, pragma-once, stdhdr |
+| chibicc full | 11 | 41 | 26% | cast, commonsym, compat, const, control, decl, enum, extern, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
@@ -90,20 +90,22 @@ features. Located in `tests/chibicc-subset/`.
 
 Run: `scripts/run-subset-tests.sh`
 
-## chibicc Full Tests (9/41)
+## chibicc Full Tests (11/41)
 
 Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 
-### Passing (9)
+### Passing (11)
 
 | Test | Notes |
 |------|-------|
 | cast | Cast expressions `(type)expr` |
+| commonsym | Common symbol linkage (tentative definitions) |
 | compat | `_Noreturn`, `restrict`, `volatile`, `auto` keywords |
 | const | const type qualifiers |
 | control | if/else, while, for, do-while, switch, break, continue, goto/labels |
 | decl | Declarations with type modifiers |
 | enum | enum declarations and usage |
+| extern | `inline` function specifier, local function prototypes |
 | generic | _Generic keyword support |
 | pragma-once | #pragma once inclusion guard |
 | stdhdr | System header inclusion (stdalign.h, stdbool.h, stddef.h, stdnoreturn.h) |
@@ -120,7 +122,7 @@ Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 | varargs | `<stdarg.h>` — ABI-level variadic calling convention |
 | unicode | UTF-8 identifiers — low priority for embedded |
 
-#### Actionable: Parser/Codegen Features (24 tests)
+#### Actionable: Parser/Codegen Features (22 tests)
 
 Preprocessor stringification (#) is now supported. Remaining failures
 are parser or codegen level. See `.agentrail/plan.md` for the saga
@@ -140,7 +142,7 @@ addressing these in priority order.
 | alignof | `_Alignof` / `_Alignas` keywords | Phase 4 |
 | ~~compat~~ | ~~`_Noreturn` specifier~~ | ~~Phase 4~~ → **PASS** |
 | typeof | `typeof` operator | Phase 4 |
-| extern | `inline` function specifier | Phase 4 |
+| ~~extern~~ | ~~`inline` function specifier~~ | ~~Phase 4~~ → **PASS** |
 | bitfield | Struct bitfield syntax `int x : 5` | Phase 5 |
 | asm | Extended asm syntax (multi-string) | Phase 5 |
 | constexpr | Complex enum/const initializer expressions | Phase 5 |
@@ -158,7 +160,7 @@ strips needed declarations. Harness improvements in Phase 6.
 | Test | Status |
 |------|--------|
 | alloca | Compiles after ASSERT macro fix |
-| commonsym | Compiles, passes (r0=0) when extern decls preserved |
+| ~~commonsym~~ | ~~Compiles, passes (r0=0) when extern decls preserved~~ → **PASS** |
 | line | Compiles but codegen panic on some patterns |
 | macro | Compiles but stack overflow on recursive macro |
 | usualconv | Compiles after float/long lines stripped |
@@ -212,6 +214,8 @@ Run: `scripts/run-chibicc-tests.sh`
 - Fix: declarator initializers stop at comma (multi-decl regression)
 - C11 `_Noreturn` and C99 `restrict` / `volatile` / `auto` keywords (accepted, ignored)
 - Array parameter syntax `int a[restrict static N]` (decays to pointer)
+- Local function prototype declarations (`int foo(int x);` inside blocks)
+- Improved awk filter: strip extern symbol references in extern.c/commonsym.c
 
 ## beej-c-guide Examples (4/11)
 

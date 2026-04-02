@@ -1,0 +1,1 @@
+goto/label support already implemented in commit f0d87ab. Stmt::Goto and Stmt::Label added to AST, parser distinguishes labels from expressions via colon lookahead, codegen emits bra for goto and assembly labels. chibicc control.c now passes. Overall: 8/41 chibicc, 4/11 beej.
