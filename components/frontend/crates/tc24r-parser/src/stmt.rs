@@ -7,7 +7,7 @@ use tc24r_token::TokenKind;
 
 use crate::control;
 use crate::decl::{parse_const_array_size, parse_type};
-use crate::expr::parse_expr;
+use crate::expr::{parse_assign, parse_expr};
 use tc24r_parser_types::is_type_start;
 
 /// Parse a brace-delimited block.
@@ -68,6 +68,19 @@ pub fn parse_stmt(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     if ts.eat(TokenKind::Continue) {
         ts.expect(TokenKind::Semicolon)?;
         return Ok(Stmt::Continue);
+    }
+    if ts.eat(TokenKind::Goto) {
+        let name = ts.expect_ident()?;
+        ts.expect(TokenKind::Semicolon)?;
+        return Ok(Stmt::Goto(name));
+    }
+    // Label: `ident:` (but not `default:` or `case X:`)
+    if let TokenKind::Ident(_) = ts.peek().kind {
+        if matches!(ts.lookahead(1), TokenKind::Colon) {
+            let name = ts.expect_ident()?;
+            ts.expect(TokenKind::Colon)?;
+            return Ok(Stmt::Label(name));
+        }
     }
     if ts.eat(TokenKind::Asm) {
         return control::parse_asm(ts);
@@ -159,7 +172,7 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
         if ts.check(&TokenKind::LBrace) {
             return parse_brace_init(ts, name, ty);
         }
-        let init = Some(parse_expr(ts)?);
+        let init = Some(parse_assign(ts)?);
         return Ok(Stmt::LocalDecl { name, ty, init });
     }
     Ok(Stmt::LocalDecl {

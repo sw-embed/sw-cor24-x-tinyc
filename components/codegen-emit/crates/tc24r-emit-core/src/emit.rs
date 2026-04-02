@@ -176,6 +176,8 @@ pub fn resolve_branches(state: &mut CodegenState) {
             }
         };
         let end = branch.out_offset + short_line_with_newline.len();
-        state.out.replace_range(branch.out_offset..end, &long_replacement);
+        state
+            .out
+            .replace_range(branch.out_offset..end, &long_replacement);
     }
 }

@@ -6,7 +6,7 @@ mod local_decl;
 mod ret;
 
 pub use expr_stmt::gen_expr_stmt;
-pub use jump::{gen_asm, gen_break, gen_continue};
+pub use jump::{gen_asm, gen_break, gen_continue, gen_goto, gen_label};
 pub use local_decl::gen_local_decl;
 pub use ret::gen_return;
 

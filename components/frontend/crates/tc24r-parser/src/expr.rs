@@ -96,7 +96,10 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     if ts.eat(TokenKind::Amp) {
         let name = ts.expect_ident()?;
         // Check for postfix: &arr[i], &s.field, etc.
-        if ts.check(&TokenKind::LBracket) || ts.check(&TokenKind::Dot) || ts.check(&TokenKind::Arrow) {
+        if ts.check(&TokenKind::LBracket)
+            || ts.check(&TokenKind::Dot)
+            || ts.check(&TokenKind::Arrow)
+        {
             let base = Expr::Ident(name);
             let postfix = parse_postfix_chain(ts, base)?;
             // &arr[i] is equivalent to arr + i (pointer arithmetic),

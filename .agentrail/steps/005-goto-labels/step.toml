@@ -1,6 +1,6 @@
 number = 5
 slug = "goto-labels"
-status = "pending"
+status = "in-progress"
 description = "Support goto statements and labels. Parser: recognize 'goto ident;' as Stmt::..."
 role = "production"
 context_files = []

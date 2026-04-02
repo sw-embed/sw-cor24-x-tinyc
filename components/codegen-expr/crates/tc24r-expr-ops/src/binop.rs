@@ -4,7 +4,9 @@ use tc24r_ast::{BinOp, Expr, Type};
 use tc24r_codegen_state::CodegenState;
 use tc24r_emit_macros::emit;
 use tc24r_ops_arithmetic::{gen_add_sub, gen_mul};
-use tc24r_ops_bitwise::{gen_bitwise_and, gen_bitwise_or, gen_bitwise_xor, gen_shl, gen_shr, gen_shr_logical};
+use tc24r_ops_bitwise::{
+    gen_bitwise_and, gen_bitwise_or, gen_bitwise_xor, gen_shl, gen_shr, gen_shr_logical,
+};
 use tc24r_ops_compare::gen_compare_eq;
 use tc24r_ops_divmod::gen_divmod_call;
 use tc24r_ops_logical::{gen_log_and, gen_log_or};
@@ -60,13 +62,15 @@ fn dispatch_simple(state: &mut CodegenState, op: BinOp, is_unsigned: bool) {
         BinOp::BitXor => gen_bitwise_xor(state),
         BinOp::Shl => gen_shl(state),
         BinOp::Shr => {
-            if is_unsigned { gen_shr_logical(state) } else { gen_shr(state) }
+            if is_unsigned {
+                gen_shr_logical(state)
+            } else {
+                gen_shr(state)
+            }
         }
         BinOp::Eq => gen_compare_eq(state, false),
         BinOp::Ne => gen_compare_eq(state, true),
-        BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge => {
-            emit_cmp_rel(state, op, is_unsigned)
-        }
+        BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge => emit_cmp_rel(state, op, is_unsigned),
         BinOp::Div => gen_divmod_call(state, false),
         BinOp::Mod => gen_divmod_call(state, true),
         BinOp::Add | BinOp::Sub | BinOp::LogAnd | BinOp::LogOr | BinOp::Comma => unreachable!(),

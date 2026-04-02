@@ -85,9 +85,9 @@ fn emit_member_addr(
 /// Get member offset and whether it's a char type.
 fn member_info(state: &CodegenState, object: &Expr, member: &str) -> (i32, bool) {
     let ty = object_type(state, object);
-    let m = ty.find_member(member).unwrap_or_else(|| {
-        panic!("unknown struct member '{member}' in type {ty:?}")
-    });
+    let m = ty
+        .find_member(member)
+        .unwrap_or_else(|| panic!("unknown struct member '{member}' in type {ty:?}"));
     (m.offset, m.ty == Type::Char || m.ty == Type::UnsignedChar)
 }
 
@@ -118,7 +118,10 @@ fn object_type(state: &CodegenState, object: &Expr) -> Type {
                 Type::Int
             }
         }
-        Expr::MemberAccess { object: obj, member } => {
+        Expr::MemberAccess {
+            object: obj,
+            member,
+        } => {
             let struct_ty = object_type(state, obj);
             if let Some(m) = struct_ty.find_member(member) {
                 m.ty.clone()
@@ -126,8 +129,16 @@ fn object_type(state: &CodegenState, object: &Expr) -> Type {
                 Type::Int
             }
         }
-        Expr::BinOp { op: BinOp::Add, lhs, .. }
-        | Expr::BinOp { op: BinOp::Sub, lhs, .. } => {
+        Expr::BinOp {
+            op: BinOp::Add,
+            lhs,
+            ..
+        }
+        | Expr::BinOp {
+            op: BinOp::Sub,
+            lhs,
+            ..
+        } => {
             // Pointer arithmetic preserves pointer type (e.g. arr + i)
             let lhs_ty = object_type(state, lhs);
             match lhs_ty {
@@ -146,7 +157,11 @@ fn object_type(state: &CodegenState, object: &Expr) -> Type {
 /// look up the full definition from the struct registry.
 fn resolve_struct(state: &CodegenState, ty: Type) -> Type {
     match &ty {
-        Type::Struct { tag: Some(name), members, .. } if members.is_empty() => {
+        Type::Struct {
+            tag: Some(name),
+            members,
+            ..
+        } if members.is_empty() => {
             if let Some(full) = state.struct_types.get(name) {
                 full.clone()
             } else {

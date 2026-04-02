@@ -53,6 +53,8 @@ pub enum Stmt {
     Break,
     Continue,
     Asm(String),
+    Goto(String),
+    Label(String),
     /// Inline block (for multi-declarations: int x, y;)
     Block(Block),
 }

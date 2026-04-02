@@ -103,7 +103,9 @@ macro_rules! emit_label {
         let label_name = $name;
         $state.out.push_str(&format!("{}:", label_name));
         $state.out.push('\n');
-        $state.label_positions.insert(label_name.to_string(), $state.instruction_count);
+        $state
+            .label_positions
+            .insert(label_name.to_string(), $state.instruction_count);
     }};
 }
 

@@ -67,12 +67,7 @@ pub fn gen_switch(
 }
 
 /// Compare saved switch value (on stack) against case value and branch.
-fn gen_case_compare(
-    state: &mut CodegenState,
-    value: &Expr,
-    label: &str,
-    gen_expr_fn: GenExprFn,
-) {
+fn gen_case_compare(state: &mut CodegenState, value: &Expr, label: &str, gen_expr_fn: GenExprFn) {
     // r0 has the switch value (from pop+push above)
     // Save switch value in r1, evaluate case value into r0
     emit!(state, "        mov     r1,r0");

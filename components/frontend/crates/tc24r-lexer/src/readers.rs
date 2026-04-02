@@ -248,6 +248,7 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "signed" => TokenKind::Signed,
         "unsigned" => TokenKind::Unsigned,
         "inline" => TokenKind::Inline,
+        "goto" => TokenKind::Goto,
         _ => TokenKind::Ident(text.to_string()),
     }
 }

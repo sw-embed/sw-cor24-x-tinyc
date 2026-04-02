@@ -12,7 +12,10 @@ pub type GenExprFn = fn(&Expr, &mut CodegenState);
 pub fn gen_assign(state: &mut CodegenState, name: &str, value: &Expr, gen_expr_fn: GenExprFn) {
     gen_expr_fn(value, state);
     if state.globals.contains(name) {
-        let is_char = matches!(state.global_types.get(name), Some(Type::Char | Type::UnsignedChar));
+        let is_char = matches!(
+            state.global_types.get(name),
+            Some(Type::Char | Type::UnsignedChar)
+        );
         emit!(state, "        la      r1,_{name}");
         if is_char {
             emit!(state, "        sb      r0,0(r1)");

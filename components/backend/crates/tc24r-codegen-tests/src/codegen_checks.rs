@@ -71,10 +71,13 @@ fn branch_short_for_small_if() {
     );
     // Should NOT contain long branch pattern for local labels
     let lines: Vec<&str> = output.lines().collect();
-    let has_long_local = lines.windows(2).any(|w| {
-        w[0].contains("la      r2,L") && w[1].contains("jmp     (r2)")
-    });
-    assert!(!has_long_local, "small if should not use long branch for local labels");
+    let has_long_local = lines
+        .windows(2)
+        .any(|w| w[0].contains("la      r2,L") && w[1].contains("jmp     (r2)"));
+    assert!(
+        !has_long_local,
+        "small if should not use long branch for local labels"
+    );
 }
 
 #[test]
@@ -109,9 +112,9 @@ fn branch_long_for_large_if_body() {
     let output = compile(src);
     // The forward branch over the large body should be long (la r2 + jmp)
     let lines: Vec<&str> = output.lines().collect();
-    let has_long = lines.windows(2).any(|w| {
-        w[0].contains("la      r2,L") && w[1].contains("jmp     (r2)")
-    });
+    let has_long = lines
+        .windows(2)
+        .any(|w| w[0].contains("la      r2,L") && w[1].contains("jmp     (r2)"));
     assert!(has_long, "large if-body should use long branch");
 }
 
@@ -121,7 +124,8 @@ fn branch_long_for_global_labels() {
     let output = compile("int main() { return 0; }");
     // _halt backward branch uses long form
     assert!(
-        output.contains("bra     _halt") || (output.contains("la      r2,_halt") && output.contains("jmp     (r2)")),
+        output.contains("bra     _halt")
+            || (output.contains("la      r2,_halt") && output.contains("jmp     (r2)")),
         "global label branch should exist"
     );
 }
@@ -145,8 +149,14 @@ fn branch_nested_if_else_correct() {
     "#;
     let output = compile(src);
     // Should contain both short conditional and unconditional branches
-    assert!(output.contains("cls") || output.contains("ceq"), "should have comparison");
-    assert!(output.contains("bra") || output.contains("jmp"), "should have unconditional branch");
+    assert!(
+        output.contains("cls") || output.contains("ceq"),
+        "should have comparison"
+    );
+    assert!(
+        output.contains("bra") || output.contains("jmp"),
+        "should have unconditional branch"
+    );
 }
 
 // --- Bug regression tests ---
@@ -161,9 +171,15 @@ fn bug001_nested_func_macro_expanded() {
     "#;
     let output = compile_pp(src);
     // Should NOT call MAKE_SYMBOL as a function
-    assert!(!output.contains("_MAKE_SYMBOL"), "macro should be expanded, not called as function");
+    assert!(
+        !output.contains("_MAKE_SYMBOL"),
+        "macro should be expanded, not called as function"
+    );
     // Should contain shift and or (the expanded expression)
-    assert!(output.contains("shl"), "expanded macro should produce shift");
+    assert!(
+        output.contains("shl"),
+        "expanded macro should produce shift"
+    );
     assert!(output.contains("or"), "expanded macro should produce or");
 }
 
@@ -199,7 +215,10 @@ fn bug005_global_array_full_size() {
     let src = "int arr[10]; int main() { return 0; }";
     let output = compile(src);
     let word_count = output.matches(".word").count();
-    assert!(word_count >= 10, "int arr[10] should emit at least 10 .word directives, got {word_count}");
+    assert!(
+        word_count >= 10,
+        "int arr[10] should emit at least 10 .word directives, got {word_count}"
+    );
 }
 
 #[test]
@@ -211,7 +230,10 @@ fn bug006_global_char_array_decay() {
     "#;
     let output = compile(src);
     // Should use la r0,_pool (address), not la r1,_pool; lw r0,0(r1) (deref)
-    assert!(output.contains("la      r0,_pool"), "global array should decay to la r0 (address)");
+    assert!(
+        output.contains("la      r0,_pool"),
+        "global array should decay to la r0 (address)"
+    );
 }
 
 #[test]
@@ -254,7 +276,10 @@ fn bug011_global_struct_array_parse() {
     assert!(output.contains("_main:"), "main should be generated");
     // Should allocate space for 8 structs (at least 16 .word directives for 8 * 2 members)
     let word_count = output.matches(".word").count();
-    assert!(word_count >= 16, "struct symbol symtab[8] should emit at least 16 .word directives, got {word_count}");
+    assert!(
+        word_count >= 16,
+        "struct symbol symtab[8] should emit at least 16 .word directives, got {word_count}"
+    );
 }
 
 #[test]
@@ -367,7 +392,10 @@ fn bug007_array_store_global_index() {
     let output = compile(src);
     // Should compile — the key test is that it generates a push/pop to preserve
     // the target address when loading a global RHS value
-    assert!(output.contains("_do_store:"), "do_store should be generated");
+    assert!(
+        output.contains("_do_store:"),
+        "do_store should be generated"
+    );
     // The do_store function should use push to save the computed address
     let do_store_section: String = output
         .lines()

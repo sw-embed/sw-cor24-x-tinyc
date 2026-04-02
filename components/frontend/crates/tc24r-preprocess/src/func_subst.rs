@@ -129,31 +129,19 @@ mod tests {
 
     #[test]
     fn stringify_with_quotes() {
-        let result = substitute_params(
-            "#x",
-            &["x".into()],
-            &["\"hello\"".into()],
-        );
+        let result = substitute_params("#x", &["x".into()], &["\"hello\"".into()]);
         assert_eq!(result, "\"\\\"hello\\\"\"");
     }
 
     #[test]
     fn stringify_non_param_passthrough() {
-        let result = substitute_params(
-            "#unknown",
-            &["x".into()],
-            &["42".into()],
-        );
+        let result = substitute_params("#unknown", &["x".into()], &["42".into()]);
         assert_eq!(result, "#unknown");
     }
 
     #[test]
     fn stringify_whitespace_after_hash() {
-        let result = substitute_params(
-            "# x",
-            &["x".into()],
-            &["42".into()],
-        );
+        let result = substitute_params("# x", &["x".into()], &["42".into()]);
         assert_eq!(result, "\"42\"");
     }
 

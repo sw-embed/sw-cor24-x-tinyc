@@ -33,6 +33,7 @@ pub enum TokenKind {
     Signed,
     Unsigned,
     Inline,
+    Goto,
 
     // Literals
     IntLit(i32),

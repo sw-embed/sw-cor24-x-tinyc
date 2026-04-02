@@ -2,7 +2,7 @@
 
 use tc24r_codegen_state::CodegenState;
 use tc24r_emit_core::emit_bra;
-use tc24r_emit_macros::emit;
+use tc24r_emit_macros::{emit, emit_label};
 
 /// Generate code for a `break` statement.
 ///
@@ -22,6 +22,21 @@ pub fn gen_continue(state: &mut CodegenState) {
         let label = label.clone();
         emit_bra(state, &label);
     }
+}
+
+/// Generate code for a `goto label;` statement.
+///
+/// Emits an unconditional branch to the named label.
+pub fn gen_goto(state: &mut CodegenState, name: &str) {
+    let label = format!("_goto_{name}");
+    emit_bra(state, &label);
+}
+
+/// Generate code for a `label:` statement.
+///
+/// Emits the label as an assembly label.
+pub fn gen_label(state: &mut CodegenState, name: &str) {
+    emit_label!(state, format!("_goto_{name}"));
 }
 
 /// Generate code for an inline assembly block.

@@ -16,7 +16,10 @@ pub fn gen_ident(state: &mut CodegenState, name: &str) {
         return;
     }
     if state.globals.contains(name) {
-        let is_char = matches!(state.global_types.get(name), Some(Type::Char | Type::UnsignedChar));
+        let is_char = matches!(
+            state.global_types.get(name),
+            Some(Type::Char | Type::UnsignedChar)
+        );
         emit!(state, "        la      r1,_{name}");
         if is_char {
             emit!(state, "        lbu     r0,0(r1)");

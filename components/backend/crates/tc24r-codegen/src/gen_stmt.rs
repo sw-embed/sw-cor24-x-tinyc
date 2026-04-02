@@ -56,6 +56,8 @@ pub fn gen_stmt(stmt: &Stmt, state: &mut CodegenState) {
         ),
         Stmt::Break => tc24r_stmt_simple::gen_break(state),
         Stmt::Continue => tc24r_stmt_simple::gen_continue(state),
+        Stmt::Goto(name) => tc24r_stmt_simple::gen_goto(state, name),
+        Stmt::Label(name) => tc24r_stmt_simple::gen_label(state, name),
         Stmt::Asm(text) => tc24r_stmt_simple::gen_asm(state, text),
         Stmt::Block(block) => {
             for s in &block.stmts {
