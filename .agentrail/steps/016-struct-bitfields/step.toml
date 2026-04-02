@@ -1,0 +1,8 @@
+number = 16
+slug = "struct-bitfields"
+status = "pending"
+description = "Support struct bitfield declarations: 'int x : 2;' in struct member position...."
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:31:27"
+task_type = "rust-clippy-fix"

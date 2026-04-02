@@ -1,0 +1,1 @@
+Verify inline function specifier works on function definitions (it's already in consume_qualifiers). If extern.c still fails, investigate the actual root cause — the error 'expected Semicolon, got LParen' at offset 663 may be a different issue. Fix whatever blocks extern.c and verify it passes. Refs: #8

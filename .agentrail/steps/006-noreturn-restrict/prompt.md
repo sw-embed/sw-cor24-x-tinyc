@@ -1,0 +1,1 @@
+Accept C11 _Noreturn and C99 restrict keywords. Lexer: add _Noreturn and restrict as token kinds. Parser: consume and discard in type/qualifier position (consume_qualifiers or parse_base_type). No codegen changes. Verify chibicc compat.c passes. Refs: #7

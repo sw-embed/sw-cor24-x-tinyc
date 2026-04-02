@@ -1,0 +1,8 @@
+number = 9
+slug = "octal-literals"
+status = "pending"
+description = "Support octal integer literals in the lexer. When an integer starts with 0 an..."
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:30:51"
+task_type = "rust-clippy-fix"

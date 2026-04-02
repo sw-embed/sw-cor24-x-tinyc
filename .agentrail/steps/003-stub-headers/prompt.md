@@ -1,0 +1,1 @@
+Add freestanding stub headers: include/stddef.h (NULL, size_t, ptrdiff_t, offsetof), include/stdalign.h (alignof/alignas macros), include/stdbool.h (bool/true/false). Verify chibicc stdhdr, attribute, and offsetof tests pass. Update test counts.

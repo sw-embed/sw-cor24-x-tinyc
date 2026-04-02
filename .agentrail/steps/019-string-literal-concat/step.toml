@@ -1,0 +1,8 @@
+number = 19
+slug = "string-literal-concat"
+status = "pending"
+description = 'Fix: implicit string literal concatenation ("str1" "str2" → "str1str2") is ...'
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:40:02"
+task_type = "rust-clippy-fix"

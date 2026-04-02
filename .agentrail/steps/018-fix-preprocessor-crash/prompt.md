@@ -1,0 +1,1 @@
+Fix preprocessor crash on chibicc macro.c test. Run macro.c through tc24r with RUST_BACKTRACE=1 to find crash location. Likely a recursive include issue, missing file handling, or macro expansion bug. The preprocessor should handle quoted includes relative to source file directory. Fix the crash and verify macro.c passes. Refs: #16

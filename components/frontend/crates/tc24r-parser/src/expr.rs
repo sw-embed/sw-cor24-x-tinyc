@@ -135,9 +135,16 @@ fn parse_primary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         return Ok(Expr::IntLit(val));
     }
     if let TokenKind::StringLit(_) = &ts.peek().kind {
-        let TokenKind::StringLit(s) = ts.advance().kind else {
+        let TokenKind::StringLit(mut s) = ts.advance().kind else {
             unreachable!()
         };
+        // C89 implicit string literal concatenation: "a" "b" → "ab"
+        while let TokenKind::StringLit(_) = &ts.peek().kind {
+            let TokenKind::StringLit(next) = ts.advance().kind else {
+                unreachable!()
+            };
+            s.push_str(&next);
+        }
         return Ok(Expr::StringLit(s));
     }
     if let TokenKind::Ident(_) = &ts.peek().kind {

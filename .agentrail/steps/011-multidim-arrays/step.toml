@@ -1,0 +1,8 @@
+number = 11
+slug = "multidim-arrays"
+status = "pending"
+description = "Support multi-dimensional array declarations: 'int x[2][3]'. Parser: after fi..."
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:31:01"
+task_type = "rust-clippy-fix"

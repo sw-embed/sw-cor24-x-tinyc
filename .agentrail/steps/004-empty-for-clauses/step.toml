@@ -1,0 +1,8 @@
+number = 4
+slug = "empty-for-clauses"
+status = "pending"
+description = "Support empty clauses in for loops: for(;;), for(;cond;), for(init;;inc). Par..."
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:30:23"
+task_type = "rust-clippy-fix"

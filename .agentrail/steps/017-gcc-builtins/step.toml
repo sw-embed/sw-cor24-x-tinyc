@@ -1,0 +1,8 @@
+number = 17
+slug = "gcc-builtins"
+status = "pending"
+description = "Support __builtin_types_compatible_p(type1, type2) — a GCC builtin returnin..."
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:31:32"
+task_type = "rust-clippy-fix"

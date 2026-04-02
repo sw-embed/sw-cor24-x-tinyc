@@ -1,0 +1,8 @@
+number = 13
+slug = "nested-initializers"
+status = "pending"
+description = "Support nested brace initializers and designated initializers. Nested braces:..."
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:31:11"
+task_type = "rust-clippy-fix"

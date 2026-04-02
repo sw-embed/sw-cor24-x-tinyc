@@ -1,0 +1,8 @@
+number = 6
+slug = "noreturn-restrict"
+status = "pending"
+description = "Accept C11 _Noreturn and C99 restrict keywords. Lexer: add _Noreturn and rest..."
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:30:34"
+task_type = "rust-clippy-fix"

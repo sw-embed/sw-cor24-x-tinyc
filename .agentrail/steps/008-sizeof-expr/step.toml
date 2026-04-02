@@ -1,0 +1,8 @@
+number = 8
+slug = "sizeof-expr"
+status = "pending"
+description = "Support sizeof on expressions without parentheses: 'sizeof x' in addition to ..."
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:30:45"
+task_type = "rust-clippy-fix"

@@ -1,0 +1,1 @@
+Support empty clauses in for loops: for(;;), for(;cond;), for(init;;inc). Parser should allow missing expressions in all three for-loop positions. Empty condition means always-true. Update parse_for() in stmt.rs. Verify chibicc control.c gets past the for(;;) errors. Refs: #4

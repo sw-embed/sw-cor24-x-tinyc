@@ -1,0 +1,1 @@
+Support octal integer literals in the lexer. When an integer starts with 0 and the next char is 0-7, parse as octal (base 8). Already handle 0x (hex) — add 0[0-7]+ path. Also remove the octal-stripping line from the chibicc test awk filter in run-chibicc-test.sh since the lexer will now handle them. Verify chibicc literal.c passes. Refs: #10

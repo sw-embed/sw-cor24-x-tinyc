@@ -1,0 +1,1 @@
+Support multi-dimensional array declarations: 'int x[2][3]'. Parser: after first [size], check for additional [size] brackets. AST: represent as nested Array(Array(Int, 3), 2). Codegen: total allocation = product of dimensions * element size. Indexing x[i][j] desugars to pointer arithmetic with stride. Verify chibicc pointer.c passes. Refs: #11

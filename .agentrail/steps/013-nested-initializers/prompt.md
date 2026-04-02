@@ -1,0 +1,1 @@
+Support nested brace initializers and designated initializers. Nested braces: '{{{1,2,3}}}' for nested struct/array init. Designated struct: '.field = value'. Designated array: '[index] = value'. Parser: recursive initializer parsing matching struct/array nesting. Codegen: emit element-by-element initialization. Verify chibicc initializer.c passes. Refs: #6

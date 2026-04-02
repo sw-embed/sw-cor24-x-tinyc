@@ -1,0 +1,8 @@
+number = 15
+slug = "wide-unicode-strings"
+status = "pending"
+description = """Support wide and unicode string/char literal prefixes: L"...", L'x', u"...", ..."""
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:31:22"
+task_type = "rust-clippy-fix"

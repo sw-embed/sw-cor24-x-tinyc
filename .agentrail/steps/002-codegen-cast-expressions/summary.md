@@ -1,0 +1,1 @@
+Implemented cast codegen: (char) emits sxt r0,r0 (sign-extend byte), (unsigned char) emits zxt r0,r0 (zero-extend byte), pointer/int casts remain no-ops. Added Type::UnsignedChar to AST and parser. Updated 7 codegen crates for UnsignedChar. Fixed chibicc awk filter to strip float literal lines. Cast test passes, chibicc 7/41, subset 5/5, reg-rs 33/33.

@@ -1,0 +1,8 @@
+number = 10
+slug = "implicit-array-size"
+status = "pending"
+description = "Support inferring array size from initializer: 'int a[] = {1,2,3}' infers siz..."
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:30:56"
+task_type = "rust-clippy-fix"

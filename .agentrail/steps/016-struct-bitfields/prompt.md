@@ -1,0 +1,1 @@
+Support struct bitfield declarations: 'int x : 2;' in struct member position. Parser: after struct member type+name, check for ': width'. Codegen: pack bitfields into words (COR24 = 24-bit words), emit shift/mask for reads, read-modify-write for stores. Handle anonymous bitfields and zero-width bitfields (force alignment). Verify chibicc bitfield.c passes. Refs: #12

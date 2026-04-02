@@ -1,0 +1,1 @@
+Support compound literal syntax: (type){initializer} in expression position. Parser: after parsing (type), check for '{' — if present, parse as compound literal instead of cast. Codegen: allocate stack temporary, initialize members/elements, push address. Handle (int){42}, (int[]){1,2,3}, (struct T){...}, and &(T){...}. Verify chibicc complit.c passes. Refs: #5

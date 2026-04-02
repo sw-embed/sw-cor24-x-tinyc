@@ -1,0 +1,1 @@
+Support inferring array size from initializer: 'int a[] = {1,2,3}' infers size 3, 'char s[] = "hello"' infers size 6 (including null). Parser: allow empty [] in array declarations when initializer present. For string init, count bytes+1. For brace init, count elements. Verify beej pointers_arithmetic.c and strings.c now compile. Refs: #2

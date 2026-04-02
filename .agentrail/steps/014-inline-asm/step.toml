@@ -1,0 +1,8 @@
+number = 14
+slug = "inline-asm"
+status = "pending"
+description = """Support asm("...") inline assembly statements. Parser: recognize 'asm' keywor..."""
+role = "production"
+context_files = []
+created_at = "2026-04-01T17:31:16"
+task_type = "rust-clippy-fix"
