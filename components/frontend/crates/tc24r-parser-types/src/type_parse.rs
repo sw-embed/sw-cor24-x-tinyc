@@ -11,7 +11,13 @@ fn consume_qualifiers(ts: &mut TokenStream) -> bool {
     let mut had = false;
     while matches!(
         ts.peek().kind,
-        TokenKind::Static | TokenKind::Extern | TokenKind::Const | TokenKind::Inline
+        TokenKind::Static
+            | TokenKind::Extern
+            | TokenKind::Const
+            | TokenKind::Inline
+            | TokenKind::Noreturn
+            | TokenKind::Volatile
+            | TokenKind::Auto
     ) {
         ts.advance();
         had = true;
@@ -94,10 +100,12 @@ fn parse_base_type(ts: &mut TokenStream, had_qualifier: bool) -> Result<Type, Co
 
 /// Consume pointer stars and trailing const qualifiers after a base type.
 fn consume_pointers(ts: &mut TokenStream, base: Type) -> Type {
-    while ts.eat(TokenKind::Const) {}
+    while ts.eat(TokenKind::Const) || ts.eat(TokenKind::Restrict) || ts.eat(TokenKind::Volatile) {}
     let mut ty = base;
     while ts.eat(TokenKind::Star) {
-        while ts.eat(TokenKind::Const) {}
+        while ts.eat(TokenKind::Const) || ts.eat(TokenKind::Restrict) || ts.eat(TokenKind::Volatile)
+        {
+        }
         ty = Type::Ptr(Box::new(ty));
     }
     ty

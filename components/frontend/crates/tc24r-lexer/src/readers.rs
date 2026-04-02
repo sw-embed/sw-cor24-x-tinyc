@@ -249,6 +249,10 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "unsigned" => TokenKind::Unsigned,
         "inline" => TokenKind::Inline,
         "goto" => TokenKind::Goto,
+        "restrict" | "__restrict" | "__restrict__" => TokenKind::Restrict,
+        "_Noreturn" | "__noreturn__" => TokenKind::Noreturn,
+        "volatile" => TokenKind::Volatile,
+        "auto" => TokenKind::Auto,
         _ => TokenKind::Ident(text.to_string()),
     }
 }

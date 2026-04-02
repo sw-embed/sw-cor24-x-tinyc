@@ -9,7 +9,7 @@ Last updated: 2026-04-01
 | tc24r demos | 55 | 55 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 33 | 33 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
-| chibicc full | 8 | 41 | 19% | cast, const, control, decl, enum, generic, pragma-once, stdhdr |
+| chibicc full | 9 | 41 | 21% | cast, compat, const, control, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
@@ -90,15 +90,16 @@ features. Located in `tests/chibicc-subset/`.
 
 Run: `scripts/run-subset-tests.sh`
 
-## chibicc Full Tests (8/41)
+## chibicc Full Tests (9/41)
 
 Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 
-### Passing (8)
+### Passing (9)
 
 | Test | Notes |
 |------|-------|
 | cast | Cast expressions `(type)expr` |
+| compat | `_Noreturn`, `restrict`, `volatile`, `auto` keywords |
 | const | const type qualifiers |
 | control | if/else, while, for, do-while, switch, break, continue, goto/labels |
 | decl | Declarations with type modifiers |
@@ -137,7 +138,7 @@ addressing these in priority order.
 | complit | Compound literals `(type){init}` | Phase 3 |
 | initializer | Brace initializers in expressions | Phase 3 |
 | alignof | `_Alignof` / `_Alignas` keywords | Phase 4 |
-| compat | `_Noreturn` specifier | Phase 4 |
+| ~~compat~~ | ~~`_Noreturn` specifier~~ | ~~Phase 4~~ → **PASS** |
 | typeof | `typeof` operator | Phase 4 |
 | extern | `inline` function specifier | Phase 4 |
 | bitfield | Struct bitfield syntax `int x : 5` | Phase 5 |
@@ -209,6 +210,8 @@ Run: `scripts/run-chibicc-tests.sh`
 - Empty for-loop clauses (`for(;;)`, `for(;cond;)`)
 - goto/labels (`goto label;` and `label:`)
 - Fix: declarator initializers stop at comma (multi-decl regression)
+- C11 `_Noreturn` and C99 `restrict` / `volatile` / `auto` keywords (accepted, ignored)
+- Array parameter syntax `int a[restrict static N]` (decays to pointer)
 
 ## beej-c-guide Examples (4/11)
 

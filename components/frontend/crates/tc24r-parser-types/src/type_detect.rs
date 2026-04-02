@@ -38,6 +38,13 @@ pub fn is_base_type(kind: &TokenKind) -> bool {
 pub fn is_storage_class(kind: &TokenKind) -> bool {
     matches!(
         kind,
-        TokenKind::Static | TokenKind::Extern | TokenKind::Const | TokenKind::Inline
+        TokenKind::Static
+            | TokenKind::Extern
+            | TokenKind::Const
+            | TokenKind::Inline
+            | TokenKind::Restrict
+            | TokenKind::Noreturn
+            | TokenKind::Volatile
+            | TokenKind::Auto
     )
 }

@@ -34,6 +34,10 @@ pub enum TokenKind {
     Unsigned,
     Inline,
     Goto,
+    Restrict,
+    Noreturn,
+    Volatile,
+    Auto,
 
     // Literals
     IntLit(i32),

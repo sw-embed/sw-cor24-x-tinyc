@@ -369,6 +369,27 @@ fn parse_params(ts: &mut TokenStream) -> Result<Vec<Param>, CompileError> {
             } else {
                 ts.expect_ident()?
             };
+            // Array parameter: int a[N] decays to pointer
+            let ty = if ts.eat(TokenKind::LBracket) {
+                // Skip qualifiers and static inside brackets: [restrict static 3]
+                while matches!(
+                    ts.peek().kind,
+                    TokenKind::Restrict
+                        | TokenKind::Const
+                        | TokenKind::Volatile
+                        | TokenKind::Static
+                ) {
+                    ts.advance();
+                }
+                // Skip optional size expression
+                if !ts.check(&TokenKind::RBracket) {
+                    let _ = parse_const_array_size(ts);
+                }
+                ts.expect(TokenKind::RBracket)?;
+                Type::Ptr(Box::new(ty))
+            } else {
+                ty
+            };
             params.push(Param { name, ty });
         }
         if !ts.eat(TokenKind::Comma) {
