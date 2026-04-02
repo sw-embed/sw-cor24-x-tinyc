@@ -1,0 +1,1 @@
+Added local function prototype parsing in parse_one_declarator (stmt.rs). When LParen follows an identifier, skip the parameter list as a no-op declaration. Updated chibicc awk filter to strip extern symbol references. Chibicc tests: 9→11/41 (gained extern, commonsym). All other test suites unchanged (subset 5/5, reg-rs 33/33, beej 4/11).

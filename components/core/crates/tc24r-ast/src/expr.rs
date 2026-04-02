@@ -63,6 +63,8 @@ pub enum Expr {
     },
     /// GCC statement expression: ({ stmt1; stmt2; expr; })
     StmtExpr(crate::Block),
+    /// sizeof applied to an expression: sizeof x, sizeof(expr)
+    SizeofExpr(Box<Expr>),
     /// Ternary: cond ? then_expr : else_expr
     Ternary {
         cond: Box<Expr>,

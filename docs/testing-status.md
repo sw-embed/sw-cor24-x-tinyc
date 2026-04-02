@@ -9,7 +9,7 @@ Last updated: 2026-04-01
 | tc24r demos | 55 | 55 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 33 | 33 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
-| chibicc full | 11 | 41 | 26% | cast, commonsym, compat, const, control, decl, enum, extern, generic, pragma-once, stdhdr |
+| chibicc full | 13 | 41 | 31% | cast, commonsym, compat, const, control, decl, enum, extern, generic, pragma-once, sizeof, stdhdr, vla |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
@@ -90,11 +90,11 @@ features. Located in `tests/chibicc-subset/`.
 
 Run: `scripts/run-subset-tests.sh`
 
-## chibicc Full Tests (11/41)
+## chibicc Full Tests (13/41)
 
 Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 
-### Passing (11)
+### Passing (13)
 
 | Test | Notes |
 |------|-------|
@@ -108,7 +108,9 @@ Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 | extern | `inline` function specifier, local function prototypes |
 | generic | _Generic keyword support |
 | pragma-once | #pragma once inclusion guard |
+| sizeof | sizeof on types and expressions |
 | stdhdr | System header inclusion (stdalign.h, stdbool.h, stddef.h, stdnoreturn.h) |
+| vla | Variable-length array declarations |
 
 ### Compile Fail (33) — Categorized
 
@@ -122,7 +124,7 @@ Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 | varargs | `<stdarg.h>` — ABI-level variadic calling convention |
 | unicode | UTF-8 identifiers — low priority for embedded |
 
-#### Actionable: Parser/Codegen Features (22 tests)
+#### Actionable: Parser/Codegen Features (20 tests)
 
 Preprocessor stringification (#) is now supported. Remaining failures
 are parser or codegen level. See `.agentrail/plan.md` for the saga
@@ -133,7 +135,7 @@ addressing these in priority order.
 | arith | Octal literals, complex expressions | Phase 5 |
 | builtin | `__builtin_types_compatible_p` | Phase 5 |
 | pointer | Complex pointer decls | Phase 5 |
-| sizeof | `sizeof expr` without parens | Phase 5 |
+| ~~sizeof~~ | ~~`sizeof expr` without parens~~ | ~~Phase 5~~ → **PASS** |
 | attribute | `__attribute__`, compound literals, `_Alignof` | Phase 4-5 |
 | offsetof | Struct offsets differ (COR24 3-byte int vs x86 4-byte) | x86-specific |
 | variable | Complex declarations, for-scoped variables | Phase 2 |
@@ -150,7 +152,7 @@ addressing these in priority order.
 | literal | Numeric literal edge cases | Phase 5 |
 | pragma-once | Relative include path resolution | Phase 5 |
 | function | Return type parsing edge case | Phase 5 |
-| vla | Variable-length arrays | Phase 5 |
+| ~~vla~~ | ~~Variable-length arrays~~ | ~~Phase 5~~ → **PASS** |
 
 #### Compiles but not yet passing via test harness (6 tests)
 
@@ -216,6 +218,9 @@ Run: `scripts/run-chibicc-tests.sh`
 - Array parameter syntax `int a[restrict static N]` (decays to pointer)
 - Local function prototype declarations (`int foo(int x);` inside blocks)
 - Improved awk filter: strip extern symbol references in extern.c/commonsym.c
+- `sizeof expr` without parentheses (`sizeof x`, `sizeof **x + 1`)
+- `Expr::SizeofExpr` AST node with codegen type inference (no array decay)
+- Awk filter: skip sizeof assertions assuming 32-bit ISA sizes
 
 ## beej-c-guide Examples (4/11)
 

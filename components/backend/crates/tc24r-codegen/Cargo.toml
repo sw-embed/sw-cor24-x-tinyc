@@ -19,6 +19,7 @@ tc24r-expr-ops = { path = "../../../codegen-expr/crates/tc24r-expr-ops" }
 tc24r-expr-struct = { path = "../../../codegen-expr/crates/tc24r-expr-struct" }
 tc24r-stmt-simple = { path = "../../../codegen-stmt/crates/tc24r-stmt-simple" }
 tc24r-stmt-control = { path = "../../../codegen-stmt/crates/tc24r-stmt-control" }
+tc24r-type-infer = { path = "../../../codegen-ops/crates/tc24r-type-infer" }
 tc24r-struct-prologue = { path = "../../../codegen-structure/crates/tc24r-struct-prologue" }
 tc24r-struct-isr = { path = "../../../codegen-structure/crates/tc24r-struct-isr" }
 tc24r-struct-locals = { path = "../../../codegen-structure/crates/tc24r-struct-locals" }

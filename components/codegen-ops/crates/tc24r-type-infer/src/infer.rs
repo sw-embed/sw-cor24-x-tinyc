@@ -49,6 +49,7 @@ pub fn expr_type(state: &CodegenState, expr: &Expr) -> Option<Type> {
                 None
             }
         }
+        Expr::SizeofExpr(_) => Some(Type::Int),
         _ => None,
     }
 }

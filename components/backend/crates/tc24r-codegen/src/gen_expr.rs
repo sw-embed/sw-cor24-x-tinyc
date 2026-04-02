@@ -50,6 +50,19 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
         Expr::IndirectCall { callee, args } => {
             tc24r_expr_call::gen_indirect_call(state, callee, args, gen_expr)
         }
+        Expr::SizeofExpr(inner) => {
+            // sizeof must not decay arrays: sizeof(arr) returns full array size
+            let ty = match inner.as_ref() {
+                Expr::Ident(name) => state
+                    .local_types
+                    .get(name)
+                    .or_else(|| state.global_types.get(name))
+                    .cloned(),
+                _ => tc24r_type_infer::expr_type(state, inner),
+            };
+            let size = ty.map(|t| t.size()).unwrap_or(3);
+            tc24r_expr_literal::gen_int_lit(state, size);
+        }
         Expr::Ternary {
             cond,
             then_expr,

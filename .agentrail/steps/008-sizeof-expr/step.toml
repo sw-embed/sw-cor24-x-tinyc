@@ -1,6 +1,6 @@
 number = 8
 slug = "sizeof-expr"
-status = "pending"
+status = "in-progress"
 description = "Support sizeof on expressions without parentheses: 'sizeof x' in addition to ..."
 role = "production"
 context_files = []

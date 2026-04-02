@@ -1,8 +1,9 @@
 number = 7
 slug = "inline-specifier"
-status = "in-progress"
+status = "completed"
 description = "Verify inline function specifier works on function definitions (it's already ..."
 role = "production"
 context_files = []
 created_at = "2026-04-01T17:30:39"
+completed_at = "2026-04-01T19:42:00"
 task_type = "rust-clippy-fix"

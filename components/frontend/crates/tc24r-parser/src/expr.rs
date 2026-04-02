@@ -254,30 +254,34 @@ fn parse_postfix_chain(ts: &mut TokenStream, mut expr: Expr) -> Result<Expr, Com
     Ok(expr)
 }
 
-/// Parse `sizeof(type)` or `sizeof(expr)` after the `sizeof` token.
+/// Parse `sizeof(type)`, `sizeof(expr)`, or `sizeof expr` after the `sizeof` token.
 fn parse_sizeof(ts: &mut TokenStream) -> Result<Expr, CompileError> {
-    ts.expect(TokenKind::LParen)?;
-    if is_type_start(ts) {
-        let mut ty = parse_type(ts)?;
-        // Handle array suffix: sizeof(int[4]), sizeof(char[16])
-        while ts.eat(TokenKind::LBracket) {
-            let TokenKind::IntLit(size) = ts.peek().kind else {
-                return Err(CompileError::new(
-                    "expected array size in sizeof",
-                    Some(ts.current_span()),
-                ));
-            };
-            ts.advance();
-            ts.expect(TokenKind::RBracket)?;
-            ty = Type::Array(Box::new(ty), size as usize);
+    if ts.eat(TokenKind::LParen) {
+        if is_type_start(ts) {
+            let mut ty = parse_type(ts)?;
+            // Handle array suffix: sizeof(int[4]), sizeof(char[16])
+            while ts.eat(TokenKind::LBracket) {
+                let TokenKind::IntLit(size) = ts.peek().kind else {
+                    return Err(CompileError::new(
+                        "expected array size in sizeof",
+                        Some(ts.current_span()),
+                    ));
+                };
+                ts.advance();
+                ts.expect(TokenKind::RBracket)?;
+                ty = Type::Array(Box::new(ty), size as usize);
+            }
+            ts.expect(TokenKind::RParen)?;
+            return Ok(Expr::IntLit(ty.size()));
         }
+        // sizeof(expr) — parenthesized expression
+        let expr = parse_expr(ts)?;
         ts.expect(TokenKind::RParen)?;
-        return Ok(Expr::IntLit(ty.size()));
+        return Ok(Expr::SizeofExpr(Box::new(expr)));
     }
-    // sizeof(expr) -- no type info available, assume int-sized
-    let _expr = parse_unary(ts)?;
-    ts.expect(TokenKind::RParen)?;
-    Ok(Expr::IntLit(3))
+    // sizeof expr — unary expression without parentheses
+    let expr = parse_unary(ts)?;
+    Ok(Expr::SizeofExpr(Box::new(expr)))
 }
 
 /// Parse `offsetof(type, member)` after the `offsetof` token.
