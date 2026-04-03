@@ -1,0 +1,4 @@
+command = "bash demos/run-demo56.sh"
+exit_code = 0
+desc = "Demo 56: postfix ++/-- on struct members and array elements"
+expects = "r0=56, CPU halted, D56OK"

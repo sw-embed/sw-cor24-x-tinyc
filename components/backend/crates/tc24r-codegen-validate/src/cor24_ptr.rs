@@ -74,3 +74,61 @@ fn cor24_char_ptr_arithmetic() {
         "int main() { char *p = (char *)0xFF0100; char *q = p + 1; return *q; }",
     );
 }
+
+#[test]
+fn cor24_postinc_struct_member() {
+    assert_assembles_cor24(
+        "postinc_struct_member",
+        "struct s { int x; }; int main() { struct s a; a.x = 5; a.x++; return a.x; }",
+    );
+}
+
+#[test]
+fn cor24_postinc_arrow_member() {
+    assert_assembles_cor24(
+        "postinc_arrow_member",
+        "struct s { int x; }; int main() { struct s a; struct s *p = &a; p->x = 5; p->x++; return p->x; }",
+    );
+}
+
+#[test]
+fn cor24_postinc_array_element() {
+    assert_assembles_cor24(
+        "postinc_array_element",
+        "int main() { int a[4]; a[2] = 10; a[2]++; return a[2]; }",
+    );
+}
+
+#[test]
+fn cor24_predec_array_element() {
+    assert_assembles_cor24(
+        "predec_array_element",
+        "int main() { int a[4]; a[0] = 10; --a[0]; return a[0]; }",
+    );
+}
+
+#[test]
+fn cor24_addr_of_struct_member() {
+    assert_assembles_cor24(
+        "addr_of_struct_member",
+        "struct s { int x; int y; }; int main() { struct s a; a.y = 42; int *p = &a.y; return *p; }",
+    );
+}
+
+#[test]
+fn cor24_addr_of_nested_member() {
+    assert_assembles_cor24(
+        "addr_of_nested_member",
+        "struct inner { int x; }; struct outer { struct inner b; int mode; }; \
+         int main() { struct outer a; a.b.x = 7; int *p = &a.b.x; return *p; }",
+    );
+}
+
+#[test]
+fn cor24_addr_of_passed_to_func() {
+    assert_assembles_cor24(
+        "addr_of_passed_to_func",
+        "struct s { int x; }; int get(struct s *p) { return p->x; } \
+         int main() { struct s a; a.x = 33; return get(&a); }",
+    );
+}

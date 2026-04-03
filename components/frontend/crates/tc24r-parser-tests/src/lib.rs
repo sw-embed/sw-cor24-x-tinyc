@@ -14,3 +14,5 @@ mod tests_enum;
 mod tests_fnptr;
 #[cfg(test)]
 mod tests_types;
+#[cfg(test)]
+mod tests_postfix;

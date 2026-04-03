@@ -1,0 +1,4 @@
+command = "bash demos/run-demo57.sh"
+exit_code = 0
+desc = "Demo 57: address-of struct members passed to functions"
+expects = "r0=57, CPU halted, D57OK"

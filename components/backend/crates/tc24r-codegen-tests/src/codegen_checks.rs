@@ -457,3 +457,117 @@ fn codegen_fn_ptr_indirect_call() {
     assert!(output.contains("_main:"), "main should be generated");
     assert!(output.contains("_double:"), "double should be generated");
 }
+
+// --- Postfix ++/-- on struct members and array elements ---
+
+#[test]
+fn codegen_postinc_struct_member() {
+    let src = r#"
+        struct s { int x; };
+        int main() { struct s a; a.x = 0; a.x++; return a.x; }
+    "#;
+    let output = compile(src);
+    assert!(output.contains("_main:"), "main should be generated");
+    // Should have load, add, store sequence for member inc
+    assert!(output.contains("lw"), "should load member");
+    assert!(output.contains("add     r0,1"), "should add 1 for ++");
+    assert!(output.contains("sw"), "should store member");
+}
+
+#[test]
+fn codegen_postdec_array_element() {
+    let src = "int main() { int a[10]; a[0] = 10; a[0]--; return a[0]; }";
+    let output = compile(src);
+    assert!(output.contains("_main:"), "main should be generated");
+    // Post-decrement: push old, add -1, store, pop
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| l.contains("_main:") || !l.starts_with('_'))
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(
+        main_section.contains("add     r0,-1"),
+        "array element -- should add -1, got:\n{main_section}"
+    );
+}
+
+#[test]
+fn codegen_preinc_arrow_member() {
+    let src = r#"
+        struct s { int x; };
+        int main() { struct s a; struct s *p = &a; p->x = 0; ++p->x; return p->x; }
+    "#;
+    let output = compile(src);
+    assert!(output.contains("_main:"), "main should be generated");
+    assert!(output.contains("add     r0,1"), "should add 1 for ++");
+}
+
+#[test]
+fn codegen_postinc_preserves_old_value() {
+    // i++ should return old value (push/pop pattern)
+    let src = "int main() { int i = 5; int j = i++; return j; }";
+    let output = compile(src);
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| l.contains("_main:") || !l.starts_with('_'))
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(
+        main_section.contains("push    r0"),
+        "post-increment should push old value, got:\n{main_section}"
+    );
+    assert!(
+        main_section.contains("pop     r0"),
+        "post-increment should pop old value, got:\n{main_section}"
+    );
+}
+
+// --- Address-of struct member ---
+
+#[test]
+fn codegen_addr_of_struct_member() {
+    let src = r#"
+        struct s { int x; int y; };
+        int main() { struct s a; int *p = &a.y; return *p; }
+    "#;
+    let output = compile(src);
+    // Should NOT panic — this was a regression (rust-panic-bug)
+    assert!(output.contains("_main:"), "main should be generated");
+    // Should compute member address (fp + offset + member_offset)
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| l.contains("_main:") || !l.starts_with('_'))
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(
+        main_section.contains("add     r0,fp"),
+        "struct member address should compute fp + offset, got:\n{main_section}"
+    );
+}
+
+#[test]
+fn codegen_addr_of_nested_member() {
+    let src = r#"
+        struct inner { int x; };
+        struct outer { struct inner b; int mode; };
+        int main() { struct outer a; int *p = &a.b.x; return *p; }
+    "#;
+    let output = compile(src);
+    // Should NOT panic — nested member address-of
+    assert!(output.contains("_main:"), "main should be generated");
+}
+
+#[test]
+fn codegen_addr_of_arrow_member() {
+    let src = r#"
+        struct s { int x; };
+        int foo(struct s *p) { int *px = &p->x; return *px; }
+        int main() { struct s a; return foo(&a); }
+    "#;
+    let output = compile(src);
+    assert!(output.contains("_foo:"), "foo should be generated");
+    assert!(output.contains("_main:"), "main should be generated");
+}

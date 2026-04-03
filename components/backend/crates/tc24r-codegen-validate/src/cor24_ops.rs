@@ -50,3 +50,38 @@ fn cor24_fib() {
 fn cor24_globals() {
     assert_assembles_cor24("globals", "int x = 10; int main() { x = x + 5; return x; }");
 }
+
+#[test]
+fn cor24_postinc_plain() {
+    // i = 5; j = i++; j should be 5 (old value), i should be 6
+    assert_assembles_cor24(
+        "postinc_plain",
+        "int main() { int i = 5; int j = i++; return j + i; }",
+    );
+}
+
+#[test]
+fn cor24_preinc_plain() {
+    // i = 5; j = ++i; j should be 6 (new value)
+    assert_assembles_cor24(
+        "preinc_plain",
+        "int main() { int i = 5; int j = ++i; return j; }",
+    );
+}
+
+#[test]
+fn cor24_postdec_plain() {
+    // i = 5; j = i--; j should be 5, i should be 4
+    assert_assembles_cor24(
+        "postdec_plain",
+        "int main() { int i = 5; int j = i--; return j + i; }",
+    );
+}
+
+#[test]
+fn cor24_predec_plain() {
+    assert_assembles_cor24(
+        "predec_plain",
+        "int main() { int i = 5; int j = --i; return j; }",
+    );
+}
