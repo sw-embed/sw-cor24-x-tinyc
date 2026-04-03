@@ -20,7 +20,20 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
         Expr::BinOp { op, lhs, rhs } => {
             tc24r_expr_ops::gen_binop_dispatch(state, *op, lhs, rhs, gen_expr)
         }
-        Expr::AddrOf(name) => tc24r_expr_variable::gen_addr_of(state, name),
+        Expr::AddrOf(operand) => match operand.as_ref() {
+            Expr::Ident(name) => {
+                tc24r_expr_variable::gen_addr_of(state, name);
+            }
+            Expr::MemberAccess { object, member } => {
+                tc24r_expr_struct::gen_member_addr(state, object, member, gen_expr);
+            }
+            Expr::Deref(ptr) => {
+                gen_expr(ptr, state);
+            }
+            _ => {
+                gen_expr(operand, state);
+            }
+        },
         Expr::Deref(ptr) => tc24r_expr_pointer::gen_deref(state, ptr, gen_expr),
         Expr::Cast { ty, expr: inner } => tc24r_expr_pointer::gen_cast(state, ty, inner, gen_expr),
         Expr::DerefAssign { ptr, value } => {

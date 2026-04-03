@@ -95,36 +95,13 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         return Ok(Expr::PreDec(Box::new(operand)));
     }
     if ts.eat(TokenKind::Amp) {
-        // &(expr) — address-of on a general expression (e.g. &(Tree){...})
-        if ts.check(&TokenKind::LParen) {
-            let operand = parse_unary(ts)?;
-            // &*(ptr) simplifies to ptr; &compound_literal gives its address
-            if let Expr::Deref(inner) = operand {
-                return Ok(*inner);
-            }
-            // For compound literals and other expressions, wrap in AddrOf
-            // by treating as &*(&operand) pattern — operand is already on stack
-            return Ok(operand);
+        let operand = parse_unary(ts)?;
+        // &*(ptr) simplifies to ptr
+        if let Expr::Deref(inner) = operand {
+            return Ok(*inner);
         }
-        let name = ts.expect_ident()?;
-        // Check for postfix: &arr[i], &s.field, etc.
-        if ts.check(&TokenKind::LBracket)
-            || ts.check(&TokenKind::Dot)
-            || ts.check(&TokenKind::Arrow)
-        {
-            let base = Expr::Ident(name);
-            let postfix = parse_postfix_chain(ts, base)?;
-            // &arr[i] is equivalent to arr + i (pointer arithmetic),
-            // and arr[i] is already desugared to *(arr + i) by parse_postfix_chain.
-            // So &*(arr + i) simplifies to (arr + i). Extract the inner expr from Deref.
-            if let Expr::Deref(inner) = postfix {
-                return Ok(*inner);
-            }
-            // For &s.field or &s->field, wrap in AddrOf-like expression.
-            // These are member access on a local — the address is computable.
-            return Ok(Expr::AddrOf(String::new())); // fallback (shouldn't reach)
-        }
-        return Ok(Expr::AddrOf(name));
+        // &expr — wrap in AddrOf
+        return Ok(Expr::AddrOf(Box::new(operand)));
     }
     if ts.eat(TokenKind::Star) {
         let operand = parse_unary(ts)?;
@@ -402,7 +379,7 @@ fn parse_compound_literal(ts: &mut TokenStream, ty: Type) -> Result<Expr, Compil
                 }
             }
             // Struct compound literal evaluates to address
-            stmts.push(Stmt::Expr(Expr::AddrOf(tmp_name)));
+            stmts.push(Stmt::Expr(Expr::AddrOf(Box::new(Expr::Ident(tmp_name)))));
         }
         _ => {
             // Scalar compound literal: (int){42}

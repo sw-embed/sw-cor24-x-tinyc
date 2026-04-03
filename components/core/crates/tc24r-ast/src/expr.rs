@@ -28,8 +28,8 @@ pub enum Expr {
         op: UnaryOp,
         operand: Box<Expr>,
     },
-    /// Address-of: &x
-    AddrOf(String),
+    /// Address-of: &expr
+    AddrOf(Box<Expr>),
     /// Pointer dereference: *p
     Deref(Box<Expr>),
     /// Cast expression: (type)expr

@@ -76,7 +76,18 @@ pub fn gen_inc_dec_member(
     }
 }
 
-/// Emit code to compute member address into r0.
+/// Emit code to compute member address into r0 (resolves member name to offset).
+pub fn gen_member_addr(
+    state: &mut CodegenState,
+    object: &Expr,
+    member: &str,
+    gen_expr_fn: GenExprFn,
+) {
+    let (mem_offset, _is_char) = member_info(state, object, member);
+    emit_member_addr(state, object, mem_offset, gen_expr_fn);
+}
+
+/// Emit code to compute address of member at known offset into r0.
 fn emit_member_addr(
     state: &mut CodegenState,
     object: &Expr,
@@ -85,13 +96,11 @@ fn emit_member_addr(
 ) {
     match object {
         Expr::Ident(name) => {
-            // Local struct: fp + var_offset + member_offset
             let fp_offset = state.locals[name.as_str()];
             load_immediate(state, fp_offset + mem_offset);
             emit!(state, "        add     r0,fp");
         }
         Expr::Deref(ptr) => {
-            // Pointer to struct: evaluate ptr, add member_offset
             gen_expr_fn(ptr, state);
             if mem_offset != 0 {
                 emit!(state, "        push    r0");
@@ -101,7 +110,6 @@ fn emit_member_addr(
             }
         }
         _ => {
-            // General case: evaluate object as address, add offset
             gen_expr_fn(object, state);
             if mem_offset != 0 {
                 emit!(state, "        push    r0");
@@ -170,17 +178,15 @@ fn object_type(state: &CodegenState, object: &Expr) -> Type {
             lhs,
             ..
         } => {
-            // Pointer arithmetic preserves pointer type (e.g. arr + i)
             let lhs_ty = object_type(state, lhs);
             match lhs_ty {
                 Type::Ptr(_) => lhs_ty,
-                Type::Array(inner, _) => Type::Ptr(inner), // array decay
+                Type::Array(inner, _) => Type::Ptr(inner),
                 _ => Type::Int,
             }
         }
         _ => Type::Int,
     };
-    // Resolve incomplete struct placeholders via the struct registry
     resolve_struct(state, ty)
 }
 

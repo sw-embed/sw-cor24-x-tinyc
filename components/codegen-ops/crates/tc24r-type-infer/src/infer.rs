@@ -22,8 +22,8 @@ pub fn expr_type(state: &CodegenState, expr: &Expr) -> Option<Type> {
             }
         }
         Expr::Cast { ty, .. } => Some(ty.clone()),
-        Expr::AddrOf(name) => {
-            let inner = expr_type(state, &Expr::Ident(name.clone()))?;
+        Expr::AddrOf(operand) => {
+            let inner = expr_type(state, operand)?;
             Some(Type::Ptr(Box::new(inner)))
         }
         Expr::Deref(inner) => match expr_type(state, inner)? {
