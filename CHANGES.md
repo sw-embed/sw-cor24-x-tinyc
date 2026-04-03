@@ -1,5 +1,12 @@
 # Changelog
 
+## Octal integer literals (2026-04-03)
+
+Added support for octal integer literals (e.g. `0777` = 511 decimal).
+The lexer now recognizes a leading `0` followed by digits `0-7` as base-8.
+Removed the octal-stripping line from the chibicc test awk filter since
+the compiler handles them natively. Refs: #10
+
 ## Function pointer support (2026-03-31)
 
 Added function pointer support to the compiler, enabling callback dispatch

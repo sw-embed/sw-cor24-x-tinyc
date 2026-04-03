@@ -35,6 +35,13 @@ impl Lexer<'_> {
         {
             return self.read_hex(start);
         }
+        // Check for octal prefix: 0 followed by octal digit
+        if self.pos + 1 < self.source.len()
+            && self.source[self.pos] == b'0'
+            && matches!(self.source[self.pos + 1], b'0'..=b'7')
+        {
+            return self.read_octal(start);
+        }
         while self.pos < self.source.len() && self.source[self.pos].is_ascii_digit() {
             self.pos += 1;
         }
@@ -48,6 +55,31 @@ impl Lexer<'_> {
         let digits: String = text.chars().filter(|c| c.is_ascii_digit()).collect();
         // Parse as u64 then truncate to 24 bits
         let wide: u64 = digits.parse().unwrap_or(0);
+        let value = (wide & 0xFFFFFF) as i32;
+        Ok(Token {
+            kind: TokenKind::IntLit(value),
+            span: Span::new(start, self.pos - start),
+        })
+    }
+
+    fn read_octal(&mut self, start: usize) -> Result<Token, CompileError> {
+        self.pos += 1; // skip leading 0
+        while self.pos < self.source.len() && matches!(self.source[self.pos], b'0'..=b'7') {
+            self.pos += 1;
+        }
+        // Skip optional integer suffix (U, L, LL, UL, etc.)
+        while self.pos < self.source.len()
+            && matches!(self.source[self.pos], b'u' | b'U' | b'l' | b'L')
+        {
+            self.pos += 1;
+        }
+        let octal_text = std::str::from_utf8(&self.source[start + 1..self.pos]).unwrap();
+        let octal_digits: String = octal_text
+            .chars()
+            .filter(|c| matches!(*c, '0'..='7'))
+            .collect();
+        // Parse as u64 then truncate to 24 bits
+        let wide = u64::from_str_radix(&octal_digits, 8).unwrap_or(0);
         let value = (wide & 0xFFFFFF) as i32;
         Ok(Token {
             kind: TokenKind::IntLit(value),

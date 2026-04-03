@@ -37,7 +37,7 @@ trap 'rm -rf "$TMPDIR"' EXIT
 
 # Adapt the test file for tc24r freestanding:
 # - Strip lines with printf/sprintf/exit/float/double/long/hosted decls
-# - Strip binary and octal literals our lexer doesn't handle
+# - Strip binary literals our lexer doesn't handle
 # - Our include/test.h provides a freestanding ASSERT
 # Using awk (portable across GNU/BSD) instead of sed.
 awk '
@@ -67,8 +67,7 @@ awk '
 /long/     { next }
 /short/    { next }
 /_Bool/    { next }
-/0b[01]/   { next }
-/0[0-7][0-7]/ { next }
+/0[bB][01]/   { next }
 /assert.*size/ { next }
 /sizeof/       { next }
 /[0-9]\.[0-9]/  { next }
