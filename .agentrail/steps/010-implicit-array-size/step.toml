@@ -1,6 +1,6 @@
 number = 10
 slug = "implicit-array-size"
-status = "pending"
+status = "in-progress"
 description = "Support inferring array size from initializer: 'int a[] = {1,2,3}' infers siz..."
 role = "production"
 context_files = []

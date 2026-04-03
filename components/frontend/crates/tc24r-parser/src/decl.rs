@@ -257,13 +257,29 @@ fn parse_one_global(ts: &mut TokenStream, base_ty: Type) -> Result<GlobalDecl, C
         return parse_global_fn_ptr(ts, ty);
     }
     let name = ts.expect_ident()?;
+    let mut implicit_size = false;
     while ts.eat(TokenKind::LBracket) {
-        let size = parse_const_array_size(ts)?;
-        ts.expect(TokenKind::RBracket)?;
-        ty = Type::Array(Box::new(ty), size);
+        if ts.check(&TokenKind::RBracket) {
+            ts.expect(TokenKind::RBracket)?;
+            ty = Type::Array(Box::new(ty), 0);
+            implicit_size = true;
+        } else {
+            let size = parse_const_array_size(ts)?;
+            ts.expect(TokenKind::RBracket)?;
+            ty = Type::Array(Box::new(ty), size);
+        }
     }
     let init = if ts.eat(TokenKind::Assign) {
-        Some(crate::expr::parse_expr(ts)?)
+        let expr = crate::expr::parse_expr(ts)?;
+        // Infer array size from string literal initializer
+        if implicit_size {
+            if let Type::Array(elem, 0) = &ty {
+                if let tc24r_ast::Expr::StringLit(s) = &expr {
+                    ty = Type::Array(elem.clone(), s.len() + 1);
+                }
+            }
+        }
+        Some(expr)
     } else {
         None
     };

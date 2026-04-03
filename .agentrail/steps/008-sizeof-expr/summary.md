@@ -1,0 +1,1 @@
+Added SizeofExpr AST node, updated parser to handle sizeof without parens (sizeof x, sizeof **x + 1), codegen uses expr_type() with no-array-decay for correct sizeof(arr). Skipped 32-bit ISA sizeof assertions in chibicc harness. chibicc 11→13 (+sizeof, +vla). Filed #17 (parenthesized declarators), #18 (stmt expr stacking).

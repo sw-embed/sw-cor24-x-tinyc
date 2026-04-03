@@ -167,17 +167,34 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
         ts.expect(TokenKind::RParen)?;
         return Ok(Stmt::Expr(Expr::IntLit(0)));
     }
-    // Check for array: int a[N] or int a[N][M]
+    // Check for array: int a[N], int a[N][M], or int a[] = {...}
     let mut ty = ty;
+    let mut implicit_size = false;
     while ts.eat(TokenKind::LBracket) {
-        let size = parse_const_array_size(ts)?;
-        ts.expect(TokenKind::RBracket)?;
-        ty = Type::Array(Box::new(ty), size);
+        if ts.check(&TokenKind::RBracket) {
+            // Empty brackets: int a[] = {1,2,3} or char s[] = "hello"
+            ts.expect(TokenKind::RBracket)?;
+            ty = Type::Array(Box::new(ty), 0);
+            implicit_size = true;
+        } else {
+            let size = parse_const_array_size(ts)?;
+            ts.expect(TokenKind::RBracket)?;
+            ty = Type::Array(Box::new(ty), size);
+        }
     }
     // Struct/array brace initializer: struct s x = {1, 2};
     if ts.eat(TokenKind::Assign) {
         if ts.check(&TokenKind::LBrace) {
-            return parse_brace_init(ts, name, ty);
+            return parse_brace_init(ts, name, ty, implicit_size);
+        }
+        // char s[] = "hello" — infer size from string length + null
+        if implicit_size {
+            if let Type::Array(elem, 0) = &ty {
+                if let TokenKind::StringLit(s) = &ts.peek().kind {
+                    let len = s.len() + 1; // +1 for null terminator
+                    ty = Type::Array(elem.clone(), len);
+                }
+            }
         }
         let init = Some(parse_assign(ts)?);
         return Ok(Stmt::LocalDecl { name, ty, init });
@@ -243,9 +260,14 @@ pub(crate) fn skip_fn_ptr_params(ts: &mut TokenStream) -> Result<(), CompileErro
     Ok(())
 }
 
-/// Parse brace initializer: struct s x = {1, 2};
-/// Desugars to: LocalDecl x + member assignments.
-fn parse_brace_init(ts: &mut TokenStream, name: String, ty: Type) -> Result<Stmt, CompileError> {
+/// Parse brace initializer: struct s x = {1, 2}; or int a[] = {1, 2, 3};
+/// Desugars to: LocalDecl x + member/element assignments.
+fn parse_brace_init(
+    ts: &mut TokenStream,
+    name: String,
+    ty: Type,
+    implicit_size: bool,
+) -> Result<Stmt, CompileError> {
     ts.expect(TokenKind::LBrace)?;
     let mut values = Vec::new();
     if !ts.check(&TokenKind::RBrace) {
@@ -262,14 +284,37 @@ fn parse_brace_init(ts: &mut TokenStream, name: String, ty: Type) -> Result<Stmt
     }
     ts.expect(TokenKind::RBrace)?;
 
+    // Infer array size from element count when declared as a[]
+    let ty = if implicit_size {
+        if let Type::Array(elem, 0) = &ty {
+            Type::Array(elem.clone(), values.len())
+        } else {
+            ty
+        }
+    } else {
+        ty
+    };
+
     let mut stmts = vec![Stmt::LocalDecl {
         name: name.clone(),
         ty: ty.clone(),
         init: None,
     }];
 
-    // Generate member assignments based on struct member order
-    if let Type::Struct { members, .. } = &ty {
+    // Generate element assignments for arrays: a[i] = val
+    if let Type::Array(..) = &ty {
+        for (i, val) in values.into_iter().enumerate() {
+            stmts.push(Stmt::Expr(Expr::DerefAssign {
+                ptr: Box::new(Expr::BinOp {
+                    op: tc24r_ast::BinOp::Add,
+                    lhs: Box::new(Expr::Ident(name.clone())),
+                    rhs: Box::new(Expr::IntLit(i as i32)),
+                }),
+                value: Box::new(val),
+            }));
+        }
+    } else if let Type::Struct { members, .. } = &ty {
+        // Generate member assignments based on struct member order
         for (i, val) in values.into_iter().enumerate() {
             if let Some(member) = members.get(i) {
                 stmts.push(Stmt::Expr(Expr::MemberAssign {

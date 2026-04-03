@@ -1,5 +1,15 @@
 # Changelog
 
+## Implicit array size from initializer (2026-04-03)
+
+Support inferring array size from initializer when brackets are empty:
+- `int a[] = {1, 2, 3}` infers size 3
+- `char s[] = "hello"` infers size 6 (includes null terminator)
+- Brace initializers for arrays now generate element assignments (`a[i] = val`)
+
+Beej test suite improved from 4/11 to 6/11 (pointers_arithmetic.c and strings.c
+now compile). Refs: #2
+
 ## Octal integer literals (2026-04-03)
 
 Added support for octal integer literals (e.g. `0777` = 511 decimal).
