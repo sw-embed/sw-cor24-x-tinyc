@@ -45,6 +45,37 @@ pub fn gen_member_assign(
     }
 }
 
+/// Pre/post increment or decrement on a struct member: `obj.member++`, `--obj.member`.
+pub fn gen_inc_dec_member(
+    state: &mut CodegenState,
+    object: &Expr,
+    member: &str,
+    delta: i32,
+    post: bool,
+    gen_expr_fn: GenExprFn,
+) {
+    let (mem_offset, is_char) = member_info(state, object, member);
+    emit_member_addr(state, object, mem_offset, gen_expr_fn);
+    emit!(state, "        mov     r1,r0");
+    if is_char {
+        emit!(state, "        lbu     r0,0(r1)");
+    } else {
+        emit!(state, "        lw      r0,0(r1)");
+    }
+    if post {
+        emit!(state, "        push    r0");
+    }
+    emit!(state, "        add     r0,{delta}");
+    if is_char {
+        emit!(state, "        sb      r0,0(r1)");
+    } else {
+        emit!(state, "        sw      r0,0(r1)");
+    }
+    if post {
+        emit!(state, "        pop     r0");
+    }
+}
+
 /// Emit code to compute member address into r0.
 fn emit_member_addr(
     state: &mut CodegenState,

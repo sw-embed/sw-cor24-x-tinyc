@@ -42,14 +42,14 @@ pub enum Expr {
         ptr: Box<Expr>,
         value: Box<Expr>,
     },
-    /// Pre-increment: ++i (returns new value)
-    PreInc(String),
-    /// Pre-decrement: --i (returns new value)
-    PreDec(String),
-    /// Post-increment: i++ (returns old value)
-    PostInc(String),
-    /// Post-decrement: i-- (returns old value)
-    PostDec(String),
+    /// Pre-increment: ++lvalue (returns new value)
+    PreInc(Box<Expr>),
+    /// Pre-decrement: --lvalue (returns new value)
+    PreDec(Box<Expr>),
+    /// Post-increment: lvalue++ (returns old value)
+    PostInc(Box<Expr>),
+    /// Post-decrement: lvalue-- (returns old value)
+    PostDec(Box<Expr>),
     /// Struct member access: expr.member
     MemberAccess {
         object: Box<Expr>,

@@ -2,4 +2,4 @@
 
 mod member;
 
-pub use member::{gen_member_access, gen_member_assign};
+pub use member::{gen_inc_dec_member, gen_member_access, gen_member_assign};

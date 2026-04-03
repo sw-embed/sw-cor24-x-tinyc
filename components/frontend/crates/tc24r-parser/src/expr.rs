@@ -1,6 +1,6 @@
 //! Expression entry point, assignment, unary, and primary parsing.
 
-use tc24r_ast::{BinOp, Expr, Type, UnaryOp};
+use tc24r_ast::{BinOp, Block, Expr, Stmt, Type, UnaryOp};
 use tc24r_error::CompileError;
 use tc24r_parse_stream::TokenStream;
 use tc24r_parser_compound::{desugar_compound, eat_compound_assign, make_assign};
@@ -8,6 +8,7 @@ use tc24r_parser_types::{is_type_start, parse_type};
 use tc24r_token::TokenKind;
 
 use crate::bitwise::parse_log_or;
+use crate::decl::parse_const_array_size;
 use crate::stmt::parse_block;
 
 /// Parse an expression (includes comma operator at lowest precedence).
@@ -86,14 +87,25 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         });
     }
     if ts.eat(TokenKind::PlusPlus) {
-        let name = ts.expect_ident()?;
-        return Ok(Expr::PreInc(name));
+        let operand = parse_unary(ts)?;
+        return Ok(Expr::PreInc(Box::new(operand)));
     }
     if ts.eat(TokenKind::MinusMinus) {
-        let name = ts.expect_ident()?;
-        return Ok(Expr::PreDec(name));
+        let operand = parse_unary(ts)?;
+        return Ok(Expr::PreDec(Box::new(operand)));
     }
     if ts.eat(TokenKind::Amp) {
+        // &(expr) — address-of on a general expression (e.g. &(Tree){...})
+        if ts.check(&TokenKind::LParen) {
+            let operand = parse_unary(ts)?;
+            // &*(ptr) simplifies to ptr; &compound_literal gives its address
+            if let Expr::Deref(inner) = operand {
+                return Ok(*inner);
+            }
+            // For compound literals and other expressions, wrap in AddrOf
+            // by treating as &*(&operand) pattern — operand is already on stack
+            return Ok(operand);
+        }
         let name = ts.expect_ident()?;
         // Check for postfix: &arr[i], &s.field, etc.
         if ts.check(&TokenKind::LBracket)
@@ -129,10 +141,17 @@ fn parse_primary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
             ts.expect(TokenKind::RParen)?;
             return parse_postfix_chain(ts, Expr::StmtExpr(block));
         }
-        // Cast: (type)expr  vs  parenthesized: (expr)
+        // Cast: (type)expr  OR  Compound literal: (type){init}
         if is_type_start(ts) {
             let ty = parse_type(ts)?;
+            // Check for array suffix: (int[3]) or (int[])
+            let ty = parse_optional_array_suffix(ts, ty)?;
             ts.expect(TokenKind::RParen)?;
+            // Compound literal: (type){init}
+            if ts.check(&TokenKind::LBrace) {
+                let lit = parse_compound_literal(ts, ty)?;
+                return parse_postfix_chain(ts, lit);
+            }
             let operand = parse_unary(ts)?;
             let cast = Expr::Cast {
                 ty,
@@ -196,14 +215,7 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         let call = Expr::Call { name, args };
         return parse_postfix_chain(ts, call);
     }
-    // Postfix ++/-- (these consume the name, not chainable)
-    if ts.eat(TokenKind::PlusPlus) {
-        return Ok(Expr::PostInc(name));
-    }
-    if ts.eat(TokenKind::MinusMinus) {
-        return Ok(Expr::PostDec(name));
-    }
-    // Start with the identifier, then chain postfix ops: [], ., ->
+    // Start with the identifier, then chain postfix ops: [], ., ->, ++, --
     let mut result = Expr::Ident(name);
     result = parse_postfix_chain(ts, result)?;
     Ok(result)
@@ -248,6 +260,10 @@ fn parse_postfix_chain(ts: &mut TokenStream, mut expr: Expr) -> Result<Expr, Com
                 object: Box::new(Expr::Deref(Box::new(expr))),
                 member,
             };
+        } else if ts.eat(TokenKind::PlusPlus) {
+            expr = Expr::PostInc(Box::new(expr));
+        } else if ts.eat(TokenKind::MinusMinus) {
+            expr = Expr::PostDec(Box::new(expr));
         } else {
             break;
         }
@@ -299,4 +315,111 @@ fn parse_offsetof(ts: &mut TokenStream) -> Result<Expr, CompileError> {
             Some(ts.current_span()),
         )),
     }
+}
+
+/// Parse optional array suffix after a type in cast/compound-literal position.
+/// E.g., (int[3]) or (int[]) — returns the modified type.
+fn parse_optional_array_suffix(ts: &mut TokenStream, mut ty: Type) -> Result<Type, CompileError> {
+    while ts.check(&TokenKind::LBracket) {
+        ts.advance(); // eat [
+        if ts.check(&TokenKind::RBracket) {
+            ts.advance(); // eat ]
+            ty = Type::Array(Box::new(ty), 0); // size inferred from init
+        } else {
+            let size = parse_const_array_size(ts)?;
+            ts.expect(TokenKind::RBracket)?;
+            ty = Type::Array(Box::new(ty), size);
+        }
+    }
+    Ok(ty)
+}
+
+/// Counter for generating unique compound literal temp names.
+static COMPLIT_COUNTER: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+
+/// Parse a compound literal: (type){init-list}
+/// Desugars to a statement expression that allocates a temp, initializes it,
+/// and evaluates to the temp's value (or address for arrays).
+fn parse_compound_literal(ts: &mut TokenStream, ty: Type) -> Result<Expr, CompileError> {
+    let id = COMPLIT_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let tmp_name = format!("__complit_{id}");
+
+    ts.expect(TokenKind::LBrace)?;
+    let mut values = Vec::new();
+    if !ts.check(&TokenKind::RBrace) {
+        loop {
+            values.push(parse_assign(ts)?);
+            if !ts.eat(TokenKind::Comma) {
+                break;
+            }
+            if ts.check(&TokenKind::RBrace) {
+                break;
+            }
+        }
+    }
+    ts.expect(TokenKind::RBrace)?;
+
+    let mut stmts = Vec::new();
+
+    match &ty {
+        Type::Array(elem, size) => {
+            // Infer size from initializer count if empty brackets
+            let actual_size = if *size == 0 { values.len() } else { *size };
+            let actual_ty = Type::Array(elem.clone(), actual_size);
+            stmts.push(Stmt::LocalDecl {
+                name: tmp_name.clone(),
+                ty: actual_ty,
+                init: None,
+            });
+            // Initialize each element: tmp[i] = values[i]
+            for (i, val) in values.into_iter().enumerate() {
+                stmts.push(Stmt::Expr(Expr::DerefAssign {
+                    ptr: Box::new(Expr::BinOp {
+                        op: BinOp::Add,
+                        lhs: Box::new(Expr::Ident(tmp_name.clone())),
+                        rhs: Box::new(Expr::IntLit(i as i32)),
+                    }),
+                    value: Box::new(val),
+                }));
+            }
+            // Array compound literal evaluates to address (decays to pointer)
+            stmts.push(Stmt::Expr(Expr::Ident(tmp_name)));
+        }
+        Type::Struct { members, .. } => {
+            stmts.push(Stmt::LocalDecl {
+                name: tmp_name.clone(),
+                ty: ty.clone(),
+                init: None,
+            });
+            // Initialize each member
+            for (i, val) in values.into_iter().enumerate() {
+                if let Some(member) = members.get(i) {
+                    stmts.push(Stmt::Expr(Expr::MemberAssign {
+                        object: Box::new(Expr::Ident(tmp_name.clone())),
+                        member: member.name.clone(),
+                        value: Box::new(val),
+                    }));
+                }
+            }
+            // Struct compound literal evaluates to address
+            stmts.push(Stmt::Expr(Expr::AddrOf(tmp_name)));
+        }
+        _ => {
+            // Scalar compound literal: (int){42}
+            stmts.push(Stmt::LocalDecl {
+                name: tmp_name.clone(),
+                ty: ty.clone(),
+                init: None,
+            });
+            if let Some(val) = values.into_iter().next() {
+                stmts.push(Stmt::Expr(Expr::Assign {
+                    name: tmp_name.clone(),
+                    value: Box::new(val),
+                }));
+            }
+            stmts.push(Stmt::Expr(Expr::Ident(tmp_name)));
+        }
+    }
+
+    Ok(Expr::StmtExpr(Block { stmts }))
 }

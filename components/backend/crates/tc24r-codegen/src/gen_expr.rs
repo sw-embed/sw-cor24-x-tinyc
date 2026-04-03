@@ -26,13 +26,38 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
         Expr::DerefAssign { ptr, value } => {
             tc24r_expr_pointer::gen_deref_assign(state, ptr, value, gen_expr)
         }
-        Expr::PreInc(name) | Expr::PreDec(name) | Expr::PostInc(name) | Expr::PostDec(name) => {
+        Expr::PreInc(operand)
+        | Expr::PreDec(operand)
+        | Expr::PostInc(operand)
+        | Expr::PostDec(operand) => {
             let delta = match expr {
                 Expr::PreInc(_) | Expr::PostInc(_) => 1,
                 _ => -1,
             };
             let post = matches!(expr, Expr::PostInc(_) | Expr::PostDec(_));
-            tc24r_ops_incdec::gen_inc_dec(state, name, delta, post);
+            match operand.as_ref() {
+                Expr::Ident(name) => {
+                    tc24r_ops_incdec::gen_inc_dec(state, name, delta, post);
+                }
+                Expr::MemberAccess { object, member } => {
+                    tc24r_expr_struct::gen_inc_dec_member(
+                        state, object, member, delta, post, gen_expr,
+                    );
+                }
+                Expr::Deref(ptr) => {
+                    tc24r_expr_pointer::gen_inc_dec_deref(state, ptr, delta, post, gen_expr);
+                }
+                _ => {
+                    gen_expr(operand, state);
+                    if post {
+                        emit!(state, "        push    r0");
+                    }
+                    emit!(state, "        add     r0,{delta}");
+                    if post {
+                        emit!(state, "        pop     r1");
+                    }
+                }
+            }
         }
         Expr::StmtExpr(block) => {
             for s in &block.stmts {

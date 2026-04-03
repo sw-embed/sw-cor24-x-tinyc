@@ -51,6 +51,36 @@ pub fn gen_deref_assign(
     }
 }
 
+/// Pre/post increment or decrement through a pointer: `*p++`, `--*p`, `arr[i]++`.
+pub fn gen_inc_dec_deref(
+    state: &mut CodegenState,
+    ptr: &Expr,
+    delta: i32,
+    post: bool,
+    gen_expr_fn: GenExprFn,
+) {
+    let is_byte = is_char_ptr(state, ptr);
+    gen_expr_fn(ptr, state);
+    emit!(state, "        mov     r1,r0");
+    if is_byte {
+        emit!(state, "        lbu     r0,0(r1)");
+    } else {
+        emit!(state, "        lw      r0,0(r1)");
+    }
+    if post {
+        emit!(state, "        push    r0");
+    }
+    emit!(state, "        add     r0,{delta}");
+    if is_byte {
+        emit!(state, "        sb      r0,0(r1)");
+    } else {
+        emit!(state, "        sw      r0,0(r1)");
+    }
+    if post {
+        emit!(state, "        pop     r0");
+    }
+}
+
 /// Check whether `expr` is a global variable reference.
 fn is_global_var(expr: &Expr, state: &CodegenState) -> bool {
     if let Expr::Ident(name) = expr {
