@@ -23,6 +23,9 @@ pub fn gen_add_sub(
         gen_ptr_diff(state, lhs, rhs, &lhs_ty, gen_expr_fn);
     } else if lhs_is_ptr {
         gen_ptr_offset(state, op, lhs, rhs, &lhs_ty, gen_expr_fn);
+    } else if rhs_is_ptr && op == BinOp::Add {
+        // Commutative: int + ptr (e.g. 2[x] desugars to *(2 + x))
+        gen_ptr_offset(state, op, rhs, lhs, &rhs_ty, gen_expr_fn);
     } else {
         gen_plain_add_sub(state, op, lhs, rhs, gen_expr_fn);
     }

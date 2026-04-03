@@ -1,6 +1,6 @@
 # Testing Status
 
-Last updated: 2026-04-01
+Last updated: 2026-04-03
 
 ## Summary
 
@@ -9,8 +9,8 @@ Last updated: 2026-04-01
 | tc24r demos | 55 | 55 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 33 | 33 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
-| chibicc full | 13 | 41 | 31% | cast, commonsym, compat, const, control, decl, enum, extern, generic, pragma-once, sizeof, stdhdr, vla |
-| beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
+| chibicc full | 14 | 41 | 34% | cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, vla |
+| beej-c-guide | 6 | 11 | 55% | hello_world, functions, pointers, pointers_arithmetic, strings, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
 ## tc24r Demos (55/55)
@@ -90,11 +90,11 @@ features. Located in `tests/chibicc-subset/`.
 
 Run: `scripts/run-subset-tests.sh`
 
-## chibicc Full Tests (13/41)
+## chibicc Full Tests (14/41)
 
 Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 
-### Passing (13)
+### Passing (14)
 
 | Test | Notes |
 |------|-------|
@@ -107,12 +107,13 @@ Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 | enum | enum declarations and usage |
 | extern | `inline` function specifier, local function prototypes |
 | generic | _Generic keyword support |
+| pointer | Multi-dim arrays, reverse subscript (2[x]), commutative ptr+int |
 | pragma-once | #pragma once inclusion guard |
 | sizeof | sizeof on types and expressions |
 | stdhdr | System header inclusion (stdalign.h, stdbool.h, stddef.h, stdnoreturn.h) |
 | vla | Variable-length array declarations |
 
-### Compile Fail (33) — Categorized
+### Compile Fail (27) — Categorized
 
 #### Out of Scope (5 tests)
 
@@ -134,7 +135,7 @@ addressing these in priority order.
 |------|-----------------|------------|
 | arith | Octal literals, complex expressions | Phase 5 |
 | builtin | `__builtin_types_compatible_p` | Phase 5 |
-| pointer | Complex pointer decls | Phase 5 |
+| ~~pointer~~ | ~~Multi-dim arrays, reverse subscript~~ | ~~Phase 5~~ → **PASS** |
 | ~~sizeof~~ | ~~`sizeof expr` without parens~~ | ~~Phase 5~~ → **PASS** |
 | attribute | `__attribute__`, compound literals, `_Alignof` | Phase 4-5 |
 | offsetof | Struct offsets differ (COR24 3-byte int vs x86 4-byte) | x86-specific |
@@ -221,31 +222,38 @@ Run: `scripts/run-chibicc-tests.sh`
 - `sizeof expr` without parentheses (`sizeof x`, `sizeof **x + 1`)
 - `Expr::SizeofExpr` AST node with codegen type inference (no array decay)
 - Awk filter: skip sizeof assertions assuming 32-bit ISA sizes
+- Octal integer literals (`0777` = 511)
+- Implicit array size from initializer (`int a[] = {1,2,3}`, `char s[] = "hello"`)
+- Array brace initializer codegen (element-wise DerefAssign)
+- Postfix operators on integer literals (`2[x]` reverse subscript)
+- Commutative pointer+int arithmetic (int+ptr scales correctly)
+- Local variable re-allocation for larger same-named types across stmt exprs
+- Array-to-pointer decay in deref type inference (multidim array indexing)
 
-## beej-c-guide Examples (4/11)
+## beej-c-guide Examples (6/11)
 
 Testing against `~/github/softwarewrighter/beej-c-guide/src/*.c`.
 
-### Compiling (4)
+### Compiling (6)
 
 | Example | Notes |
 |---------|-------|
 | hello_world.c | printf via freestanding stdio.h |
 | functions.c | printf with %d |
 | pointers.c | printf with %d |
+| pointers_arithmetic.c | Implicit array size, char[] = "string" |
+| strings.c | Implicit array size, char[] = "string" |
 | typedef.c | printf with %d |
 
-### Blocked (7)
+### Blocked (5)
 
 | Example | Blocker |
 |---------|---------|
 | arrays.c | Codegen panic (complex array init) |
 | file_io.c | Complex lvalue assignment |
 | memory_management.c | `<stdlib.h>` (malloc/free) |
-| pointers_arithmetic.c | `<string.h>` (strlen) |
-| strings.c | `<string.h>` (strlen, strcmp) |
 | structs.c | `float` type in struct |
-| variables_and_statements.c | `<stdbool.h>` |
+| variables_and_statements.c | `float` type in declarations |
 
 Run: `scripts/run-beej-tests.sh`
 

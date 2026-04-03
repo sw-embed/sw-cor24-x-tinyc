@@ -1,0 +1,1 @@
+Added implicit array size inference from initializers. Empty brackets int a[] = {1,2,3} infers size 3, char s[] = "hello" infers size 6. Brace init for arrays generates element assignments via DerefAssign. Both local and global arrays supported. Beej tests improved 4/11 to 6/11 (pointers_arithmetic, strings now compile). Chibicc 13/41 no regressions.

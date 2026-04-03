@@ -27,7 +27,13 @@ pub fn expr_type(state: &CodegenState, expr: &Expr) -> Option<Type> {
             Some(Type::Ptr(Box::new(inner)))
         }
         Expr::Deref(inner) => match expr_type(state, inner)? {
-            Type::Ptr(pointee) => Some(*pointee),
+            Type::Ptr(pointee) => {
+                // Array result decays to pointer to element (e.g. x[0] on int x[2][3])
+                match *pointee {
+                    Type::Array(elem, _) => Some(Type::Ptr(elem)),
+                    other => Some(other),
+                }
+            }
             _ => None,
         },
         Expr::StringLit(_) => Some(Type::Ptr(Box::new(Type::Char))),

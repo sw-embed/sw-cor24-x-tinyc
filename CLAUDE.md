@@ -80,6 +80,7 @@ scripts/run-beej-tests.sh        # beej-c-guide examples (11 tests)
 - **Never use `sed` in test scripts or demo scripts.** Use `awk`, `grep`, and `tr` instead. BSD sed (macOS) and GNU sed (Linux) have incompatible extensions (`\s`, `-E` vs `-r`, etc.) that break cross-platform testing.
 - reg-rs baselines (`.out` files) contain absolute paths. After switching machines, run `reg-rs rebase -p tc24r` to update baselines.
 - Edition 2024. Never suppress warnings.
+- **When fixing a GitHub issue**, update the issue with a comment noting which commit contains the fix, so it can be used for acceptance testing.
 
 ## Project Structure
 

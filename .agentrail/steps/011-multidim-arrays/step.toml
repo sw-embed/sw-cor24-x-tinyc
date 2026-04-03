@@ -1,6 +1,6 @@
 number = 11
 slug = "multidim-arrays"
-status = "pending"
+status = "in-progress"
 description = "Support multi-dimensional array declarations: 'int x[2][3]'. Parser: after fi..."
 role = "production"
 context_files = []

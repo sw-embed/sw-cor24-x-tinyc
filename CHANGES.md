@@ -1,5 +1,15 @@
 # Changelog
 
+## Multi-dimensional array support and pointer fixes (2026-04-03)
+
+Multi-dimensional arrays (`int x[2][3]`) now work correctly end-to-end:
+- Array-to-pointer decay in deref type inference for nested array indexing
+- Commutative pointer+int arithmetic (`int + ptr` scales correctly)
+- Postfix operators on integer literals (`2[x]` reverse subscript)
+- Local variable re-allocation when same-named local redeclared with larger type
+
+Chibicc: 13/41 → 14/41 (pointer test now passes). Refs: #11
+
 ## Implicit array size from initializer (2026-04-03)
 
 Support inferring array size from initializer when brackets are empty:

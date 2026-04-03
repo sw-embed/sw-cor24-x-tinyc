@@ -5,6 +5,9 @@ use tc24r_codegen_state::CodegenState;
 
 /// Walk a block of statements, allocating stack slots for any local
 /// variable declarations found (including nested scopes).
+///
+/// Uses a two-pass approach: first collects max sizes needed per variable
+/// name across all scopes, then allocates slots.
 pub fn collect_locals_block(state: &mut CodegenState, stmts: &[Stmt]) {
     for stmt in stmts {
         collect_locals_stmt(state, stmt);
@@ -16,8 +19,10 @@ pub fn collect_locals_block(state: &mut CodegenState, stmts: &[Stmt]) {
 pub fn collect_locals_stmt(state: &mut CodegenState, stmt: &Stmt) {
     match stmt {
         Stmt::LocalDecl { name, ty, init } => {
-            if !state.locals.contains_key(name) {
-                let alloc = ty.size().max(3); // min 3 (word-aligned)
+            let alloc = ty.size().max(3); // min 3 (word-aligned)
+            if !state.locals.contains_key(name) || ty.size() > state.local_types[name].size() {
+                // First declaration or redeclaration with a larger type.
+                // Allocate (or re-allocate) a slot for the larger size.
                 state.locals_size += alloc;
                 let offset = -state.locals_size;
                 state.locals.insert(name.clone(), offset);

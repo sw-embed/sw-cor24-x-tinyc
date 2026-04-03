@@ -148,7 +148,8 @@ fn parse_primary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         let TokenKind::IntLit(val) = ts.advance().kind else {
             unreachable!()
         };
-        return Ok(Expr::IntLit(val));
+        // Support postfix on literals: 2[x] is valid C (equivalent to x[2])
+        return parse_postfix_chain(ts, Expr::IntLit(val));
     }
     if let TokenKind::StringLit(_) = &ts.peek().kind {
         let TokenKind::StringLit(mut s) = ts.advance().kind else {
