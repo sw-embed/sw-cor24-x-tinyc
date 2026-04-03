@@ -458,6 +458,23 @@ fn codegen_fn_ptr_indirect_call() {
     assert!(output.contains("_double:"), "double should be generated");
 }
 
+// --- Global initializer tests ---
+
+#[test]
+fn codegen_global_int_init_list() {
+    let src = "int msg[] = {72, 105, 0}; int main(void) { return msg[0]; }";
+    let output = compile(src);
+    assert!(output.contains("_msg:"), "msg label should be generated");
+    assert!(
+        output.contains(".word   72"),
+        "should contain initializer value 72"
+    );
+    assert!(
+        output.contains(".word   105"),
+        "should contain initializer value 105"
+    );
+}
+
 // --- Postfix ++/-- on struct members and array elements ---
 
 #[test]

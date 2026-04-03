@@ -106,6 +106,9 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
             then_expr,
             else_expr,
         } => gen_ternary(state, cond, then_expr, else_expr),
+        Expr::InitList(_) => {
+            unreachable!("InitList should only appear in global initializers, not expressions")
+        }
     }
 }
 

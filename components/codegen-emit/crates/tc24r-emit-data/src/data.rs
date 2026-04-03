@@ -16,29 +16,60 @@ pub fn emit_data_section(state: &mut CodegenState, program: &Program) {
     for g in &program.globals {
         let name = &g.name;
         emit!(state, "_{name}:");
-        let val = match &g.init {
-            Some(Expr::IntLit(v)) => *v,
-            _ => 0,
-        };
         match &g.ty {
             Type::Char | Type::UnsignedChar => {
+                let val = match &g.init {
+                    Some(Expr::IntLit(v)) => *v,
+                    _ => 0,
+                };
                 emit!(state, "        .byte   {val}");
             }
             Type::Array(elem_ty, count) => {
-                // Emit zero-initialized elements
                 if **elem_ty == Type::Char || **elem_ty == Type::UnsignedChar {
-                    for _ in 0..*count {
-                        emit!(state, "        .byte   0");
+                    match &g.init {
+                        Some(Expr::StringLit(s)) => {
+                            let bytes: Vec<String> = s
+                                .bytes()
+                                .chain(std::iter::once(0))
+                                .map(|b| b.to_string())
+                                .collect();
+                            let byte_str = bytes.join(",");
+                            emit!(state, "        .byte   {byte_str}");
+                        }
+                        Some(Expr::InitList(values)) => {
+                            emit_char_array_init(state, count, values);
+                        }
+                        _ => {
+                            for _ in 0..*count {
+                                emit!(state, "        .byte   0");
+                            }
+                        }
                     }
                 } else {
-                    // Each element may span multiple words (e.g. structs)
-                    let words_per_elem = (elem_ty.size() + 2) / 3; // ceil(size / 3)
-                    for _ in 0..(*count * words_per_elem as usize) {
-                        emit!(state, "        .word   0");
+                    let words_per_elem = (elem_ty.size() + 2) / 3;
+                    let total_words = *count * words_per_elem as usize;
+                    match &g.init {
+                        Some(Expr::InitList(values)) => {
+                            emit_int_array_init(state, total_words, values);
+                        }
+                        Some(Expr::IntLit(v)) => {
+                            for _ in 0..total_words {
+                                emit!(state, "        .word   {v}");
+                            }
+                        }
+                        _ => {
+                            for _ in 0..total_words {
+                                emit!(state, "        .word   0");
+                            }
+                        }
                     }
                 }
             }
             _ => {
+                let val = match &g.init {
+                    Some(Expr::IntLit(v)) => *v,
+                    _ => 0,
+                };
                 emit!(state, "        .word   {val}");
             }
         }
@@ -52,5 +83,31 @@ pub fn emit_data_section(state: &mut CodegenState, program: &Program) {
             .collect();
         let byte_str = bytes.join(",");
         emit!(state, "        .byte   {byte_str}");
+    }
+}
+
+fn emit_char_array_init(state: &mut CodegenState, count: &usize, values: &[Expr]) {
+    for i in 0..*count {
+        if i < values.len() {
+            match &values[i] {
+                Expr::IntLit(v) => emit!(state, "        .byte   {v}"),
+                _ => emit!(state, "        .byte   0"),
+            }
+        } else {
+            emit!(state, "        .byte   0");
+        }
+    }
+}
+
+fn emit_int_array_init(state: &mut CodegenState, total_words: usize, values: &[Expr]) {
+    for i in 0..total_words {
+        if i < values.len() {
+            match &values[i] {
+                Expr::IntLit(v) => emit!(state, "        .word   {v}"),
+                _ => emit!(state, "        .word   0"),
+            }
+        } else {
+            emit!(state, "        .word   0");
+        }
     }
 }

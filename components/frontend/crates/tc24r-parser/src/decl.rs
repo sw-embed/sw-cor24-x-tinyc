@@ -1,6 +1,6 @@
 //! Top-level and declaration parsing.
 
-use tc24r_ast::{Function, GlobalDecl, Param, Program, Type};
+use tc24r_ast::{Expr, Function, GlobalDecl, Param, Program, Type};
 use tc24r_error::CompileError;
 use tc24r_parse_stream::TokenStream;
 use tc24r_token::TokenKind;
@@ -157,7 +157,7 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
 /// struct tag *func();  → false (function returning pointer)
 fn is_struct_def_or_var(ts: &TokenStream) -> bool {
     let mut i = 1; // skip struct/union keyword
-    // Skip optional tag name
+                   // Skip optional tag name
     if matches!(ts.lookahead(i), TokenKind::Ident(_)) {
         i += 1;
     }
@@ -270,16 +270,38 @@ fn parse_one_global(ts: &mut TokenStream, base_ty: Type) -> Result<GlobalDecl, C
         }
     }
     let init = if ts.eat(TokenKind::Assign) {
-        let expr = crate::expr::parse_expr(ts)?;
-        // Infer array size from string literal initializer
-        if implicit_size {
-            if let Type::Array(elem, 0) = &ty {
-                if let tc24r_ast::Expr::StringLit(s) = &expr {
-                    ty = Type::Array(elem.clone(), s.len() + 1);
+        if ts.check(&TokenKind::LBrace) {
+            ts.expect(TokenKind::LBrace)?;
+            let mut values = Vec::new();
+            if !ts.check(&TokenKind::RBrace) {
+                loop {
+                    values.push(crate::expr::parse_assign(ts)?);
+                    if !ts.eat(TokenKind::Comma) {
+                        break;
+                    }
+                    if ts.check(&TokenKind::RBrace) {
+                        break;
+                    }
                 }
             }
+            ts.expect(TokenKind::RBrace)?;
+            if implicit_size {
+                if let Type::Array(elem, 0) = &ty {
+                    ty = Type::Array(elem.clone(), values.len());
+                }
+            }
+            Some(Expr::InitList(values))
+        } else {
+            let expr = crate::expr::parse_expr(ts)?;
+            if implicit_size {
+                if let Type::Array(elem, 0) = &ty {
+                    if let tc24r_ast::Expr::StringLit(s) = &expr {
+                        ty = Type::Array(elem.clone(), s.len() + 1);
+                    }
+                }
+            }
+            Some(expr)
         }
-        Some(expr)
     } else {
         None
     };
@@ -299,7 +321,7 @@ fn parse_global_fn_ptr(ts: &mut TokenStream, return_ty: Type) -> Result<GlobalDe
         is_array = Some(size);
     }
     ts.expect(TokenKind::RParen)?; // )
-    // Consume parameter list: (int, int, ...)
+                                   // Consume parameter list: (int, int, ...)
     ts.expect(TokenKind::LParen)?;
     skip_fn_ptr_params(ts)?;
     ts.expect(TokenKind::RParen)?;

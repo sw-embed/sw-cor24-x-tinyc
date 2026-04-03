@@ -71,6 +71,8 @@ pub enum Expr {
         then_expr: Box<Expr>,
         else_expr: Box<Expr>,
     },
+    /// Initializer list: {1, 2, 3} — used for global/static array init
+    InitList(Vec<Expr>),
 }
 
 /// Binary operator.
