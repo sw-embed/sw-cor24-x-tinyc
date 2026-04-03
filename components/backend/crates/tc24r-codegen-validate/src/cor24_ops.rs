@@ -52,6 +52,42 @@ fn cor24_globals() {
 }
 
 #[test]
+fn cor24_global_string_init() {
+    // static char[] from string literal — msg[0] = 'h' = 104
+    assert_assembles_cor24(
+        "global_string_init",
+        "static const char msg[] = \"hello\"; int main(void) { return msg[0]; }",
+    );
+}
+
+#[test]
+fn cor24_global_int_init_list() {
+    // int[] from initializer list — 72 + 105 + 0 = 177
+    assert_assembles_cor24(
+        "global_int_init_list",
+        "int msg[] = {72, 105, 0}; int main(void) { return msg[0] + msg[1] + msg[2]; }",
+    );
+}
+
+#[test]
+fn cor24_global_char_init_list() {
+    // char[] from initializer list — 'A' + 'B' = 65 + 66 = 131
+    assert_assembles_cor24(
+        "global_char_init_list",
+        "char msg[] = {65, 66, 0}; int main(void) { return msg[0] + msg[1]; }",
+    );
+}
+
+#[test]
+fn cor24_global_init_list_zero_pad() {
+    // int[5] with 2 values — arr[0] + arr[4] = 10 + 0 = 10
+    assert_assembles_cor24(
+        "global_init_list_zeropad",
+        "int arr[5] = {10, 20}; int main(void) { return arr[0] + arr[2] + arr[4]; }",
+    );
+}
+
+#[test]
 fn cor24_postinc_plain() {
     // i = 5; j = i++; j should be 5 (old value), i should be 6
     assert_assembles_cor24(

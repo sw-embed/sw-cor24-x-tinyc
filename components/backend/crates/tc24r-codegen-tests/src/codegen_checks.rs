@@ -461,6 +461,15 @@ fn codegen_fn_ptr_indirect_call() {
 // --- Global initializer tests ---
 
 #[test]
+fn codegen_global_string_init() {
+    let src = r#"static const char msg[] = "hello"; int main(void) { return msg[0]; }"#;
+    let output = compile(src);
+    assert!(output.contains("_msg:"), "msg label should be generated");
+    assert!(output.contains("104"), "should contain 'h' (104)");
+    assert!(output.contains("111"), "should contain 'o' (111)");
+}
+
+#[test]
 fn codegen_global_int_init_list() {
     let src = "int msg[] = {72, 105, 0}; int main(void) { return msg[0]; }";
     let output = compile(src);
@@ -473,6 +482,33 @@ fn codegen_global_int_init_list() {
         output.contains(".word   105"),
         "should contain initializer value 105"
     );
+}
+
+#[test]
+fn codegen_global_char_init_list() {
+    let src = "char msg[] = {65, 66, 0}; int main(void) { return msg[0]; }";
+    let output = compile(src);
+    assert!(output.contains("_msg:"), "msg label should be generated");
+    assert!(
+        output.contains(".byte   65"),
+        "should contain initializer byte 65"
+    );
+}
+
+#[test]
+fn codegen_global_init_list_zero_padding() {
+    let src = "int arr[5] = {10, 20}; int main(void) { return arr[0]; }";
+    let output = compile(src);
+    assert!(output.contains(".word   10"), "should contain first value");
+    assert!(output.contains(".word   20"), "should contain second value");
+    let arr_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_arr:"))
+        .take_while(|l| !l.starts_with('_') || l.contains("_arr:"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let word_count = arr_section.matches(".word").count();
+    assert_eq!(word_count, 5, "should emit 5 words (2 init + 3 zero-pad)");
 }
 
 // --- Postfix ++/-- on struct members and array elements ---

@@ -16,3 +16,5 @@ mod tests_fnptr;
 mod tests_types;
 #[cfg(test)]
 mod tests_postfix;
+#[cfg(test)]
+mod tests_globals;
