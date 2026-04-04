@@ -196,3 +196,53 @@ Each unlocks 1 chibicc test.
 | tls | `<pthread.h>` — OS threading |
 | varargs | `<stdarg.h>` — ABI-level variadic support |
 | unicode | UTF-8 identifiers — low priority for embedded |
+
+---
+
+## Phase 7: Bug Fixes and Parser Hardening
+
+Addresses open GH issues not covered by the feature phases above.
+
+### Step 7.1: Fix statement expression state corruption (GH #18)
+- Multiple GCC statement expressions `({ ... })` in the same function
+  corrupt codegen state (wrong stack offsets, variable lookups)
+- Likely cause: StmtExpr codegen does not properly save/restore scope state
+- Blocks: all chibicc tests using ASSERT macros with statement expressions
+
+### Step 7.2: Support parenthesized declarators (GH #17)
+- `char (*x)[3]` — pointer to array
+- `char (x)[3]` — parenthesized declarator (equivalent to `char x[3]`)
+- `char (x[3])[4]` — parenthesized array declarator
+- Blocks: chibicc `variable.c` test lines 58-64
+
+### Step 7.3: Fix struct member resolution with multiple types (GH #1)
+- `object_type()` in member.rs resolves against wrong struct type when
+  multiple struct types are defined in the same translation unit
+- Causes panics ("unknown struct member") or wrong offsets via pointer
+- Must track struct type per expression, not globally
+
+### Step 7.4: Verify test progress and update docs
+- Re-run all test suites
+- Close GH issues #7, #8 (already implemented)
+- Update testing-status.md
+
+---
+
+## Issue Coverage Matrix
+
+| GH Issue | Saga Step | Status |
+|----------|-----------|--------|
+| #1 struct member resolution | 022 | Pending |
+| #3 goto/labels | 005 | Done |
+| #4 empty for clauses | 004 | Done |
+| #5 compound literals | 012 | In progress |
+| #6 nested initializers | 013 | Pending |
+| #7 _Noreturn/restrict | 006 | Done (close) |
+| #8 inline specifier | 007 | Done (close) |
+| #12 struct bitfields | 016 | Pending |
+| #13 inline assembly | 014 | Pending |
+| #14 wide/unicode strings | 015 | Pending |
+| #15 __builtin_types_compatible_p | 017 | Pending |
+| #16 preprocessor crash | 018 | Pending |
+| #17 parenthesized declarators | 021 | Pending |
+| #18 stmt expression state | 020 | Pending |

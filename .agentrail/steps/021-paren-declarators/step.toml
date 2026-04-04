@@ -1,0 +1,8 @@
+number = 21
+slug = "paren-declarators"
+status = "pending"
+description = 'Support parenthesized declarators in variable declarations: char (*x)[3] (pointer to array), char (x)[3] (parenthesized declarator), char (x[3])[4]. These appear in chibicc variable.c test. Parser must handle nested parens, brackets, and stars in declarator position. GH #17.'
+role = "production"
+context_files = ["components/frontend/crates/tc24r-parser/src/stmt.rs", "components/frontend/crates/tc24r-parser/src/decl.rs"]
+created_at = "2026-04-03T20:00:00"
+task_type = "rust-clippy-fix"

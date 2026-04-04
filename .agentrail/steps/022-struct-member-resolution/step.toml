@@ -1,0 +1,8 @@
+number = 22
+slug = "struct-member-resolution"
+status = "pending"
+description = 'Fix: struct member resolution uses wrong type when multiple struct types are defined. object_type in member.rs resolves against a single "current" type instead of the expression actual type, causing panics (unknown member) or wrong offsets. GH #1.'
+role = "production"
+context_files = ["components/codegen-expr/crates/tc24r-expr-struct/src/member.rs"]
+created_at = "2026-04-03T20:00:00"
+task_type = "rust-clippy-fix"
