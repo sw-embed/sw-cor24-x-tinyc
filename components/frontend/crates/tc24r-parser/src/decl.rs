@@ -107,24 +107,40 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
         // is_global_decl / parse_function.
         if matches!(ts.peek().kind, TokenKind::Struct | TokenKind::Union) {
             if is_struct_def_or_var(ts) {
-                parse_type(ts)?; // registers the struct in ts.struct_types
+                let parsed_ty = parse_type(ts)?; // registers the struct in ts.struct_types
                 if ts.eat(TokenKind::Semicolon) {
                     continue; // standalone definition: struct tag { ... };
                 }
                 let name = ts.expect_ident()?;
-                let mut ty = ts
-                    .struct_types
-                    .values()
-                    .last()
-                    .cloned()
-                    .unwrap_or(Type::Int);
-                // Handle array suffixes: struct symbol symtab[8];
+                let mut ty = parsed_ty;
+                // Handle array suffixes: struct symbol symtab[8][4];
+                let mut dims = Vec::new();
                 while ts.eat(TokenKind::LBracket) {
                     let size = parse_const_array_size(ts)?;
                     ts.expect(TokenKind::RBracket)?;
+                    dims.push(size);
+                }
+                for &size in dims.iter().rev() {
                     ty = Type::Array(Box::new(ty), size);
                 }
-                let init = None;
+                // Optional initializer: struct s x = { ... };
+                let init = if ts.eat(TokenKind::Assign) {
+                    if ts.check(&TokenKind::LBrace) {
+                        ts.expect(TokenKind::LBrace)?;
+                        let mut stores = Vec::new();
+                        let max_top_idx = crate::stmt::init_braced(ts, &ty, 0, &mut stores)?;
+                        ts.expect(TokenKind::RBrace)?;
+                        // Infer size for implicit-size arrays
+                        if let Type::Array(elem, 0) = &ty {
+                            ty = Type::Array(elem.clone(), max_top_idx);
+                        }
+                        Some(Expr::InitList(flatten_stores_to_init(&ty, &stores)))
+                    } else {
+                        Some(crate::expr::parse_expr(ts)?)
+                    }
+                } else {
+                    None
+                };
                 ts.expect(TokenKind::Semicolon)?;
                 globals.push(GlobalDecl { name, ty, init });
                 continue;
@@ -258,39 +274,34 @@ fn parse_one_global(ts: &mut TokenStream, base_ty: Type) -> Result<GlobalDecl, C
     }
     let name = ts.expect_ident()?;
     let mut implicit_size = false;
+    let mut dims = Vec::new();
     while ts.eat(TokenKind::LBracket) {
         if ts.check(&TokenKind::RBracket) {
             ts.expect(TokenKind::RBracket)?;
-            ty = Type::Array(Box::new(ty), 0);
+            dims.push(0usize);
             implicit_size = true;
         } else {
             let size = parse_const_array_size(ts)?;
             ts.expect(TokenKind::RBracket)?;
-            ty = Type::Array(Box::new(ty), size);
+            dims.push(size);
         }
+    }
+    for &size in dims.iter().rev() {
+        ty = Type::Array(Box::new(ty), size);
     }
     let init = if ts.eat(TokenKind::Assign) {
         if ts.check(&TokenKind::LBrace) {
             ts.expect(TokenKind::LBrace)?;
-            let mut values = Vec::new();
-            if !ts.check(&TokenKind::RBrace) {
-                loop {
-                    values.push(crate::expr::parse_assign(ts)?);
-                    if !ts.eat(TokenKind::Comma) {
-                        break;
-                    }
-                    if ts.check(&TokenKind::RBrace) {
-                        break;
-                    }
-                }
-            }
+            let mut stores = Vec::new();
+            let max_top_idx = crate::stmt::init_braced(ts, &ty, 0, &mut stores)?;
             ts.expect(TokenKind::RBrace)?;
             if implicit_size {
                 if let Type::Array(elem, 0) = &ty {
-                    ty = Type::Array(elem.clone(), values.len());
+                    ty = Type::Array(elem.clone(), max_top_idx);
                 }
             }
-            Some(Expr::InitList(values))
+            // Flatten stores into a positioned init list for the data emitter
+            Some(Expr::InitList(flatten_stores_to_init(&ty, &stores)))
         } else {
             let expr = crate::expr::parse_expr(ts)?;
             if implicit_size {
@@ -306,6 +317,47 @@ fn parse_one_global(ts: &mut TokenStream, base_ty: Type) -> Result<GlobalDecl, C
         None
     };
     Ok(GlobalDecl { name, ty, init })
+}
+
+/// Flatten positioned stores into a leaf-ordered InitList for global data emission.
+/// Produces one Expr per leaf element in type traversal order.
+fn flatten_stores_to_init(ty: &Type, stores: &[(i32, Type, Expr)]) -> Vec<Expr> {
+    let leaves = enumerate_global_leaves(ty, 0);
+    let mut values: Vec<Option<Expr>> = (0..leaves.len()).map(|_| None).collect();
+    for (off, _elem_ty, val) in stores {
+        // Find the leaf slot matching this offset
+        if let Some(idx) = leaves.iter().position(|(_, leaf_off)| *leaf_off == *off) {
+            values[idx] = Some(val.clone());
+        }
+    }
+    values
+        .into_iter()
+        .map(|v| v.unwrap_or(Expr::IntLit(0)))
+        .collect()
+}
+
+/// Enumerate all leaf elements of a type with byte offsets (for globals).
+fn enumerate_global_leaves(ty: &Type, base: i32) -> Vec<(Type, i32)> {
+    let mut leaves = Vec::new();
+    collect_leaves(ty, base, &mut leaves);
+    leaves
+}
+
+fn collect_leaves(ty: &Type, base: i32, leaves: &mut Vec<(Type, i32)>) {
+    match ty {
+        Type::Array(elem, count) => {
+            let elem_size = elem.size();
+            for i in 0..*count {
+                collect_leaves(elem, base + (i as i32) * elem_size, leaves);
+            }
+        }
+        Type::Struct { members, .. } => {
+            for m in members {
+                collect_leaves(&m.ty, base + m.offset, leaves);
+            }
+        }
+        _ => leaves.push((ty.clone(), base)),
+    }
 }
 
 /// Parse a global function pointer: (*name)(params) or (*name[N])(params)

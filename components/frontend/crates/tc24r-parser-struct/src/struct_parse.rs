@@ -122,6 +122,12 @@ fn parse_members(
 /// Parse optional array suffix on a struct member: char a[3];
 fn parse_member_array(ts: &mut TokenStream, mut ty: Type) -> Result<Type, CompileError> {
     while ts.eat(TokenKind::LBracket) {
+        // Flexible array member: char b[];
+        if ts.check(&TokenKind::RBracket) {
+            ts.expect(TokenKind::RBracket)?;
+            ty = Type::Array(Box::new(ty), 0);
+            continue;
+        }
         let TokenKind::IntLit(size) = ts.peek().kind else {
             return Err(CompileError::new(
                 "expected array size in struct member",

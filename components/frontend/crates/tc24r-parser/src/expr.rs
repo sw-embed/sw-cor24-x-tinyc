@@ -318,84 +318,43 @@ static COMPLIT_COUNTER: std::sync::atomic::AtomicUsize = std::sync::atomic::Atom
 /// Desugars to a statement expression that allocates a temp, initializes it,
 /// and evaluates to the temp's value (or address for arrays).
 fn parse_compound_literal(ts: &mut TokenStream, ty: Type) -> Result<Expr, CompileError> {
+    use crate::stmt::{init_braced, make_byte_store, zero_fill_stmts};
+
     let id = COMPLIT_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     let tmp_name = format!("__complit_{id}");
 
     ts.expect(TokenKind::LBrace)?;
-    let mut values = Vec::new();
-    if !ts.check(&TokenKind::RBrace) {
-        loop {
-            values.push(parse_assign(ts)?);
-            if !ts.eat(TokenKind::Comma) {
-                break;
-            }
-            if ts.check(&TokenKind::RBrace) {
-                break;
-            }
-        }
-    }
+    let mut stores = Vec::new();
+    let max_top_idx = init_braced(ts, &ty, 0, &mut stores)?;
     ts.expect(TokenKind::RBrace)?;
 
-    let mut stmts = Vec::new();
+    // Infer array size
+    let actual_ty = if let Type::Array(elem, 0) = &ty {
+        Type::Array(elem.clone(), max_top_idx)
+    } else {
+        ty.clone()
+    };
 
-    match &ty {
-        Type::Array(elem, size) => {
-            // Infer size from initializer count if empty brackets
-            let actual_size = if *size == 0 { values.len() } else { *size };
-            let actual_ty = Type::Array(elem.clone(), actual_size);
-            stmts.push(Stmt::LocalDecl {
-                name: tmp_name.clone(),
-                ty: actual_ty,
-                init: None,
-            });
-            // Initialize each element: tmp[i] = values[i]
-            for (i, val) in values.into_iter().enumerate() {
-                stmts.push(Stmt::Expr(Expr::DerefAssign {
-                    ptr: Box::new(Expr::BinOp {
-                        op: BinOp::Add,
-                        lhs: Box::new(Expr::Ident(tmp_name.clone())),
-                        rhs: Box::new(Expr::IntLit(i as i32)),
-                    }),
-                    value: Box::new(val),
-                }));
-            }
-            // Array compound literal evaluates to address (decays to pointer)
-            stmts.push(Stmt::Expr(Expr::Ident(tmp_name)));
-        }
-        Type::Struct { members, .. } => {
-            stmts.push(Stmt::LocalDecl {
-                name: tmp_name.clone(),
-                ty: ty.clone(),
-                init: None,
-            });
-            // Initialize each member
-            for (i, val) in values.into_iter().enumerate() {
-                if let Some(member) = members.get(i) {
-                    stmts.push(Stmt::Expr(Expr::MemberAssign {
-                        object: Box::new(Expr::Ident(tmp_name.clone())),
-                        member: member.name.clone(),
-                        value: Box::new(val),
-                    }));
-                }
-            }
-            // Struct compound literal evaluates to address
+    let total_size = actual_ty.size();
+    let mut stmts = vec![Stmt::LocalDecl {
+        name: tmp_name.clone(),
+        ty: actual_ty.clone(),
+        init: None,
+    }];
+
+    // Zero-fill + apply init stores
+    stmts.extend(zero_fill_stmts(&tmp_name, total_size));
+    for (off, elem_ty, val) in stores {
+        stmts.push(make_byte_store(&tmp_name, off, &elem_ty, val));
+    }
+
+    // Result expression: arrays decay to pointer, structs return address
+    match &actual_ty {
+        Type::Array(..) => stmts.push(Stmt::Expr(Expr::Ident(tmp_name))),
+        Type::Struct { .. } => {
             stmts.push(Stmt::Expr(Expr::AddrOf(Box::new(Expr::Ident(tmp_name)))));
         }
-        _ => {
-            // Scalar compound literal: (int){42}
-            stmts.push(Stmt::LocalDecl {
-                name: tmp_name.clone(),
-                ty: ty.clone(),
-                init: None,
-            });
-            if let Some(val) = values.into_iter().next() {
-                stmts.push(Stmt::Expr(Expr::Assign {
-                    name: tmp_name.clone(),
-                    value: Box::new(val),
-                }));
-            }
-            stmts.push(Stmt::Expr(Expr::Ident(tmp_name)));
-        }
+        _ => stmts.push(Stmt::Expr(Expr::Ident(tmp_name))),
     }
 
     Ok(Expr::StmtExpr(Block { stmts }))

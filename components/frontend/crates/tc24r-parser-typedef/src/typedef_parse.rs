@@ -40,7 +40,7 @@ fn parse_fn_ptr_typedef(ts: &mut TokenStream, return_ty: Type) -> Result<Stmt, C
     ts.expect(TokenKind::Star)?; // *
     let alias = ts.expect_ident()?;
     ts.expect(TokenKind::RParen)?; // )
-    // Consume parameter list
+                                   // Consume parameter list
     ts.expect(TokenKind::LParen)?;
     skip_fn_ptr_params(ts)?;
     ts.expect(TokenKind::RParen)?;
@@ -84,6 +84,11 @@ fn parse_pointer_and_array(ts: &mut TokenStream, base: Type) -> Result<Type, Com
 fn parse_array_suffix(ts: &mut TokenStream, ty: Type) -> Result<Type, CompileError> {
     if !ts.eat(TokenKind::LBracket) {
         return Ok(ty);
+    }
+    // Empty brackets: typedef char T[] — size inferred from initializer
+    if ts.check(&TokenKind::RBracket) {
+        ts.expect(TokenKind::RBracket)?;
+        return Ok(Type::Array(Box::new(ty), 0));
     }
     let TokenKind::IntLit(size) = ts.peek().kind else {
         return Err(CompileError::new(

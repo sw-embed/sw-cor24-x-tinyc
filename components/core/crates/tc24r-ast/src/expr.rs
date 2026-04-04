@@ -1,7 +1,7 @@
 //! Expression AST nodes.
 
 /// An expression node.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     IntLit(i32),
     StringLit(String),

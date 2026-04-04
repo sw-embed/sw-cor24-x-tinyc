@@ -1,6 +1,6 @@
 # Testing Status
 
-Last updated: 2026-04-03
+Last updated: 2026-04-04
 
 ## Summary
 
@@ -229,6 +229,16 @@ Run: `scripts/run-chibicc-tests.sh`
 - Commutative pointer+int arithmetic (int+ptr scales correctly)
 - Local variable re-allocation for larger same-named types across stmt exprs
 - Array-to-pointer decay in deref type inference (multidim array indexing)
+- Compound literal codegen: `(type){init}` emits temp address, not value
+- Multi-dimensional array dimension order fix (`int a[2][3]` → `Array(Array(Int,3),2)`)
+- Nested brace initializers: `{{1,2},{3,4}}` for 2D arrays and struct arrays
+- Designated initializers: `.field=val`, `[idx]=val`, chained `.a.b=val`
+- Range designators: `[2 ... 10]='a'` (GCC extension)
+- Flat initializer fill for nested types (auto-distribute across sub-objects)
+- Empty initializers `{}` (zero-fill)
+- Flexible array members in structs (`char b[]`)
+- Global struct/union variable initializers with nested braces
+- Type-aware global data emission (struct member sizes, byte/word layout)
 
 ## beej-c-guide Examples (6/11)
 

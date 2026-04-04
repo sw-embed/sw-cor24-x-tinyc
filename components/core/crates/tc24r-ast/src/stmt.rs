@@ -4,20 +4,20 @@ use crate::expr::Expr;
 use crate::types::Type;
 
 /// A brace-delimited block of statements.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Block {
     pub stmts: Vec<Stmt>,
 }
 
 /// A single case arm in a switch statement.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SwitchCase {
     pub value: Expr,
     pub stmts: Vec<Stmt>,
 }
 
 /// A single statement.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Stmt {
     Return(Expr),
     Expr(Expr),
