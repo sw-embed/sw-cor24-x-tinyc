@@ -132,3 +132,31 @@ fn cor24_addr_of_passed_to_func() {
          int main() { struct s a; a.x = 33; return get(&a); }",
     );
 }
+
+#[test]
+fn cor24_struct_member_array_write() {
+    assert_assembles_cor24(
+        "struct_member_array_write",
+        "struct S { int mode; char cmd[8]; }; \
+         int main() { struct S e; e.cmd[0] = 65; e.cmd[1] = 66; return e.cmd[0] + e.cmd[1]; }",
+    );
+}
+
+#[test]
+fn cor24_struct_member_array_read() {
+    assert_assembles_cor24(
+        "struct_member_array_read",
+        "struct S { int mode; char cmd[8]; }; \
+         int read(struct S *p) { return p->cmd[0]; } \
+         int main() { struct S e; e.cmd[0] = 42; return read(&e); }",
+    );
+}
+
+#[test]
+fn cor24_struct_member_int_array() {
+    assert_assembles_cor24(
+        "struct_member_int_array",
+        "struct S { int vals[4]; }; \
+         int main() { struct S e; e.vals[0] = 10; e.vals[1] = 20; return e.vals[0] + e.vals[1]; }",
+    );
+}

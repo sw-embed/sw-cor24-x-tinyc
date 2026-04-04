@@ -624,3 +624,64 @@ fn codegen_addr_of_arrow_member() {
     assert!(output.contains("_foo:"), "foo should be generated");
     assert!(output.contains("_main:"), "main should be generated");
 }
+
+#[test]
+fn codegen_struct_member_array_write_no_deref() {
+    // BUG-003: e.cmd[0] = val must NOT load array contents as pointer.
+    // The address of cmd should be computed, then val stored directly.
+    let src = r#"
+        struct S { int mode; char cmd[8]; };
+        int main() { struct S e; e.cmd[0] = 65; return e.cmd[0]; }
+    "#;
+    let output = compile(src);
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| l.contains("_main:") || !l.starts_with('_'))
+        .collect::<Vec<_>>()
+        .join("\n");
+    // Should use sb (byte store), not sw (word store) for char array member
+    assert!(
+        main_section.contains("sb"),
+        "char array member write should use sb"
+    );
+    // Should NOT load-then-deref (the bug pattern): address + lw + add + sw
+    // Instead: address + add + sb
+    let lines: Vec<&str> = main_section.lines().collect();
+    let has_bad_pattern = lines
+        .windows(3)
+        .any(|w| w[0].contains("add     r0,fp") && w[1].contains("lw      r0,0(r0)"));
+    assert!(
+        !has_bad_pattern,
+        "struct member array access should NOT load array contents as pointer, got:\n{main_section}"
+    );
+}
+
+#[test]
+fn codegen_struct_member_int_array_write() {
+    let src = r#"
+        struct S { int vals[4]; };
+        int main() { struct S e; e.vals[0] = 10; e.vals[1] = 20; return e.vals[0] + e.vals[1]; }
+    "#;
+    let output = compile(src);
+    assert!(output.contains("_main:"), "main should be generated");
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| l.contains("_main:") || !l.starts_with('_'))
+        .collect::<Vec<_>>()
+        .join("\n");
+    // Should use sw (word store) for int array member
+    assert!(
+        main_section.contains("sw"),
+        "int array member write should use sw"
+    );
+    let lines: Vec<&str> = main_section.lines().collect();
+    let has_bad_pattern = lines
+        .windows(3)
+        .any(|w| w[0].contains("add     r0,fp") && w[1].contains("lw      r0,0(r0)"));
+    assert!(
+        !has_bad_pattern,
+        "struct member array access should NOT load array contents as pointer, got:\n{main_section}"
+    );
+}

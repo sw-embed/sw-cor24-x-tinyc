@@ -9,15 +9,19 @@ use tc24r_emit_macros::emit;
 pub type GenExprFn = fn(&Expr, &mut CodegenState);
 
 /// Load struct member `object.member` into r0.
+/// If the member is an array type, returns the address (array-to-pointer decay).
 pub fn gen_member_access(
     state: &mut CodegenState,
     object: &Expr,
     member: &str,
     gen_expr_fn: GenExprFn,
 ) {
-    let (mem_offset, is_char) = member_info(state, object, member);
+    let (mem_offset, member_ty) = member_info_with_ty(state, object, member);
     emit_member_addr(state, object, mem_offset, gen_expr_fn);
-    if is_char {
+    if matches!(member_ty, Type::Array(_, _)) {
+        return;
+    }
+    if member_ty == Type::Char || member_ty == Type::UnsignedChar {
         emit!(state, "        lbu     r0,0(r0)");
     } else {
         emit!(state, "        lw      r0,0(r0)");
@@ -121,13 +125,20 @@ fn emit_member_addr(
     }
 }
 
-/// Get member offset and whether it's a char type.
-fn member_info(state: &CodegenState, object: &Expr, member: &str) -> (i32, bool) {
+/// Get member offset, char flag, and full member type.
+fn member_info_with_ty(state: &CodegenState, object: &Expr, member: &str) -> (i32, Type) {
     let ty = object_type(state, object);
     let m = ty
         .find_member(member)
         .unwrap_or_else(|| panic!("unknown struct member '{member}' in type {ty:?}"));
-    (m.offset, m.ty == Type::Char || m.ty == Type::UnsignedChar)
+    let is_char = m.ty == Type::Char || m.ty == Type::UnsignedChar;
+    (m.offset, if is_char { m.ty.clone() } else { m.ty.clone() })
+}
+
+/// Get member offset and whether it's a char type.
+fn member_info(state: &CodegenState, object: &Expr, member: &str) -> (i32, bool) {
+    let (offset, ty) = member_info_with_ty(state, object, member);
+    (offset, ty == Type::Char || ty == Type::UnsignedChar)
 }
 
 /// Determine the struct type of the object expression.

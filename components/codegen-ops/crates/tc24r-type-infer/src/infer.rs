@@ -56,6 +56,17 @@ pub fn expr_type(state: &CodegenState, expr: &Expr) -> Option<Type> {
             }
         }
         Expr::SizeofExpr(_) => Some(Type::Int),
+        Expr::MemberAccess { object, member } => {
+            let obj_ty = expr_type(state, object)?;
+            if let Some(m) = obj_ty.find_member(member) {
+                match &m.ty {
+                    Type::Array(elem, _) => Some(Type::Ptr(elem.clone())),
+                    other => Some(other.clone()),
+                }
+            } else {
+                None
+            }
+        }
         _ => None,
     }
 }

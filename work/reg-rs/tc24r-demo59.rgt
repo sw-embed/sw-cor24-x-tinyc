@@ -1,0 +1,4 @@
+command = "bash demos/run-demo59.sh"
+exit_code = 0
+desc = "Demo 59: struct member array element write/read (BUG-003 fix)"
+expects = "r0=59, CPU halted, D59OK"
