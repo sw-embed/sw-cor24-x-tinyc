@@ -1,4 +1,4 @@
-use tc24r_ast::Expr;
+use tc24r_ast::{Expr, Stmt};
 use tc24r_codegen_state::CodegenState;
 use tc24r_emit_core::{emit_bra, emit_brt, new_label};
 use tc24r_emit_macros::emit;
@@ -29,6 +29,14 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
             }
             Expr::Deref(ptr) => {
                 gen_expr(ptr, state);
+            }
+            Expr::StmtExpr(block) => {
+                for s in &block.stmts {
+                    gen_stmt(s, state);
+                }
+                if let Some(Stmt::LocalDecl { name, .. }) = block.stmts.first() {
+                    tc24r_expr_variable::gen_addr_of(state, name);
+                }
             }
             _ => {
                 gen_expr(operand, state);

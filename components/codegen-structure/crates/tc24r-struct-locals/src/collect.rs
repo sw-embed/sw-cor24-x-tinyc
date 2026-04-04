@@ -108,7 +108,7 @@ fn scan_expr_locals(state: &mut CodegenState, expr: &Expr) {
             scan_expr_locals(state, ptr);
             scan_expr_locals(state, value);
         }
-        Expr::Deref(inner) | Expr::Cast { expr: inner, .. } => {
+        Expr::Deref(inner) | Expr::Cast { expr: inner, .. } | Expr::AddrOf(inner) => {
             scan_expr_locals(state, inner);
         }
         Expr::Call { args, .. } => {
@@ -126,6 +126,15 @@ fn scan_expr_locals(state: &mut CodegenState, expr: &Expr) {
         Expr::MemberAssign { object, value, .. } => {
             scan_expr_locals(state, object);
             scan_expr_locals(state, value);
+        }
+        Expr::PreInc(operand)
+        | Expr::PreDec(operand)
+        | Expr::PostInc(operand)
+        | Expr::PostDec(operand) => scan_expr_locals(state, operand),
+        Expr::InitList(values) => {
+            for v in values {
+                scan_expr_locals(state, v);
+            }
         }
         Expr::Ternary {
             cond,

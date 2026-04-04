@@ -9,12 +9,14 @@ pub(crate) fn parse_source(src: &str) -> tc24r_ast::Program {
 #[cfg(test)]
 mod tests_basic;
 #[cfg(test)]
+mod tests_compound_literal;
+#[cfg(test)]
 mod tests_enum;
 #[cfg(test)]
 mod tests_fnptr;
 #[cfg(test)]
-mod tests_types;
+mod tests_globals;
 #[cfg(test)]
 mod tests_postfix;
 #[cfg(test)]
-mod tests_globals;
+mod tests_types;

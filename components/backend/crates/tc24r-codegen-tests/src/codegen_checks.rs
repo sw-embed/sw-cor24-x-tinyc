@@ -685,3 +685,52 @@ fn codegen_struct_member_int_array_write() {
         "struct member array access should NOT load array contents as pointer, got:\n{main_section}"
     );
 }
+
+// --- Compound literal tests ---
+
+#[test]
+fn codegen_compound_literal_scalar() {
+    let src = "int main() { int x = (int){42}; return x; }";
+    let output = compile(src);
+    assert!(output.contains("_main:"), "main should be generated");
+    assert!(
+        output.contains("lc      r0,42"),
+        "should load 42 as compound literal init"
+    );
+}
+
+#[test]
+fn codegen_compound_literal_addr_of() {
+    let src = "int main() { int *p = &(int){42}; return *p; }";
+    let output = compile(src);
+    assert!(output.contains("_main:"), "main should be generated");
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| l.contains("_main:") || !l.starts_with('_'))
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(
+        main_section.contains("add     r0,fp"),
+        "addr-of compound literal should compute address via add r0,fp, got:\n{main_section}"
+    );
+}
+
+#[test]
+fn codegen_compound_literal_array() {
+    let src = "int main() { int *p = (int[]){10, 20, 30}; return p[1]; }";
+    let output = compile(src);
+    assert!(output.contains("_main:"), "main should be generated");
+    assert!(output.contains("sw"), "should store array elements");
+}
+
+#[test]
+fn codegen_compound_literal_struct() {
+    let src = r#"
+        struct S { int x; int y; };
+        int main() { struct S *p = &(struct S){3, 4}; return p->x + p->y; }
+    "#;
+    let output = compile(src);
+    assert!(output.contains("_main:"), "main should be generated");
+    assert!(output.contains("sw"), "should store struct members");
+}

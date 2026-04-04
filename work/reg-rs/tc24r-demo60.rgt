@@ -1,0 +1,5 @@
+command = "bash demos/run-demo60.sh"
+exit_code = 0
+desc = "Demo 60: compound literals (scalar, addr-of, array, struct)"
+expects = "r0=60, CPU halted, D60"
+

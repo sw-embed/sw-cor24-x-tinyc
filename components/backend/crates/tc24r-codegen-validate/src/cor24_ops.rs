@@ -121,3 +121,43 @@ fn cor24_predec_plain() {
         "int main() { int i = 5; int j = --i; return j; }",
     );
 }
+
+#[test]
+fn cor24_compound_literal_scalar() {
+    assert_assembles_cor24(
+        "compound_literal_scalar",
+        "int main() { int x = (int){42}; return x; }",
+    );
+}
+
+#[test]
+fn cor24_compound_literal_addr_of() {
+    assert_assembles_cor24(
+        "compound_literal_addr_of",
+        "int main() { int *p = &(int){42}; return *p; }",
+    );
+}
+
+#[test]
+fn cor24_compound_literal_write_through_ptr() {
+    assert_assembles_cor24(
+        "compound_literal_write",
+        "int main() { int *p = &(int){42}; *p = 99; return *p; }",
+    );
+}
+
+#[test]
+fn cor24_compound_literal_array() {
+    assert_assembles_cor24(
+        "compound_literal_array",
+        "int main() { int *p = (int[]){10, 20, 30}; return p[0] + p[1] + p[2]; }",
+    );
+}
+
+#[test]
+fn cor24_compound_literal_struct() {
+    assert_assembles_cor24(
+        "compound_literal_struct",
+        "struct S { int x; int y; }; int main() { struct S *p = &(struct S){3, 4}; return p->x + p->y; }",
+    );
+}
