@@ -1,18 +1,18 @@
 === tc24r Demo 13: break/continue ===
-Assembled 350 bytes
+Assembled 383 bytes
 Running (speed: max IPS, time limit: 10s)...
 
-[UART TX @ 1033] 'D'  (0x44)
-[UART TX @ 1033] '1'  (0x31)
-[UART TX @ 1033] '3'  (0x33)
-[UART TX @ 1033] 'O'  (0x4F)
-[UART TX @ 1033] 'K'  (0x4B)
-[UART TX @ 1033] '\n'
+[UART TX @ 1168] 'D'  (0x44)
+[UART TX @ 1168] '1'  (0x31)
+[UART TX @ 1168] '3'  (0x33)
+[UART TX @ 1168] 'O'  (0x4F)
+[UART TX @ 1168] 'K'  (0x4B)
+[UART TX @ 1168] '\n'
 
 UART output: D13OK
 
 
-Executed 1033 instructions
+Executed 1168 instructions
 CPU halted (self-branch detected)
 
 === Registers ===
@@ -24,7 +24,7 @@ CPU halted (self-branch detected)
   sp:  0xFEEC00
 
 === Emulator ===
-  Instructions: 1034
+  Instructions: 1169
   Halted: true
 
 === SRAM 000000-0FFFFF (1 MB) ===
@@ -46,18 +46,20 @@ CPU halted (self-branch detected)
   0000F0: 4D EB 45 05 1B 15 22 4D EB 45 02 7E 7D 29 44 01  |M.E..."M.E.~})D.|
   000100: 00 25 0C 06 45 00 16 14 00 13 05 4D EE 51 EB 01  |.%..E......M.Q..|
   000110: A6 EE 4D EB 45 01 01 A6 EB 13 D3 4D EE 45 09 16  |..M.E......M.E..|
-  000120: 15 02 44 00 A6 FD 4D FD C8 15 0E 29 57 01 00 7D  |..D...M....)W..}|
+  000120: 15 02 44 00 A6 FD 4D FD C8 15 0E 29 78 01 00 7D  |..D...M....)x..}|
   000130: 29 29 00 00 25 0C 03 44 2A 13 02 44 00 13 FE 69  |))..%..D*..D...i|
-  000140: 7A 7B 7C 27 80 7F 7E 65 4D 09 51 0C 19 15 01 9C  |z{|'..~eM.Q.....|
-  000150: 13 F8 69 7A 7B 7C 27 44 31 33 4F 4B 0A 00 00 00  |..iz{|'D13OK....|
-  000160..0FFFFF: 1048224 bytes all zero
+  000140: 7A 7B 7C 27 80 7F 7E 65 4D 09 51 0C 46 00 CB 14  |z{|'..~eM.Q.F...|
+  000150: 07 7E 7D 44 00 7A 9C 7A 46 01 CC 14 04 7D 44 00  |.~}D.z.zF....}D.|
+  000160: 9C 5A 79 7F 19 15 01 9C 13 F8 7B CA 15 03 7D 44  |.Zy.......{...}D|
+  000170: 00 7A 9C 69 7A 7B 7C 27 44 31 33 4F 4B 0A 00 00  |.z.iz{|'D13OK...|
+  000180..0FFFFF: 1048192 bytes all zero
 
 === Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
 
 === EBR FEE000-FEFFFF (8 KB, stack) ===
   FEE000..FEEBBF: 3008 bytes all zero
   FEEBC0: 00 00 00 00 00 00 00 00 00 00 3E 00 00 00 00 00  |..........>.....|
-  FEEBD0: D6 EB FE 0A 00 00 35 01 00 00 00 00 F7 EB FE 5D  |......5........]|
+  FEEBD0: D6 EB FE 0A 00 00 35 01 00 00 00 00 F7 EB FE 7E  |......5........~|
   FEEBE0: 01 00 06 00 00 09 00 00 03 00 00 0A 00 00 19 00  |................|
   FEEBF0: 00 05 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
   FEEC00..FEFFFF: 5120 bytes all zero

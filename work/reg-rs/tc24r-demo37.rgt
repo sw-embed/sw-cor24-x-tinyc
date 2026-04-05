@@ -1,0 +1,2 @@
+command = "bash demos/run-demo37.sh"
+exit_code = 0

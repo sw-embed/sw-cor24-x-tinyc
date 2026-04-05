@@ -1,0 +1,15 @@
+  FAIL: arrays -- 
+  FAIL: file_io -- error: left side of assignment must be a variable or dereference
+  COMPILES: functions
+  COMPILES: hello_world
+  FAIL: memory_management -- error: left side of assignment must be a variable or dereference
+  COMPILES: pointers_arithmetic
+  COMPILES: pointers
+  COMPILES: strings
+  FAIL: structs -- error at offset 3627: expected type, got Ident("float")
+  COMPILES: typedef
+  FAIL: variables_and_statements -- error at offset 5251: expected Semicolon, got Ident("some_float")
+
+=== beej-c-guide compilation results ===
+  Compile: 6 / 11
+  Fail:    5 / 11

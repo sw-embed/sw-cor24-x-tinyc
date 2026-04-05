@@ -1,0 +1,2 @@
+command = "bash scripts/run-chibicc-test.sh compat"
+exit_code = 0

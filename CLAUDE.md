@@ -75,6 +75,13 @@ scripts/run-beej-tests.sh        # beej-c-guide examples (11 tests)
 
 - `../sw-cor24-emulator/isa` — COR24 ISA definitions (path dep from codegen-emit)
 
+## Regression Test Policy
+
+Whenever a feature is added that enables more sample C files to compile,
+add a reg-rs test so that we can detect a regression if a future change
+causes the sample to stop compiling. Use the `.rgt` format in
+`work/reg-rs/` with a matching `.out` baseline.
+
 ## Key Rules
 
 - **Never use `sed` in test scripts or demo scripts.** Use `awk`, `grep`, and `tr` instead. BSD sed (macOS) and GNU sed (Linux) have incompatible extensions (`\s`, `-E` vs `-r`, etc.) that break cross-platform testing.

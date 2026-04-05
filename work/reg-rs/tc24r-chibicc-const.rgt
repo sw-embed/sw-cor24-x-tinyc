@@ -1,0 +1,2 @@
+command = "bash scripts/run-chibicc-test.sh const"
+exit_code = 0

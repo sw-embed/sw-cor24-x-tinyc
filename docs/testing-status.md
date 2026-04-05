@@ -28,7 +28,7 @@ Regenerate: `tools/chart-gen/target/release/chart-gen . docs`
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
 | tc24r demos | 61 | 61 | 100% | End-to-end compiler + emulator |
-| reg-rs regressions | 33 | 33 | 100% | Output stability checks |
+| reg-rs regressions | 81 | 81 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 18 | 41 | 44% | builtin, cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, typeof, usualconv, variable, vla |
 | beej-c-guide | 6 | 11 | 55% | hello_world, functions, pointers, pointers_arithmetic, strings, typedef |

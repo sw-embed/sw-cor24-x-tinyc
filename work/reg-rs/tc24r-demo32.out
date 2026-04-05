@@ -1,0 +1,71 @@
+=== tc24r Demo 32: multi-declarator typedef ===
+Assembled 246 bytes
+Running (speed: max IPS, time limit: 10s)...
+
+[UART TX @ 311] 'D'  (0x44)
+[UART TX @ 311] '3'  (0x33)
+[UART TX @ 311] '2'  (0x32)
+[UART TX @ 311] 'O'  (0x4F)
+[UART TX @ 311] 'K'  (0x4B)
+[UART TX @ 311] '\n'
+
+UART output: D32OK
+
+
+Executed 311 instructions
+CPU halted (self-branch detected)
+
+=== Registers ===
+  PC:  0x000005    C: 1
+  r0:  0x00002A  (      42)
+  r1:  0x000005  (       5)
+  r2:  0x000000  (       0)
+  fp:  0x000000
+  sp:  0xFEEC00
+
+=== Emulator ===
+  Instructions: 312
+  Halted: true
+
+=== SRAM 000000-0FFFFF (1 MB) ===
+  000000: 29 4E 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)N..%....~e)...8|
+  000010: 00 2A 80 00 00 0D C8 15 00 13 EE 29 00 01 FF 5A  |.*.........)...Z|
+  000020: 4D 09 81 00 69 7A 7B 7C 27 80 7F 7E 65 4D 09 38  |M...iz{|'..~eM.8|
+  000030: 00 C8 15 13 4D 09 38 00 7D 29 07 00 00 25 0C 03  |....M.8.})...%..|
+  000040: 4D 09 45 01 01 A6 09 13 E2 69 7A 7B 7C 27 80 7F  |M.E......iz{|'..|
+  000050: 7E 65 0C EB 44 01 A6 FD 44 05 A6 FA 4D FA 45 05  |~e..D...D...M.E.|
+  000060: 16 15 02 44 00 A6 FD 44 EE 58 7D 44 00 45 03 6B  |...D...D.X}D.E.k|
+  000070: 5A 79 01 5A 44 0A A4 00 44 EE 58 7D 44 01 45 03  |Zy.ZD...D.X}D.E.|
+  000080: 6B 5A 79 01 5A 44 14 A4 00 44 EE 58 7D 44 00 45  |kZy.ZD...D.X}D.E|
+  000090: 03 6B 5A 79 01 4A 00 7D 44 EE 58 7D 44 01 45 03  |.kZy.J.}D.X}D.E.|
+  0000A0: 6B 5A 79 01 4A 00 5A 79 01 45 1E 16 15 02 44 00  |kZy.J.Zy.E....D.|
+  0000B0: A6 FD 44 0C 45 0C 16 15 02 44 00 A6 FD 44 00 44  |..D.E....D...D.D|
+  0000C0: FA 58 A6 EB 4D EB 4A 00 45 05 16 15 02 44 00 A6  |.X..M.J.E....D..|
+  0000D0: FD 4D FD C8 15 0E 29 EF 00 00 7D 29 29 00 00 25  |.M....)...}))..%|
+  0000E0: 0C 03 44 2A 13 02 44 00 13 FE 69 7A 7B 7C 27 44  |..D*..D...iz{|'D|
+  0000F0: 33 32 4F 4B 0A 00 00 00 00 00 00 00 00 00 00 00  |32OK............|
+  000100..0FFFFF: 1048320 bytes all zero
+
+=== Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
+
+=== EBR FEE000-FEFFFF (8 KB, stack) ===
+  FEE000..FEEBBF: 3008 bytes all zero
+  FEEBC0: 00 00 00 00 00 00 00 00 00 00 3E 00 00 00 00 00  |..........>.....|
+  FEEBD0: D6 EB FE 0A 00 00 E0 00 00 00 00 00 F7 EB FE F5  |................|
+  FEEBE0: 00 00 F1 EB FE 0A 00 00 14 00 00 00 00 00 00 00  |................|
+  FEEBF0: 00 05 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
+  FEEC00..FEFFFF: 5120 bytes all zero
+
+=== I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
+  LED D2:  0x01  off
+  BTN S2:  0x01  released
+  FF0010 IntEn:  0x00  UART RX IRQ: disabled
+  FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
+  UART TX log:   "D32OK\n"
+
+=== Validation ===
+  [PASS] CPU halted
+  [PASS] r0 = 42
+  [PASS] UART: D32OK
+
+Demo 32 PASSED

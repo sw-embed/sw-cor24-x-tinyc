@@ -69,19 +69,19 @@ Compiling demo7.c -> demo7.s
 
 Assembling and running on COR24 emulator...
 
-Assembled 397 bytes
+Assembled 435 bytes
 Running (speed: max IPS, time limit: 10s)...
 
-[UART TX @ 417] 'D'  (0x44)
-[UART TX @ 417] '7'  (0x37)
-[UART TX @ 417] 'O'  (0x4F)
-[UART TX @ 417] 'K'  (0x4B)
-[UART TX @ 417] '\n'
+[UART TX @ 428] 'D'  (0x44)
+[UART TX @ 428] '7'  (0x37)
+[UART TX @ 428] 'O'  (0x4F)
+[UART TX @ 428] 'K'  (0x4B)
+[UART TX @ 428] '\n'
 
 UART output: D7OK
 
 
-Executed 417 instructions
+Executed 428 instructions
 CPU halted (self-branch detected)
 
 === Registers ===
@@ -93,7 +93,7 @@ CPU halted (self-branch detected)
   sp:  0xFEEC00
 
 === Emulator ===
-  Instructions: 418
+  Instructions: 429
   Halted: true
 
 === SRAM 000000-0FFFFF (1 MB) ===
@@ -113,23 +113,26 @@ CPU halted (self-branch detected)
   0000D0: 45 14 16 15 02 44 00 A6 FD 44 F4 58 A6 EE 44 F4  |E....D...D.X..D.|
   0000E0: 58 7D 44 03 45 03 6B 5A 79 01 A6 EB 4D EB 51 EE  |X}D.E.kZy...M.Q.|
   0000F0: 9C 7D 44 03 7D 7A 79 7E 7D 29 63 01 00 25 0C 06  |.}D.}zy~})c..%..|
-  000100: 45 03 16 15 02 44 00 A6 FD 29 7B 01 00 7D 29 4E  |E....D...){..})N|
+  000100: 45 03 16 15 02 44 00 A6 FD 29 A1 01 00 7D 29 4E  |E....D...)...})N|
   000110: 00 00 25 0C 03 A6 E8 4D E8 45 05 16 15 02 44 00  |..%....M.E....D.|
-  000120: A6 FD 29 81 01 00 A6 E5 4D E5 45 04 01 A6 E2 4D  |..).....M.E....M|
+  000120: A6 FD 29 A7 01 00 A6 E5 4D E5 45 04 01 A6 E2 4D  |..).....M.E....M|
   000130: E2 45 02 9C A6 E2 4D E2 38 00 45 43 16 15 02 44  |.E....M.8.EC...D|
-  000140: 00 A6 FD 4D FD 45 01 16 14 0E 29 87 01 00 7D 29  |...M.E....)...})|
+  000140: 00 A6 FD 4D FD 45 01 16 14 0E 29 AD 01 00 7D 29  |...M.E....)...})|
   000150: 29 00 00 25 0C 03 44 2A 13 02 44 00 13 FE 69 7A  |)..%..D*..D...iz|
-  000160: 7B 7C 27 80 7F 7E 65 4D 09 51 0C 46 00 19 15 03  |{|'..~eM.Q.F....|
-  000170: 9C 0B 01 13 F6 57 69 7A 7B 7C 27 48 65 6C 6C 6F  |.....Wiz{|'Hello|
-  000180: 00 41 42 43 44 45 00 44 37 4F 4B 0A 00 00 00 00  |.ABCDE.D7OK.....|
-  000190..0FFFFF: 1048176 bytes all zero
+  000160: 7B 7C 27 80 7F 7E 65 4D 09 51 0C 46 00 CB 14 07  |{|'..~eM.Q.F....|
+  000170: 7E 7D 44 00 7A 9C 7A 0B 01 CC 14 06 7D 44 00 9C  |~}D.z.z.....}D..|
+  000180: 5A 79 0B 01 7F 46 00 19 15 03 9C 0B 01 13 F6 57  |Zy...F.........W|
+  000190: 7B 45 01 12 CA 15 03 7D 44 00 7A 9C 69 7A 7B 7C  |{E.....}D.z.iz{||
+  0001A0: 27 48 65 6C 6C 6F 00 41 42 43 44 45 00 44 37 4F  |'Hello.ABCDE.D7O|
+  0001B0: 4B 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00  |K...............|
+  0001C0..0FFFFF: 1048128 bytes all zero
 
 === Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
 
 === EBR FEE000-FEFFFF (8 KB, stack) ===
   FEE000..FEEBBF: 3008 bytes all zero
   FEEBC0: 00 3E 00 00 00 00 00 CD EB FE 0A 00 00 54 01 00  |.>...........T..|
-  FEEBD0: 00 00 00 F7 EB FE 8C 01 00 83 01 00 81 01 00 05  |................|
+  FEEBD0: 00 00 00 F7 EB FE B2 01 00 A9 01 00 A7 01 00 05  |................|
   FEEBE0: 00 00 F4 EB FE EB EB FE EE EB FE 0A 00 00 14 00  |................|
   FEEBF0: 00 1E 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
   FEEC00..FEFFFF: 5120 bytes all zero

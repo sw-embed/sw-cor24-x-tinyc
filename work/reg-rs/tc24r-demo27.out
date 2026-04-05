@@ -1,0 +1,75 @@
+=== tc24r Demo 27: function prototypes ===
+Assembled 290 bytes
+Running (speed: max IPS, time limit: 10s)...
+
+[UART TX @ 650] 'D'  (0x44)
+[UART TX @ 650] '2'  (0x32)
+[UART TX @ 650] '7'  (0x37)
+[UART TX @ 650] 'O'  (0x4F)
+[UART TX @ 650] 'K'  (0x4B)
+[UART TX @ 650] '\n'
+
+UART output: D27OK
+
+
+Executed 650 instructions
+CPU halted (self-branch detected)
+
+=== Registers ===
+  PC:  0x000005    C: 1
+  r0:  0x00002A  (      42)
+  r1:  0x000005  (       5)
+  r2:  0x000000  (       0)
+  fp:  0x000000
+  sp:  0xFEEC00
+
+=== Emulator ===
+  Instructions: 651
+  Halted: true
+
+=== SRAM 000000-0FFFFF (1 MB) ===
+  000000: 29 94 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)...%....~e)...8|
+  000010: 00 2A 80 00 00 0D C8 15 00 13 EE 29 00 01 FF 5A  |.*.........)...Z|
+  000020: 4D 09 81 00 69 7A 7B 7C 27 80 7F 7E 65 4D 09 38  |M...iz{|'..~eM.8|
+  000030: 00 C8 15 13 4D 09 38 00 7D 29 07 00 00 25 0C 03  |....M.8.})...%..|
+  000040: 4D 09 45 01 01 A6 09 13 E2 69 7A 7B 7C 27 80 7F  |M.E......iz{|'..|
+  000050: 7E 65 4D 09 45 00 16 14 02 44 01 13 0D 4D 09 45  |~eM.E....D...M.E|
+  000060: 01 9C 7D 29 71 00 00 25 0C 03 13 FE 69 7A 7B 7C  |..})q..%....iz{||
+  000070: 27 80 7F 7E 65 4D 09 45 00 16 14 02 44 00 13 0D  |'..~eM.E....D...|
+  000080: 4D 09 45 01 9C 7D 29 4E 00 00 25 0C 03 13 FE 69  |M.E..})N..%....i|
+  000090: 7A 7B 7C 27 80 7F 7E 65 0C FD 44 01 A6 FD 44 00  |z{|'..~e..D...D.|
+  0000A0: 7D 29 4E 00 00 25 0C 03 45 01 16 15 02 44 00 A6  |})N..%..E....D..|
+  0000B0: FD 44 04 7D 29 4E 00 00 25 0C 03 45 01 16 15 02  |.D.})N..%..E....|
+  0000C0: 44 00 A6 FD 44 03 7D 29 4E 00 00 25 0C 03 45 00  |D...D.})N..%..E.|
+  0000D0: 16 15 02 44 00 A6 FD 44 03 7D 29 71 00 00 25 0C  |...D...D.})q..%.|
+  0000E0: 03 45 01 16 15 02 44 00 A6 FD 44 04 7D 29 71 00  |.E....D...D.})q.|
+  0000F0: 00 25 0C 03 45 00 16 15 02 44 00 A6 FD 4D FD C8  |.%..E....D...M..|
+  000100: 15 0E 29 1B 01 00 7D 29 29 00 00 25 0C 03 44 2A  |..)...}))..%..D*|
+  000110: 13 02 44 00 13 FE 69 7A 7B 7C 27 44 32 37 4F 4B  |..D...iz{|'D27OK|
+  000120: 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  |................|
+  000130..0FFFFF: 1048272 bytes all zero
+
+=== Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
+
+=== EBR FEE000-FEFFFF (8 KB, stack) ===
+  FEE000..FEEBAF: 2992 bytes all zero
+  FEEBB0: 00 00 00 00 00 00 00 00 68 00 00 00 00 00 C4 EB  |........h.......|
+  FEEBC0: FE 00 00 00 8B 00 00 00 00 00 D0 EB FE 01 00 00  |................|
+  FEEBD0: 68 00 00 00 00 00 DC EB FE 02 00 00 3E 00 00 00  |h...........>...|
+  FEEBE0: 00 00 E8 EB FE 0A 00 00 0C 01 00 00 00 00 F7 EB  |................|
+  FEEBF0: FE 21 01 00 01 00 00 05 00 00 00 00 00 00 00 00  |.!..............|
+  FEEC00..FEFFFF: 5120 bytes all zero
+
+=== I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
+  LED D2:  0x01  off
+  BTN S2:  0x01  released
+  FF0010 IntEn:  0x00  UART RX IRQ: disabled
+  FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
+  UART TX log:   "D27OK\n"
+
+=== Validation ===
+  [PASS] CPU halted
+  [PASS] r0 = 42
+  [PASS] UART: D27OK
+
+Demo 27 PASSED

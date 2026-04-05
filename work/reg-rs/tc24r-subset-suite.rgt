@@ -1,0 +1,2 @@
+command = "bash scripts/run-subset-tests.sh"
+exit_code = 0

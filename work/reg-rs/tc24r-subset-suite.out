@@ -1,0 +1,11 @@
+  PASS: arith
+  PASS: control
+  PASS: function
+  PASS: pointer
+  PASS: variable
+
+=== chibicc-subset test results ===
+  Pass:         5 / 5
+  Fail:         0 / 5
+  Compile fail: 0 / 5
+  Coverage: 100%
