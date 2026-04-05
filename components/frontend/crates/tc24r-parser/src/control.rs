@@ -73,18 +73,61 @@ fn parse_for_init(ts: &mut TokenStream) -> Result<Option<Box<Stmt>>, CompileErro
 }
 
 pub fn parse_asm(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
+    // Accept optional qualifiers: asm inline volatile (...)
+    while matches!(ts.peek().kind, TokenKind::Volatile | TokenKind::Inline) {
+        ts.advance();
+    }
     ts.expect(TokenKind::LParen)?;
-    let TokenKind::StringLit(s) = &ts.peek().kind else {
+    // Parse template: one or more concatenated string literals
+    let TokenKind::StringLit(first) = &ts.peek().kind else {
         return Err(CompileError::new(
             "expected string literal after asm(",
             Some(ts.current_span()),
         ));
     };
-    let s = s.clone();
+    let mut s = first.clone();
     ts.advance();
+    // Concatenate adjacent string literals
+    while let TokenKind::StringLit(next) = &ts.peek().kind {
+        s.push_str(next);
+        ts.advance();
+    }
+    // Skip GCC extended asm operands: asm("tmpl" : outputs : inputs : clobbers)
+    while ts.eat(TokenKind::Colon) {
+        skip_asm_operands(ts);
+    }
     ts.expect(TokenKind::RParen)?;
     ts.expect(TokenKind::Semicolon)?;
     Ok(Stmt::Asm(s))
+}
+
+/// Skip operands in an extended asm constraint section.
+/// Each section contains comma-separated items like `"=r"(var)` or `"r"(expr)`.
+fn skip_asm_operands(ts: &mut TokenStream) {
+    // Stop at `)` (end of asm) or `:` (next section)
+    while !ts.check(&TokenKind::RParen) && !ts.check(&TokenKind::Colon) {
+        // Skip string constraint: "=r", "+m", etc.
+        if matches!(ts.peek().kind, TokenKind::StringLit(_)) {
+            ts.advance();
+        }
+        // Skip parenthesized expression: (var)
+        if ts.eat(TokenKind::LParen) {
+            let mut depth = 1;
+            while depth > 0 {
+                if ts.eat(TokenKind::LParen) {
+                    depth += 1;
+                } else if ts.eat(TokenKind::RParen) {
+                    depth -= 1;
+                } else {
+                    ts.advance();
+                }
+            }
+        }
+        // Skip comma between operands
+        if !ts.eat(TokenKind::Comma) {
+            break;
+        }
+    }
 }
 
 pub fn parse_switch(ts: &mut TokenStream) -> Result<Stmt, CompileError> {

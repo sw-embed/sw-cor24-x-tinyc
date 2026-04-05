@@ -6,7 +6,7 @@ The approach is inspired by [chibicc](https://github.com/rui314/chibicc), a smal
 
 ## Project Status
 
-tc24r is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 14 components, ~50 crates, 55 demos all passing. See [docs/status.md](docs/status.md) for detailed status and test counts.
+tc24r is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 14 components, ~50 crates, 61 demos all passing. See [docs/status.md](docs/status.md) for detailed status and test counts.
 
 ### What Works
 
@@ -115,7 +115,7 @@ cargo run -- run path/to/program.s
 
 | Test Suite | Pass | Total | Notes |
 |-----------|------|-------|-------|
-| tc24r demos | 55 | 55 | End-to-end compiler + emulator |
+| tc24r demos | 61 | 61 | End-to-end compiler + emulator |
 | chibicc-subset | 5 | 5 | Curated subsets of chibicc tests |
 | chibicc full | 14 | 41 | cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, vla |
 | beej-c-guide | 6 | 11 | hello_world, functions, pointers, pointers_arithmetic, strings, typedef |

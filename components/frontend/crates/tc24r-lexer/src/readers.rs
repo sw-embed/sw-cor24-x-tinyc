@@ -263,7 +263,7 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "else" => TokenKind::Else,
         "while" => TokenKind::While,
         "for" => TokenKind::For,
-        "asm" => TokenKind::Asm,
+        "asm" | "__asm__" | "__asm" => TokenKind::Asm,
         "sizeof" => TokenKind::Sizeof,
         "offsetof" => TokenKind::Offsetof,
         "static" => TokenKind::Static,

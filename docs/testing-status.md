@@ -6,7 +6,7 @@ Last updated: 2026-04-04
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| tc24r demos | 55 | 55 | 100% | End-to-end compiler + emulator |
+| tc24r demos | 61 | 61 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 33 | 33 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 14 | 41 | 34% | cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, vla |
@@ -239,6 +239,9 @@ Run: `scripts/run-chibicc-tests.sh`
 - Flexible array members in structs (`char b[]`)
 - Global struct/union variable initializers with nested braces
 - Type-aware global data emission (struct member sizes, byte/word layout)
+- Signed integer division and modulo with negative operands (C99 truncation-toward-zero)
+- Inline assembly: multi-string concatenation, `volatile`/`inline` qualifiers, extended asm operand skipping
+- `__asm__` / `__asm` keyword aliases
 
 ## beej-c-guide Examples (6/11)
 
