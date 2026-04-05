@@ -32,7 +32,8 @@ fn parse_global_init_list_explicit_size() {
     let g = &program.globals[0];
     assert_eq!(g.name, "arr");
     assert!(matches!(&g.ty, Type::Array(elem, 5) if **elem == Type::Int));
-    assert!(matches!(&g.init, Some(Expr::InitList(v)) if v.len() == 3));
+    // InitList now has one entry per leaf element (5 ints, padded with zeros)
+    assert!(matches!(&g.init, Some(Expr::InitList(v)) if v.len() == 5));
 }
 
 #[test]
