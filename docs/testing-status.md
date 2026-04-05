@@ -242,6 +242,11 @@ Run: `scripts/run-chibicc-tests.sh`
 - Signed integer division and modulo with negative operands (C99 truncation-toward-zero)
 - Inline assembly: multi-string concatenation, `volatile`/`inline` qualifiers, extended asm operand skipping
 - `__asm__` / `__asm` keyword aliases
+- Wide/unicode string and char literal prefixes: `L"..."`, `L'x'`, `u"..."`, `U"..."`, `u8"..."`
+- Multi-byte and multi-character char literals (`L'あ'`, `'abcd'`)
+- Octal escape sequences in string and char literals (`\0`, `\101`, `\377`)
+- String literal subscript: `"abc"[1]` (postfix chain on string literals)
+- `register` storage class keyword (accepted and ignored)
 
 ## beej-c-guide Examples (6/11)
 

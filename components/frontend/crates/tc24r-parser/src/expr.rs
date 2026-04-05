@@ -158,7 +158,7 @@ fn parse_primary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
             };
             s.push_str(&next);
         }
-        return Ok(Expr::StringLit(s));
+        return parse_postfix_chain(ts, Expr::StringLit(s));
     }
     if let TokenKind::Ident(_) = &ts.peek().kind {
         return parse_ident_or_call(ts);

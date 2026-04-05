@@ -19,6 +19,29 @@ impl Lexer<'_> {
             return self.read_char_lit(start);
         }
         if ch.is_ascii_alphabetic() || ch == b'_' {
+            // Check for string/char literal prefixes: L"...", L'x', u"...", U"...", u8"..."
+            // Note: self.pos is at ch (the prefix letter), not past it.
+            if matches!(ch, b'L' | b'U')
+                && self.pos + 1 < self.source.len()
+                && matches!(self.source[self.pos + 1], b'"' | b'\'')
+            {
+                self.pos += 1; // advance past prefix to the quote
+                return self.dispatch_literal(start, self.source[self.pos]);
+            }
+            if ch == b'u' && self.pos + 1 < self.source.len() {
+                if matches!(self.source[self.pos + 1], b'"' | b'\'') {
+                    self.pos += 1;
+                    return self.dispatch_literal(start, self.source[self.pos]);
+                }
+                // u8"..." prefix
+                if self.source[self.pos + 1] == b'8'
+                    && self.pos + 2 < self.source.len()
+                    && self.source[self.pos + 2] == b'"'
+                {
+                    self.pos += 2; // skip past 'u8' to the quote
+                    return self.dispatch_literal(start, self.source[self.pos]);
+                }
+            }
             return Ok(self.read_ident(start));
         }
         Err(CompileError::new(
@@ -141,12 +164,29 @@ impl Lexer<'_> {
                 Some(Span::new(start, self.pos - start)),
             ));
         }
-        let escaped = match self.source[self.pos] {
+        let ch = self.source[self.pos];
+        // Octal escape: \0, \012, \377, etc.
+        if ch.is_ascii_digit() && ch < b'8' {
+            let mut val: u8 = ch - b'0';
+            for _ in 0..2 {
+                if self.pos + 1 < self.source.len()
+                    && self.source[self.pos + 1].is_ascii_digit()
+                    && self.source[self.pos + 1] < b'8'
+                {
+                    self.pos += 1;
+                    val = val
+                        .wrapping_mul(8)
+                        .wrapping_add(self.source[self.pos] - b'0');
+                }
+            }
+            value.push(val as char);
+            return Ok(());
+        }
+        let escaped = match ch {
             b'n' => '\n',
             b't' => '\t',
             b'\\' => '\\',
             b'"' => '"',
-            b'0' => '\0',
             b'a' => '\x07',
             b'b' => '\x08',
             b'r' => '\r',
@@ -168,14 +208,11 @@ impl Lexer<'_> {
                     val = val.wrapping_mul(16).wrapping_add(nibble);
                     self.pos += 1;
                 }
-                // pos is now past the hex digits; caller will increment
-                // so we need to back up one
                 self.pos -= 1;
                 value.push(val as char);
                 return Ok(());
             }
-            // Unknown escapes: emit the character literally (C allows
-            // implementation-defined behavior for unknown escape sequences)
+            // Unknown escapes: emit the character literally
             other => other as char,
         };
         value.push(escaped);
@@ -211,29 +248,54 @@ impl Lexer<'_> {
                 Some(Span::new(start, 1)),
             ));
         }
-        let val = if self.source[self.pos] == b'\\' {
+        let val: i32 = if self.source[self.pos] == b'\\' {
             self.pos += 1;
-            match self.source.get(self.pos) {
+            let v = match self.source.get(self.pos) {
                 Some(b'n') => b'\n',
                 Some(b't') => b'\t',
-                Some(b'0') => 0,
                 Some(b'\\') => b'\\',
                 Some(b'\'') => b'\'',
                 Some(b'a') => 7,
                 Some(b'b') => 8,
                 Some(b'r') => b'\r',
+                Some(b'v') => 11,
+                Some(b'f') => 12,
+                Some(b'e') => 27,
                 Some(b'x') => self.read_hex_escape_value(),
-                _ => {
+                Some(d) if d.is_ascii_digit() => {
+                    // Octal escape: \0, \012, \377, etc.
+                    let mut val: u8 = d - b'0';
+                    for _ in 0..2 {
+                        if self.pos + 1 < self.source.len()
+                            && self.source[self.pos + 1].is_ascii_digit()
+                            && self.source[self.pos + 1] < b'8'
+                        {
+                            self.pos += 1;
+                            val = val * 8 + (self.source[self.pos] - b'0');
+                        }
+                    }
+                    val
+                }
+                Some(&other) => other, // Unknown escape: literal char
+                None => {
                     return Err(CompileError::new(
-                        "unknown char escape",
+                        "unterminated char escape",
                         Some(Span::new(start, self.pos - start)),
                     ));
                 }
-            }
+            };
+            self.pos += 1;
+            v as i32
         } else {
-            self.source[self.pos]
+            // Non-escaped: could be multi-byte UTF-8 or multi-char literal
+            // Accumulate all bytes up to closing quote into an integer value
+            let mut v: i32 = 0;
+            while self.pos < self.source.len() && self.source[self.pos] != b'\'' {
+                v = (v << 8) | (self.source[self.pos] as i32);
+                self.pos += 1;
+            }
+            v
         };
-        self.pos += 1; // skip char
         if self.source.get(self.pos) != Some(&b'\'') {
             return Err(CompileError::new(
                 "expected closing '",
@@ -242,7 +304,7 @@ impl Lexer<'_> {
         }
         self.pos += 1; // skip closing '
         Ok(Token {
-            kind: TokenKind::IntLit(val as i32),
+            kind: TokenKind::IntLit(val),
             span: Span::new(start, self.pos - start),
         })
     }
