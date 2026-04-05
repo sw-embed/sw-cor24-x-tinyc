@@ -285,6 +285,7 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "_Noreturn" | "__noreturn__" => TokenKind::Noreturn,
         "volatile" => TokenKind::Volatile,
         "auto" => TokenKind::Auto,
+        "register" => TokenKind::Register,
         _ => TokenKind::Ident(text.to_string()),
     }
 }

@@ -46,5 +46,6 @@ pub fn is_storage_class(kind: &TokenKind) -> bool {
             | TokenKind::Noreturn
             | TokenKind::Volatile
             | TokenKind::Auto
+            | TokenKind::Register
     )
 }

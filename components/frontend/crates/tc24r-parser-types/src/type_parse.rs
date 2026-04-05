@@ -18,6 +18,7 @@ fn consume_qualifiers(ts: &mut TokenStream) -> bool {
             | TokenKind::Noreturn
             | TokenKind::Volatile
             | TokenKind::Auto
+            | TokenKind::Register
     ) {
         ts.advance();
         had = true;

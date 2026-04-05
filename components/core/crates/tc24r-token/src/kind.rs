@@ -38,6 +38,7 @@ pub enum TokenKind {
     Noreturn,
     Volatile,
     Auto,
+    Register,
 
     // Literals
     IntLit(i32),
