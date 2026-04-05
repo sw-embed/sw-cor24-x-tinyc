@@ -47,11 +47,20 @@ fn main() {
 
     let out = PathBuf::from(&output_dir);
 
-    // Chart 1: Test suite pass counts (chibicc, beej, bgc, subset)
-    generate_test_chart(&history, &out.join("chart-test-progress.svg"));
+    // Individual charts per suite
+    generate_suite_chart(&history, &out.join("chart-chibicc.svg"), "chibicc", 41,
+        |c| c.chibicc, "#2196F3");
+    generate_suite_chart(&history, &out.join("chart-beej.svg"), "beej-c-guide", 11,
+        |c| c.beej, "#4CAF50");
+    generate_suite_chart(&history, &out.join("chart-bgc.svg"), "bgc", 117,
+        |c| c.bgc, "#FF9800");
+    generate_count_chart(&history, &out.join("chart-demos.svg"), "Demos",
+        |c| c.demos, "#9C27B0");
+    generate_count_chart(&history, &out.join("chart-subset.svg"), "Subset Tests",
+        |c| c.subset, "#00BCD4");
 
-    // Chart 2: Demos and total tests
-    generate_demo_chart(&history, &out.join("chart-demos.svg"));
+    // Combined overview (pass counts only, no totals)
+    generate_test_chart(&history, &out.join("chart-test-progress.svg"));
 
     eprintln!("Charts written to {output_dir}/");
 }
@@ -142,10 +151,10 @@ fn extract_two_numbers(s: &str) -> (u32, u32) {
 
 // ——— SVG Generation ———
 
-const CHART_W: f64 = 800.0;
+const CHART_W: f64 = 860.0;
 const CHART_H: f64 = 400.0;
 const MARGIN_L: f64 = 60.0;
-const MARGIN_R: f64 = 20.0;
+const MARGIN_R: f64 = 80.0;
 const MARGIN_T: f64 = 40.0;
 const MARGIN_B: f64 = 80.0;
 const PLOT_W: f64 = CHART_W - MARGIN_L - MARGIN_R;
@@ -157,6 +166,99 @@ struct Series<'a> {
     values: Vec<(f64, f64)>, // (x_frac, y_value)
 }
 
+/// Per-suite chart: pass count vs total with a goal line
+fn generate_suite_chart(
+    history: &History,
+    path: &Path,
+    suite_name: &str,
+    total: u32,
+    extract: fn(&Counts) -> u32,
+    color: &str,
+) {
+    let dates: Vec<&String> = history.keys().collect();
+    let n = dates.len();
+    if n == 0 {
+        return;
+    }
+
+    let y_max = (total as f64 / 10.0).ceil() * 10.0;
+    let pass_label: &str = Box::leak(format!("{suite_name} pass").into_boxed_str());
+    let mut series = vec![Series {
+        name: pass_label,
+        color,
+        values: Vec::new(),
+    }];
+
+    for (i, date) in dates.iter().enumerate() {
+        let x = if n > 1 {
+            i as f64 / (n - 1) as f64
+        } else {
+            0.5
+        };
+        series[0].values.push((x, extract(&history[*date]) as f64));
+    }
+
+    let annotations = vec![("total", total as f64, color)];
+    let title = format!("{suite_name} ({} / {total})", extract(history.values().last().unwrap()));
+    let svg = render_svg_with_annotations(
+        &title,
+        &series,
+        y_max,
+        &dates.iter().map(|d| d.as_str()).collect::<Vec<_>>(),
+        &annotations,
+    );
+    write_file(path, &svg);
+}
+
+/// Simple count chart (no total line — count IS the total)
+fn generate_count_chart(
+    history: &History,
+    path: &Path,
+    label: &str,
+    extract: fn(&Counts) -> u32,
+    color: &str,
+) {
+    let dates: Vec<&String> = history.keys().collect();
+    let n = dates.len();
+    if n == 0 {
+        return;
+    }
+
+    let y_max = history
+        .values()
+        .map(|c| extract(c))
+        .max()
+        .unwrap_or(1) as f64;
+    let y_max = (y_max / 10.0).ceil() * 10.0;
+
+    let count_label: &str = Box::leak(format!("{label}").into_boxed_str());
+    let mut series = vec![Series {
+        name: count_label,
+        color,
+        values: Vec::new(),
+    }];
+
+    for (i, date) in dates.iter().enumerate() {
+        let x = if n > 1 {
+            i as f64 / (n - 1) as f64
+        } else {
+            0.5
+        };
+        series[0].values.push((x, extract(&history[*date]) as f64));
+    }
+
+    let title = format!("{label} ({})", extract(history.values().last().unwrap()));
+    let svg = render_svg_with_annotations(
+        &title,
+        &series,
+        y_max,
+        &dates.iter().map(|d| d.as_str()).collect::<Vec<_>>(),
+        &[],
+    );
+    write_file(path, &svg);
+}
+
+/// Chart 1: Pass counts only for chibicc, beej, bgc (no totals — they're flat and dominate scale)
 fn generate_test_chart(history: &History, path: &Path) {
     let dates: Vec<&String> = history.keys().collect();
     let n = dates.len();
@@ -164,43 +266,45 @@ fn generate_test_chart(history: &History, path: &Path) {
         return;
     }
 
-    // Find y-axis max
+    // Y-axis max: highest pass count across all suites
     let y_max = history
         .values()
-        .map(|c| c.chibicc_total.max(c.beej_total).max(c.bgc_total))
+        .map(|c| c.chibicc.max(c.beej).max(c.bgc))
         .max()
         .unwrap_or(1) as f64;
-    let y_max = (y_max / 10.0).ceil() * 10.0; // round up to nearest 10
+    let y_max = (y_max / 10.0).ceil() * 10.0;
 
     let mut series = vec![
         Series { name: "chibicc pass", color: "#2196F3", values: Vec::new() },
-        Series { name: "chibicc total", color: "#90CAF9", values: Vec::new() },
         Series { name: "beej pass", color: "#4CAF50", values: Vec::new() },
-        Series { name: "beej total", color: "#A5D6A7", values: Vec::new() },
         Series { name: "bgc pass", color: "#FF9800", values: Vec::new() },
-        Series { name: "bgc total", color: "#FFCC80", values: Vec::new() },
     ];
 
     for (i, date) in dates.iter().enumerate() {
         let x = if n > 1 { i as f64 / (n - 1) as f64 } else { 0.5 };
         let c = &history[*date];
         series[0].values.push((x, c.chibicc as f64));
-        series[1].values.push((x, c.chibicc_total as f64));
-        series[2].values.push((x, c.beej as f64));
-        series[3].values.push((x, c.beej_total as f64));
-        series[4].values.push((x, c.bgc as f64));
-        series[5].values.push((x, c.bgc_total as f64));
+        series[1].values.push((x, c.beej as f64));
+        series[2].values.push((x, c.bgc as f64));
     }
 
-    let svg = render_svg(
-        "Test Suite Progress",
+    // Add horizontal reference lines for totals (annotated on right edge)
+    let annotations = vec![
+        ("chibicc: 41", 41.0, "#2196F3"),
+        ("beej: 11", 11.0, "#4CAF50"),
+    ];
+
+    let svg = render_svg_with_annotations(
+        "Test Suite Pass Counts",
         &series,
         y_max,
         &dates.iter().map(|d| d.as_str()).collect::<Vec<_>>(),
+        &annotations,
     );
     write_file(path, &svg);
 }
 
+/// Chart 2: Demos and subset tests — growth over time
 fn generate_demo_chart(history: &History, path: &Path) {
     let dates: Vec<&String> = history.keys().collect();
     let n = dates.len();
@@ -208,7 +312,11 @@ fn generate_demo_chart(history: &History, path: &Path) {
         return;
     }
 
-    let y_max = history.values().map(|c| c.demos_total).max().unwrap_or(1) as f64;
+    let y_max = history
+        .values()
+        .map(|c| c.demos.max(c.subset))
+        .max()
+        .unwrap_or(1) as f64;
     let y_max = (y_max / 10.0).ceil() * 10.0;
 
     let mut series = vec![
@@ -223,16 +331,23 @@ fn generate_demo_chart(history: &History, path: &Path) {
         series[1].values.push((x, c.subset as f64));
     }
 
-    let svg = render_svg(
+    let svg = render_svg_with_annotations(
         "Demos & Subset Tests",
         &series,
         y_max,
         &dates.iter().map(|d| d.as_str()).collect::<Vec<_>>(),
+        &[],
     );
     write_file(path, &svg);
 }
 
-fn render_svg(title: &str, series: &[Series], y_max: f64, dates: &[&str]) -> String {
+fn render_svg_with_annotations(
+    title: &str,
+    series: &[Series],
+    y_max: f64,
+    dates: &[&str],
+    annotations: &[(&str, f64, &str)],
+) -> String {
     let mut svg = String::new();
     svg.push_str(&format!(
         r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {CHART_W} {CHART_H}" font-family="sans-serif" font-size="12">"#
@@ -300,14 +415,28 @@ fn render_svg(title: &str, series: &[Series], y_max: f64, dates: &[&str]) -> Str
     ));
     svg.push('\n');
 
+    // Annotation lines (horizontal dashed lines for totals)
+    for (label, val, color) in annotations {
+        let y = MARGIN_T + PLOT_H - (val / y_max * PLOT_H);
+        svg.push_str(&format!(
+            "  <line x1=\"{MARGIN_L}\" y1=\"{y:.1}\" x2=\"{}\" y2=\"{y:.1}\" stroke=\"{color}\" stroke-width=\"1\" stroke-dasharray=\"4,4\" opacity=\"0.5\"/>",
+            MARGIN_L + PLOT_W
+        ));
+        svg.push('\n');
+        svg.push_str(&format!(
+            r#"  <text x="{}" y="{}" font-size="9" fill="{color}" opacity="0.7">{label}</text>"#,
+            MARGIN_L + PLOT_W + 4.0,
+            y + 3.0
+        ));
+        svg.push('\n');
+    }
+
     // Data lines
     for s in series {
         if s.values.is_empty() || y_max == 0.0 {
             continue;
         }
-        let is_total = s.name.contains("total");
-        let dash = if is_total { r#" stroke-dasharray="4,4""# } else { "" };
-        let width = if is_total { 1.0 } else { 2.5 };
+        let width = 2.5;
 
         let points: Vec<String> = s
             .values
@@ -320,7 +449,7 @@ fn render_svg(title: &str, series: &[Series], y_max: f64, dates: &[&str]) -> Str
             .collect();
 
         svg.push_str(&format!(
-            r#"  <polyline points="{}" fill="none" stroke="{}" stroke-width="{width}"{dash}/>"#,
+            r#"  <polyline points="{}" fill="none" stroke="{}" stroke-width="{width}"/>"#,
             points.join(" "),
             s.color
         ));
@@ -348,10 +477,8 @@ fn render_svg(title: &str, series: &[Series], y_max: f64, dates: &[&str]) -> Str
         let row = i / cols;
         let lx = legend_x + col as f64 * col_w;
         let ly = legend_y + row as f64 * 16.0;
-        let is_total = s.name.contains("total");
-        let dash = if is_total { r#" stroke-dasharray="4,4""# } else { "" };
         svg.push_str(&format!(
-            r#"  <line x1="{lx}" y1="{ly}" x2="{}" y2="{ly}" stroke="{}" stroke-width="2"{dash}/>"#,
+            r#"  <line x1="{lx}" y1="{ly}" x2="{}" y2="{ly}" stroke="{}" stroke-width="2"/>"#,
             lx + 20.0,
             s.color
         ));

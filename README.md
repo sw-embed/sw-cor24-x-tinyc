@@ -121,7 +121,7 @@ cargo run -- run path/to/program.s
 | beej-c-guide | 6 | 11 | hello_world, functions, pointers, pointers_arithmetic, strings, typedef |
 | bgc examples | 41 | 117 | With stdio/stdlib/string/stdbool stubs |
 
-See [Testing Status](docs/testing-status.md) for detailed tables and blocker analysis.
+See [Testing Status](docs/testing-status.md) for detailed tables, blocker analysis, and progress charts.
 
 ```bash
 demos/run-demo.sh              # run a single demo

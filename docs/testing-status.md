@@ -4,11 +4,24 @@ Last updated: 2026-04-05
 
 ## Progress Charts
 
+### Combined Overview
 ![Test Suite Progress](chart-test-progress.svg)
 
-![Demos & Subset Tests](chart-demos.svg)
+### Per-Suite Progress
 
-Regenerate with: `tools/chart-gen/target/release/chart-gen . docs`
+![chibicc](chart-chibicc.svg)
+
+![beej-c-guide](chart-beej.svg)
+
+![bgc](chart-bgc.svg)
+
+### Demos & Tests
+
+![Demos](chart-demos.svg)
+
+![Subset Tests](chart-subset.svg)
+
+Regenerate: `tools/chart-gen/target/release/chart-gen . docs`
 
 ## Summary
 
