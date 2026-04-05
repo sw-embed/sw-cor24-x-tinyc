@@ -20,11 +20,17 @@ pub enum Type {
 }
 
 /// A struct member with name, type, and byte offset from struct base.
+/// For bitfields, `bit_width > 0` and `bit_offset` gives the position
+/// within the word at `offset`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StructMember {
     pub name: String,
     pub ty: Type,
     pub offset: i32,
+    /// 0 = regular member, >0 = bitfield width in bits.
+    pub bit_width: u8,
+    /// Bit position within the word at `offset` (0 = LSB).
+    pub bit_offset: u8,
 }
 
 impl Type {

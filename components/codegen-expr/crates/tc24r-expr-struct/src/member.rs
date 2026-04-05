@@ -5,30 +5,54 @@ use tc24r_codegen_state::CodegenState;
 use tc24r_emit_core::load_immediate;
 use tc24r_emit_macros::emit;
 
+/// Full information about a struct member for codegen.
+struct MemberInfo {
+    offset: i32,
+    ty: Type,
+    bit_width: u8,
+    bit_offset: u8,
+}
+
 /// Callback type for recursive expression generation.
 pub type GenExprFn = fn(&Expr, &mut CodegenState);
 
 /// Load struct member `object.member` into r0.
 /// If the member is an array type, returns the address (array-to-pointer decay).
+/// For bitfields, extracts the field via shift+mask with sign extension.
 pub fn gen_member_access(
     state: &mut CodegenState,
     object: &Expr,
     member: &str,
     gen_expr_fn: GenExprFn,
 ) {
-    let (mem_offset, member_ty) = member_info_with_ty(state, object, member);
-    emit_member_addr(state, object, mem_offset, gen_expr_fn);
-    if matches!(member_ty, Type::Array(_, _)) {
+    let minfo = full_member_info(state, object, member);
+    emit_member_addr(state, object, minfo.offset, gen_expr_fn);
+    if matches!(minfo.ty, Type::Array(_, _)) {
         return;
     }
-    if member_ty == Type::Char || member_ty == Type::UnsignedChar {
+    if minfo.ty == Type::Char || minfo.ty == Type::UnsignedChar {
         emit!(state, "        lbu     r0,0(r0)");
     } else {
         emit!(state, "        lw      r0,0(r0)");
     }
+    // Bitfield extraction: shift right, then sign-extend
+    if minfo.bit_width > 0 {
+        if minfo.bit_offset > 0 {
+            emit!(state, "        lc      r1,{}", minfo.bit_offset);
+            emit!(state, "        sra     r0,r1");
+        }
+        // Sign-extend from bit_width: shift left (24 - width), then sra back
+        let shift = 24 - minfo.bit_width;
+        if shift > 0 {
+            emit!(state, "        lc      r1,{shift}");
+            emit!(state, "        shl     r0,r1");
+            emit!(state, "        sra     r0,r1");
+        }
+    }
 }
 
 /// Store value into struct member `object.member`.
+/// For bitfields, performs read-modify-write with mask.
 pub fn gen_member_assign(
     state: &mut CodegenState,
     object: &Expr,
@@ -36,10 +60,15 @@ pub fn gen_member_assign(
     value: &Expr,
     gen_expr_fn: GenExprFn,
 ) {
-    let (mem_offset, is_char) = member_info(state, object, member);
+    let minfo = full_member_info(state, object, member);
+    if minfo.bit_width > 0 {
+        gen_bitfield_assign(state, object, &minfo, value, gen_expr_fn);
+        return;
+    }
+    let is_char = minfo.ty == Type::Char || minfo.ty == Type::UnsignedChar;
     gen_expr_fn(value, state);
     emit!(state, "        push    r0");
-    emit_member_addr(state, object, mem_offset, gen_expr_fn);
+    emit_member_addr(state, object, minfo.offset, gen_expr_fn);
     emit!(state, "        mov     r1,r0");
     emit!(state, "        pop     r0");
     if is_char {
@@ -47,6 +76,51 @@ pub fn gen_member_assign(
     } else {
         emit!(state, "        sw      r0,0(r1)");
     }
+}
+
+/// Bitfield write: read-modify-write.
+/// Approach: evaluate value into new_bits (masked+shifted), push it.
+/// Then compute addr, load word, clear bits, OR new_bits, store.
+fn gen_bitfield_assign(
+    state: &mut CodegenState,
+    object: &Expr,
+    minfo: &MemberInfo,
+    value: &Expr,
+    gen_expr_fn: GenExprFn,
+) {
+    let mask = (1i32 << minfo.bit_width) - 1;
+    let clear_mask = (!(mask << minfo.bit_offset)) & 0xFFFFFF;
+
+    // Step 1: evaluate value → mask → shift → push new_bits
+    gen_expr_fn(value, state);
+    emit!(state, "        push    r0");
+    load_immediate(state, mask);
+    emit!(state, "        pop     r1");
+    emit!(state, "        and     r0,r1"); // r0 = value & mask
+    if minfo.bit_offset > 0 {
+        emit!(state, "        lc      r1,{}", minfo.bit_offset);
+        emit!(state, "        shl     r0,r1");
+    }
+    emit!(state, "        push    r0"); // stack: [new_bits]
+
+    // Step 2: compute addr, load current word, clear bitfield bits
+    emit_member_addr(state, object, minfo.offset, gen_expr_fn);
+    emit!(state, "        lw      r0,0(r0)"); // r0 = current word
+    emit!(state, "        push    r0");
+    load_immediate(state, clear_mask);
+    emit!(state, "        pop     r1");
+    emit!(state, "        and     r0,r1"); // r0 = cleared word
+
+    // Step 3: OR with new_bits
+    emit!(state, "        pop     r1"); // r1 = new_bits
+    emit!(state, "        or      r0,r1"); // r0 = updated word
+    emit!(state, "        push    r0"); // save updated word
+
+    // Step 4: recompute addr and store
+    emit_member_addr(state, object, minfo.offset, gen_expr_fn);
+    emit!(state, "        mov     r1,r0"); // r1 = addr
+    emit!(state, "        pop     r0"); // r0 = updated word
+    emit!(state, "        sw      r0,0(r1)");
 }
 
 /// Pre/post increment or decrement on a struct member: `obj.member++`, `--obj.member`.
@@ -100,9 +174,20 @@ fn emit_member_addr(
 ) {
     match object {
         Expr::Ident(name) => {
-            let fp_offset = state.locals[name.as_str()];
-            load_immediate(state, fp_offset + mem_offset);
-            emit!(state, "        add     r0,fp");
+            if state.globals.contains(name.as_str()) {
+                // Global struct: load base address, add member offset
+                emit!(state, "        la      r0,_{name}");
+                if mem_offset != 0 {
+                    emit!(state, "        push    r0");
+                    load_immediate(state, mem_offset);
+                    emit!(state, "        pop     r1");
+                    emit!(state, "        add     r0,r1");
+                }
+            } else {
+                let fp_offset = state.locals[name.as_str()];
+                load_immediate(state, fp_offset + mem_offset);
+                emit!(state, "        add     r0,fp");
+            }
         }
         Expr::Deref(ptr) => {
             gen_expr_fn(ptr, state);
@@ -122,6 +207,20 @@ fn emit_member_addr(
                 emit!(state, "        add     r0,r1");
             }
         }
+    }
+}
+
+/// Get full member info including bitfield data.
+fn full_member_info(state: &CodegenState, object: &Expr, member: &str) -> MemberInfo {
+    let ty = object_type(state, object);
+    let m = ty
+        .find_member(member)
+        .unwrap_or_else(|| panic!("unknown struct member '{member}' in type {ty:?}"));
+    MemberInfo {
+        offset: m.offset,
+        ty: m.ty.clone(),
+        bit_width: m.bit_width,
+        bit_offset: m.bit_offset,
     }
 }
 

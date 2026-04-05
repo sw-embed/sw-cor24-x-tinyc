@@ -247,6 +247,9 @@ Run: `scripts/run-chibicc-tests.sh`
 - Octal escape sequences in string and char literals (`\0`, `\101`, `\377`)
 - String literal subscript: `"abc"[1]` (postfix chain on string literals)
 - `register` storage class keyword (accepted and ignored)
+- Struct bitfield declarations (`int x : 5;`) with packed layout in 24-bit words
+- Bitfield read (shift+mask with sign extension) and write (read-modify-write)
+- Global struct member access (was panicking for globals, now uses `la` for address)
 
 ## beej-c-guide Examples (6/11)
 
