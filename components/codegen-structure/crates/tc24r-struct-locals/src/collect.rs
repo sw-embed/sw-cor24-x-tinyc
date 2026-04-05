@@ -20,14 +20,14 @@ pub fn collect_locals_stmt(state: &mut CodegenState, stmt: &Stmt) {
     match stmt {
         Stmt::LocalDecl { name, ty, init } => {
             let alloc = ty.size().max(3); // min 3 (word-aligned)
-            if !state.locals.contains_key(name) || ty.size() > state.local_types[name].size() {
-                // First declaration or redeclaration with a larger type.
-                // Allocate (or re-allocate) a slot for the larger size.
-                state.locals_size += alloc;
-                let offset = -state.locals_size;
-                state.locals.insert(name.clone(), offset);
-                state.local_types.insert(name.clone(), ty.clone());
-            }
+                                          // Always allocate a fresh slot. Same-named variables in different
+                                          // scopes (e.g., separate statement expressions) get independent offsets.
+                                          // The HashMap keeps the last allocation — the codegen processes
+                                          // declarations in source order, so the active scope wins.
+            state.locals_size += alloc;
+            let offset = -state.locals_size;
+            state.locals.insert(name.clone(), offset);
+            state.local_types.insert(name.clone(), ty.clone());
             if let Some(expr) = init {
                 scan_expr_locals(state, expr);
             }

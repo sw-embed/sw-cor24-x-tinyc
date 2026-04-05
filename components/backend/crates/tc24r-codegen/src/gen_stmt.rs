@@ -7,8 +7,8 @@ pub fn gen_stmt(stmt: &Stmt, state: &mut CodegenState) {
     match stmt {
         Stmt::Return(expr) => tc24r_stmt_simple::gen_return(state, expr, gen_expr),
         Stmt::Expr(expr) => tc24r_stmt_simple::gen_expr_stmt(state, expr, gen_expr),
-        Stmt::LocalDecl { name, init, .. } => {
-            tc24r_stmt_simple::gen_local_decl(state, name, init.as_ref(), gen_expr)
+        Stmt::LocalDecl { name, ty, init } => {
+            tc24r_stmt_simple::gen_local_decl(state, name, ty, init.as_ref(), gen_expr)
         }
         Stmt::If {
             cond,

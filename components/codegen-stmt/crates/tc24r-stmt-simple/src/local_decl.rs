@@ -1,6 +1,6 @@
 //! Local variable declaration code generation.
 
-use tc24r_ast::Expr;
+use tc24r_ast::{Expr, Type};
 use tc24r_codegen_state::CodegenState;
 use tc24r_emit_core::fp_store_word_r0;
 use tc24r_type_infer::GenExprFn;
@@ -12,6 +12,7 @@ use tc24r_type_infer::GenExprFn;
 pub fn gen_local_decl(
     state: &mut CodegenState,
     name: &str,
+    _ty: &Type,
     init: Option<&Expr>,
     gen_expr_fn: GenExprFn,
 ) {

@@ -17,7 +17,7 @@ Regenerate with: `tools/chart-gen/target/release/chart-gen . docs`
 | tc24r demos | 61 | 61 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 33 | 33 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
-| chibicc full | 16 | 41 | 39% | builtin, cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, typeof, vla |
+| chibicc full | 17 | 41 | 41% | builtin, cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, typeof, usualconv, vla |
 | beej-c-guide | 6 | 11 | 55% | hello_world, functions, pointers, pointers_arithmetic, strings, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
@@ -266,6 +266,7 @@ Run: `scripts/run-chibicc-tests.sh`
 - Preprocessor: `##` token pasting in function-like macros
 - Preprocessor: block comment `/* ... */` stripping before directive processing
 - Preprocessor: angle bracket include whitespace trimming
+- Fix: statement expression variable scoping — each StmtExpr gets independent stack slots for same-named locals (GH #18)
 
 ## beej-c-guide Examples (6/11)
 
