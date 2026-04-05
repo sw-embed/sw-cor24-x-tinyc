@@ -348,6 +348,8 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "volatile" => TokenKind::Volatile,
         "auto" => TokenKind::Auto,
         "register" => TokenKind::Register,
+        "typeof" | "__typeof__" | "__typeof" => TokenKind::Typeof,
+        "__builtin_types_compatible_p" => TokenKind::BuiltinTypesCompatible,
         _ => TokenKind::Ident(text.to_string()),
     }
 }

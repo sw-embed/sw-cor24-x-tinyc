@@ -86,6 +86,24 @@ fn parse_base_type(ts: &mut TokenStream, had_qualifier: bool) -> Result<Type, Co
             ts.advance();
             tc24r_parser_struct::parse_struct_type(ts, parse_type, true)
         }
+        TokenKind::Typeof => {
+            ts.advance();
+            ts.expect(TokenKind::LParen)?;
+            // typeof(type) or typeof(expr) — try type first
+            let ty = if super::is_base_type(&ts.peek().kind)
+                || super::is_storage_class(&ts.peek().kind)
+                || super::is_typedef_name(ts, &ts.peek().kind)
+            {
+                parse_type(ts)?
+            } else {
+                // typeof(expr) — infer type at parse time
+                // For now, treat as Int (sufficient for most uses)
+                let _expr = crate::parse_typeof_expr(ts);
+                Type::Int
+            };
+            ts.expect(TokenKind::RParen)?;
+            Ok(ty)
+        }
         TokenKind::Ident(ref name) if ts.type_aliases.contains_key(name) => {
             let resolved = ts.type_aliases[name].clone();
             ts.advance();

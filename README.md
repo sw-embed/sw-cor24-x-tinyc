@@ -117,7 +117,7 @@ cargo run -- run path/to/program.s
 |-----------|------|-------|-------|
 | tc24r demos | 61 | 61 | End-to-end compiler + emulator |
 | chibicc-subset | 5 | 5 | Curated subsets of chibicc tests |
-| chibicc full | 14 | 41 | cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, vla |
+| chibicc full | 16 | 41 | builtin, cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, typeof, vla |
 | beej-c-guide | 6 | 11 | hello_world, functions, pointers, pointers_arithmetic, strings, typedef |
 | bgc examples | 41 | 117 | With stdio/stdlib/string/stdbool stubs |
 

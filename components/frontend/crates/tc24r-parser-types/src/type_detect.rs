@@ -32,6 +32,7 @@ pub fn is_base_type(kind: &TokenKind) -> bool {
             | TokenKind::Short
             | TokenKind::Signed
             | TokenKind::Unsigned
+            | TokenKind::Typeof
     )
 }
 

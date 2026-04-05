@@ -61,6 +61,9 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     if ts.eat(TokenKind::Offsetof) {
         return parse_offsetof(ts);
     }
+    if ts.eat(TokenKind::BuiltinTypesCompatible) {
+        return parse_builtin_types_compatible(ts);
+    }
     if ts.eat(TokenKind::Plus) {
         // Unary + is identity, just parse the operand
         return parse_unary(ts);
@@ -291,6 +294,62 @@ fn parse_offsetof(ts: &mut TokenStream) -> Result<Expr, CompileError> {
             format!("no member '{member}' in type"),
             Some(ts.current_span()),
         )),
+    }
+}
+
+/// Parse `__builtin_types_compatible_p(type1, type2)` — returns 1 if compatible, 0 otherwise.
+fn parse_builtin_types_compatible(ts: &mut TokenStream) -> Result<Expr, CompileError> {
+    ts.expect(TokenKind::LParen)?;
+    let ty1 = parse_type(ts)?;
+    // Skip function pointer suffix: (*)(params)
+    skip_fn_ptr_type_suffix(ts);
+    ts.expect(TokenKind::Comma)?;
+    let ty2 = parse_type(ts)?;
+    skip_fn_ptr_type_suffix(ts);
+    ts.expect(TokenKind::RParen)?;
+    // Types are compatible if structurally equal (ignoring const/volatile qualifiers).
+    // Anonymous structs with identical layout are NOT compatible in C.
+    let compatible = types_compatible(&ty1, &ty2);
+    Ok(Expr::IntLit(if compatible { 1 } else { 0 }))
+}
+
+/// Check if two types are compatible for __builtin_types_compatible_p.
+/// Ignores const/volatile qualifiers (already stripped by parse_type).
+fn types_compatible(a: &Type, b: &Type) -> bool {
+    match (a, b) {
+        (Type::Int, Type::Int) => true,
+        (Type::Char, Type::Char) => true,
+        (Type::UnsignedChar, Type::UnsignedChar) => true,
+        (Type::UnsignedInt, Type::UnsignedInt) => true,
+        (Type::Void, Type::Void) => true,
+        (Type::Ptr(a), Type::Ptr(b)) => types_compatible(a, b),
+        (Type::Array(a, n1), Type::Array(b, n2)) => n1 == n2 && types_compatible(a, b),
+        (Type::Struct { tag: Some(a), .. }, Type::Struct { tag: Some(b), .. }) => a == b,
+        _ => false,
+    }
+}
+
+/// Skip optional function pointer type suffix: (*)(params)
+/// Used in __builtin_types_compatible_p where types like int(*)(void) appear.
+fn skip_fn_ptr_type_suffix(ts: &mut TokenStream) {
+    // Check for (*) pattern
+    if ts.check(&TokenKind::LParen) && matches!(ts.lookahead(1), TokenKind::Star) {
+        ts.advance(); // (
+        ts.advance(); // *
+        ts.expect(TokenKind::RParen).ok(); // )
+                                           // Skip parameter list: (params)
+        if ts.eat(TokenKind::LParen) {
+            let mut depth = 1;
+            while depth > 0 {
+                if ts.eat(TokenKind::LParen) {
+                    depth += 1;
+                } else if ts.eat(TokenKind::RParen) {
+                    depth -= 1;
+                } else {
+                    ts.advance();
+                }
+            }
+        }
     }
 }
 

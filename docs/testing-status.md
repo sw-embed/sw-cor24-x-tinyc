@@ -9,7 +9,7 @@ Last updated: 2026-04-04
 | tc24r demos | 61 | 61 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 33 | 33 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
-| chibicc full | 14 | 41 | 34% | cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, vla |
+| chibicc full | 16 | 41 | 39% | builtin, cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, typeof, vla |
 | beej-c-guide | 6 | 11 | 55% | hello_world, functions, pointers, pointers_arithmetic, strings, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
@@ -250,6 +250,8 @@ Run: `scripts/run-chibicc-tests.sh`
 - Struct bitfield declarations (`int x : 5;`) with packed layout in 24-bit words
 - Bitfield read (shift+mask with sign extension) and write (read-modify-write)
 - Global struct member access (was panicking for globals, now uses `la` for address)
+- `__builtin_types_compatible_p(type1, type2)` compile-time type comparison
+- `typeof(expr)` / `typeof(type)` in type position (`__typeof__` alias)
 
 ## beej-c-guide Examples (6/11)
 

@@ -39,6 +39,8 @@ pub enum TokenKind {
     Volatile,
     Auto,
     Register,
+    Typeof,
+    BuiltinTypesCompatible,
 
     // Literals
     IntLit(i32),
