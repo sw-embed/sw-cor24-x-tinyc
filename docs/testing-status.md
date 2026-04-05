@@ -252,6 +252,12 @@ Run: `scripts/run-chibicc-tests.sh`
 - Global struct member access (was panicking for globals, now uses `la` for address)
 - `__builtin_types_compatible_p(type1, type2)` compile-time type comparison
 - `typeof(expr)` / `typeof(type)` in type position (`__typeof__` alias)
+- Preprocessor: recursion depth limit (128) and C99 self-reference guard (no crash)
+- Preprocessor: `__STDC__`, `__LINE__`, `__FILE__` predefined macros
+- Preprocessor: macro expansion in `#include` arguments
+- Preprocessor: `##` token pasting in function-like macros
+- Preprocessor: block comment `/* ... */` stripping before directive processing
+- Preprocessor: angle bracket include whitespace trimming
 
 ## beej-c-guide Examples (6/11)
 

@@ -2,11 +2,15 @@
 
 use std::path::PathBuf;
 
-use crate::{Context, process_text};
+use crate::{process_text, Context};
 
 /// Handle a `#include "file"` or `#include <file>` directive.
+/// Macro-expands the argument first so `#include M` works when M is a macro.
 pub(crate) fn handle_include(line: &str, ctx: &mut Context, output: &mut String) {
-    let rest = line.strip_prefix("#include ").unwrap().trim();
+    let raw = line.strip_prefix("#include ").unwrap().trim();
+    // Expand macros in the include argument (C99 §6.10.2)
+    let rest_owned = crate::substitute::expand_line(raw, &ctx.defines, &ctx.func_macros);
+    let rest = rest_owned.trim();
     let path = if rest.starts_with('"') {
         resolve_quote(rest, ctx)
     } else if rest.starts_with('<') {
@@ -64,7 +68,7 @@ fn resolve_quote(rest: &str, ctx: &Context) -> Option<PathBuf> {
 }
 
 fn resolve_angle(rest: &str, ctx: &Context) -> Option<PathBuf> {
-    let name = rest.strip_prefix('<')?.strip_suffix('>')?;
+    let name = rest.strip_prefix('<')?.strip_suffix('>')?.trim();
     resolve_in_system(name, ctx)
 }
 

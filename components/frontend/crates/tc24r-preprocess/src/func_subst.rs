@@ -15,8 +15,9 @@ pub fn substitute_params(body: &str, params: &[String], args: &[String]) -> Stri
 }
 
 /// Token-aware substitution: replace identifiers matching keys in `map`.
-/// Handles stringification: `#param` becomes `"arg"`.
+/// Handles stringification (`#param` → `"arg"`) and token pasting (`a ## b` → `ab`).
 fn token_substitute(body: &str, map: &HashMap<&str, &str>) -> String {
+    // First pass: substitute parameters and handle stringification
     let bytes = body.as_bytes();
     let mut result = String::with_capacity(body.len());
     let mut i = 0;
@@ -29,7 +30,6 @@ fn token_substitute(body: &str, map: &HashMap<&str, &str>) -> String {
         } else if bytes[i] == b'#' && !is_token_paste(bytes, i) {
             // Stringification: #param → "arg"
             i += 1;
-            // Skip whitespace between # and parameter name
             while i < bytes.len() && bytes[i] == b' ' {
                 i += 1;
             }
@@ -42,13 +42,23 @@ fn token_substitute(body: &str, map: &HashMap<&str, &str>) -> String {
                 if let Some(arg) = map.get(word) {
                     stringify_into(&mut result, arg);
                 } else {
-                    // Not a parameter — pass through as-is
                     result.push('#');
                     result.push_str(word);
                 }
             } else {
                 result.push('#');
             }
+        } else if bytes[i] == b'#' && is_token_paste(bytes, i) {
+            // Token pasting: trim trailing whitespace from result,
+            // skip ## and leading whitespace, concatenate tokens
+            while result.ends_with(' ') {
+                result.pop();
+            }
+            i += 2; // skip ##
+            while i < bytes.len() && bytes[i] == b' ' {
+                i += 1;
+            }
+            // The next token will be appended directly (no space)
         } else if is_ident_start(bytes[i]) {
             let start = i;
             while i < bytes.len() && is_ident_char(bytes[i]) {

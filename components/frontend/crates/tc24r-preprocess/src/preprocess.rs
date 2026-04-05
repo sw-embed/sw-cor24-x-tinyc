@@ -11,13 +11,22 @@ use crate::substitute;
 /// - `source_dir`: directory for resolving `#include "..."` (None disables)
 /// - `system_paths`: directories for resolving `#include <...>`
 pub fn preprocess(source: &str, source_dir: Option<&Path>, system_paths: &[&Path]) -> String {
+    let mut defines = HashMap::new();
+    // Predefined macros
+    defines.insert("__STDC__".to_string(), "1".to_string());
+    // __FILE__ set to source path (or "unknown" if not available)
+    let file_str = source_dir
+        .map(|d| d.to_string_lossy().to_string())
+        .unwrap_or_else(|| "\"unknown\"".to_string());
+    defines.insert("__FILE__".to_string(), format!("\"{file_str}\""));
     let mut ctx = Context {
-        defines: HashMap::new(),
+        defines,
         func_macros: HashMap::new(),
         included: HashSet::new(),
         source_dir: source_dir.map(Path::to_path_buf),
         system_paths: system_paths.iter().map(|p| p.to_path_buf()).collect(),
         cond_stack: CondStack::new(),
+        line_number: 0,
     };
     process_text(source, &mut ctx)
 }
@@ -29,13 +38,17 @@ pub(crate) struct Context {
     pub source_dir: Option<std::path::PathBuf>,
     pub system_paths: Vec<std::path::PathBuf>,
     pub cond_stack: CondStack,
+    pub line_number: usize,
 }
 
 pub(crate) fn process_text(source: &str, ctx: &mut Context) -> String {
     // Join lines ending with backslash (line continuation)
     let joined = join_continued_lines(source);
+    // Strip block comments /* ... */ (may span multiple lines)
+    let joined = strip_block_comments(&joined);
     let mut output = String::new();
     for line in joined.lines() {
+        ctx.line_number += 1;
         process_line(line, ctx, &mut output);
     }
     output
@@ -113,9 +126,14 @@ fn process_line(line: &str, ctx: &mut Context, output: &mut String) {
         include::handle_include(trimmed, ctx, output);
     } else if trimmed == "#pragma once" {
         // Handled at include time -- no output
+    } else if trimmed == "#" || trimmed.starts_with("# ") || trimmed.starts_with("#\t") {
+        // Null directive or unknown directive — skip silently
     } else if trimmed.starts_with('#') && !trimmed.starts_with("#define") {
         // Unknown directive (e.g. #line, # nnn "file") — skip silently
     } else {
+        // Update dynamic builtins before expansion
+        ctx.defines
+            .insert("__LINE__".to_string(), ctx.line_number.to_string());
         let expanded = substitute::expand_line(line, &ctx.defines, &ctx.func_macros);
         output.push_str(&expanded);
         output.push('\n');
@@ -215,4 +233,43 @@ pub(crate) fn strip_line_comment(s: &str) -> &str {
         }
     }
     s
+}
+
+/// Strip `/* ... */` block comments from a line (single-line only).
+fn strip_block_comments(line: &str) -> String {
+    let mut result = String::with_capacity(line.len());
+    let bytes = line.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'"' {
+            result.push('"');
+            i += 1;
+            while i < bytes.len() && bytes[i] != b'"' {
+                if bytes[i] == b'\\' && i + 1 < bytes.len() {
+                    result.push(bytes[i] as char);
+                    i += 1;
+                }
+                result.push(bytes[i] as char);
+                i += 1;
+            }
+            if i < bytes.len() {
+                result.push('"');
+                i += 1;
+            }
+        } else if i + 1 < bytes.len() && bytes[i] == b'/' && bytes[i + 1] == b'*' {
+            // Skip block comment
+            i += 2;
+            while i + 1 < bytes.len() && !(bytes[i] == b'*' && bytes[i + 1] == b'/') {
+                i += 1;
+            }
+            if i + 1 < bytes.len() {
+                i += 2; // skip */
+            }
+            result.push(' '); // replace comment with space
+        } else {
+            result.push(bytes[i] as char);
+            i += 1;
+        }
+    }
+    result
 }
