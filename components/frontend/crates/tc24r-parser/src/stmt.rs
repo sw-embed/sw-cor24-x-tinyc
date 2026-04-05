@@ -155,9 +155,65 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
     while ts.eat(TokenKind::Star) {
         ty = Type::Ptr(Box::new(ty));
     }
-    // Function pointer: int (*fp)(int, int) or int (*table[4])(int)
+    // Parenthesized declarator: (*name)[N] (pointer to array) or (*fp)(params) (function pointer)
     if ts.check(&TokenKind::LParen) && matches!(ts.lookahead(1), TokenKind::Star) {
-        return parse_fn_ptr_declarator(ts, ty);
+        // Peek ahead to distinguish: after (*name), is it [ (ptr-to-array) or ( (fn ptr)?
+        // Find the matching ) after (*name...
+        let after_star = ts.lookahead(2); // token after *
+        match after_star {
+            TokenKind::Ident(_) => {
+                // (*name) — check what follows the closing )
+                // lookahead(3) should be RParen for (*name)
+                if matches!(ts.lookahead(3), TokenKind::RParen) {
+                    if matches!(ts.lookahead(4), TokenKind::LBracket) {
+                        // (*name)[N] — pointer to array
+                        return parse_ptr_to_array_declarator(ts, ty);
+                    }
+                }
+                // Otherwise: function pointer
+                return parse_fn_ptr_declarator(ts, ty);
+            }
+            _ => return parse_fn_ptr_declarator(ts, ty),
+        }
+    }
+    // Parenthesized declarator without star: (name)[N] equivalent to name[N]
+    if ts.check(&TokenKind::LParen) && matches!(ts.lookahead(1), TokenKind::Ident(_)) {
+        if matches!(ts.lookahead(2), TokenKind::RParen) {
+            // (name) — skip parens, parse as normal declarator
+            ts.advance(); // (
+            let name = ts.expect_ident()?;
+            ts.expect(TokenKind::RParen)?;
+            // Continue with array suffix parsing below
+            let mut ty = ty;
+            let mut implicit_size = false;
+            let mut dims = Vec::new();
+            while ts.eat(TokenKind::LBracket) {
+                if ts.check(&TokenKind::RBracket) {
+                    ts.expect(TokenKind::RBracket)?;
+                    dims.push(0usize);
+                    implicit_size = true;
+                } else {
+                    let size = parse_const_array_size(ts)?;
+                    ts.expect(TokenKind::RBracket)?;
+                    dims.push(size);
+                }
+            }
+            for &size in dims.iter().rev() {
+                ty = Type::Array(Box::new(ty), size);
+            }
+            if ts.eat(TokenKind::Assign) {
+                if ts.check(&TokenKind::LBrace) {
+                    return parse_brace_init(ts, name, ty, implicit_size);
+                }
+                let init = Some(parse_assign(ts)?);
+                return Ok(Stmt::LocalDecl { name, ty, init });
+            }
+            return Ok(Stmt::LocalDecl {
+                name,
+                ty,
+                init: None,
+            });
+        }
     }
     let name = ts.expect_ident()?;
     // Local function prototype: int foo(int x); — accept and ignore
@@ -209,6 +265,43 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
         ty,
         init: None,
     })
+}
+
+/// Parse a pointer-to-array declarator: (*name)[N]
+/// `char (*y)[3]` produces LocalDecl { name: "y", ty: Ptr(Array(Char, 3)) }.
+fn parse_ptr_to_array_declarator(
+    ts: &mut TokenStream,
+    elem_ty: Type,
+) -> Result<Stmt, CompileError> {
+    ts.expect(TokenKind::LParen)?; // (
+    ts.expect(TokenKind::Star)?; // *
+    let name = ts.expect_ident()?;
+    ts.expect(TokenKind::RParen)?; // )
+                                   // Parse array dimensions: [N], [N][M], etc.
+    let mut dims = Vec::new();
+    while ts.eat(TokenKind::LBracket) {
+        if ts.check(&TokenKind::RBracket) {
+            ts.expect(TokenKind::RBracket)?;
+            dims.push(0usize);
+        } else {
+            let size = parse_const_array_size(ts)?;
+            ts.expect(TokenKind::RBracket)?;
+            dims.push(size);
+        }
+    }
+    // Build type: Ptr(Array(elem_ty, dims))
+    let mut inner = elem_ty;
+    for &size in dims.iter().rev() {
+        inner = Type::Array(Box::new(inner), size);
+    }
+    let ty = Type::Ptr(Box::new(inner));
+    // Optional initializer
+    let init = if ts.eat(TokenKind::Assign) {
+        Some(parse_assign(ts)?)
+    } else {
+        None
+    };
+    Ok(Stmt::LocalDecl { name, ty, init })
 }
 
 /// Parse a function pointer declarator: (*name)(params) or (*name[N])(params)
