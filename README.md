@@ -115,8 +115,8 @@ cargo run -- run path/to/program.s
 
 | Test Suite | Pass | Total | Notes |
 |-----------|------|-------|-------|
+| reg-rs regressions | 81 | 81 | Output stability checks (demos + chibicc + suites) |
 | tc24r demos | 61 | 61 | End-to-end compiler + emulator |
-| chibicc-subset | 5 | 5 | Curated subsets of chibicc tests |
 | chibicc full | 18 | 41 | builtin, cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, typeof, usualconv, variable, vla |
 | beej-c-guide | 6 | 11 | hello_world, functions, pointers, pointers_arithmetic, strings, typedef |
 | bgc examples | 41 | 117 | With stdio/stdlib/string/stdbool stubs |

@@ -24,6 +24,7 @@ struct Counts {
     beej_total: u32,
     bgc: u32,
     bgc_total: u32,
+    regrs: u32,
 }
 
 /// A data point: date string → counts.
@@ -56,8 +57,8 @@ fn main() {
         |c| c.bgc, "#FF9800");
     generate_count_chart(&history, &out.join("chart-demos.svg"), "Demos",
         |c| c.demos, "#9C27B0");
-    generate_count_chart(&history, &out.join("chart-subset.svg"), "Subset Tests",
-        |c| c.subset, "#00BCD4");
+    generate_count_chart(&history, &out.join("chart-regrs.svg"), "reg-rs Regression Tests",
+        |c| c.regrs, "#607D8B");
 
     // Combined overview (pass counts only, no totals)
     generate_test_chart(&history, &out.join("chart-test-progress.svg"));
@@ -123,6 +124,9 @@ fn parse_counts(readme: &str) -> Option<Counts> {
             let nums = extract_two_numbers(&stripped);
             c.beej = nums.0;
             c.beej_total = nums.1;
+        } else if stripped.starts_with("|reg-rs") || stripped.starts_with("|reg-rsreg") {
+            let nums = extract_two_numbers(&stripped);
+            c.regrs = nums.0;
         } else if stripped.starts_with("|bgc") {
             let nums = extract_two_numbers(&stripped);
             c.bgc = nums.0;

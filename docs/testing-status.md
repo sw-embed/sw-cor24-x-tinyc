@@ -15,11 +15,11 @@ Last updated: 2026-04-05
 
 ![bgc](chart-bgc.svg)
 
-### Demos & Tests
+### Demos & Regression Tests
 
 ![Demos](chart-demos.svg)
 
-![Subset Tests](chart-subset.svg)
+![reg-rs Regression Tests](chart-regrs.svg)
 
 Regenerate: `tools/chart-gen/target/release/chart-gen . docs`
 
