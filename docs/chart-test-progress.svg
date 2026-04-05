@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" font-family="sans-serif" font-size="12">
+  <rect width="800" height="400" fill="white"/>
+  <text x="400" y="24" text-anchor="middle" font-size="16" font-weight="bold">Test Suite Progress</text>
+  <line x1="60" y1="320" x2="780" y2="320" stroke="#eee"/>
+  <text x="52" y="324" text-anchor="end" font-size="10">0</text>
+  <line x1="60" y1="264" x2="780" y2="264" stroke="#eee"/>
+  <text x="52" y="268" text-anchor="end" font-size="10">24</text>
+  <line x1="60" y1="208" x2="780" y2="208" stroke="#eee"/>
+  <text x="52" y="212" text-anchor="end" font-size="10">48</text>
+  <line x1="60" y1="152" x2="780" y2="152" stroke="#eee"/>
+  <text x="52" y="156" text-anchor="end" font-size="10">72</text>
+  <line x1="60" y1="96" x2="780" y2="96" stroke="#eee"/>
+  <text x="52" y="100" text-anchor="end" font-size="10">96</text>
+  <line x1="60" y1="40" x2="780" y2="40" stroke="#eee"/>
+  <text x="52" y="44" text-anchor="end" font-size="10">120</text>
+  <text x="60" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,60,340)">03-22</text>
+  <text x="150" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,150,340)">03-23</text>
+  <text x="330" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,330,340)">03-28</text>
+  <text x="420" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,420,340)">03-30</text>
+  <text x="600" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,600,340)">04-03</text>
+  <text x="780" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,780,340)">04-05</text>
+  <rect x="60" y="40" width="720" height="280" fill="none" stroke="#ccc"/>
+  <polyline points="60.0,313.0 150.0,306.0 240.0,306.0 330.0,306.0 420.0,306.0 510.0,306.0 600.0,287.3 690.0,287.3 780.0,282.7" fill="none" stroke="#2196F3" stroke-width="2.5"/>
+  <circle cx="780.0" cy="282.7" r="3" fill="#2196F3"/>
+  <polyline points="60.0,224.3 150.0,224.3 240.0,224.3 330.0,224.3 420.0,224.3 510.0,224.3 600.0,224.3 690.0,224.3 780.0,224.3" fill="none" stroke="#90CAF9" stroke-width="1" stroke-dasharray="4,4"/>
+  <circle cx="780.0" cy="224.3" r="3" fill="#90CAF9"/>
+  <polyline points="60.0,320.0 150.0,310.7 240.0,310.7 330.0,310.7 420.0,310.7 510.0,310.7 600.0,306.0 690.0,306.0 780.0,306.0" fill="none" stroke="#4CAF50" stroke-width="2.5"/>
+  <circle cx="780.0" cy="306.0" r="3" fill="#4CAF50"/>
+  <polyline points="60.0,320.0 150.0,294.3 240.0,294.3 330.0,294.3 420.0,294.3 510.0,294.3 600.0,294.3 690.0,294.3 780.0,294.3" fill="none" stroke="#A5D6A7" stroke-width="1" stroke-dasharray="4,4"/>
+  <circle cx="780.0" cy="294.3" r="3" fill="#A5D6A7"/>
+  <polyline points="60.0,317.7 150.0,224.3 240.0,224.3 330.0,224.3 420.0,224.3 510.0,224.3 600.0,224.3 690.0,224.3 780.0,224.3" fill="none" stroke="#FF9800" stroke-width="2.5"/>
+  <circle cx="780.0" cy="224.3" r="3" fill="#FF9800"/>
+  <polyline points="60.0,47.0 150.0,47.0 240.0,47.0 330.0,47.0 420.0,47.0 510.0,47.0 600.0,47.0 690.0,47.0 780.0,47.0" fill="none" stroke="#FFCC80" stroke-width="1" stroke-dasharray="4,4"/>
+  <circle cx="780.0" cy="47.0" r="3" fill="#FFCC80"/>
+  <line x1="70" y1="360" x2="90" y2="360" stroke="#2196F3" stroke-width="2"/>  <text x="94" y="364" font-size="10">chibicc pass (16)</text>
+  <line x1="310" y1="360" x2="330" y2="360" stroke="#90CAF9" stroke-width="2" stroke-dasharray="4,4"/>  <text x="334" y="364" font-size="10">chibicc total (41)</text>
+  <line x1="550" y1="360" x2="570" y2="360" stroke="#4CAF50" stroke-width="2"/>  <text x="574" y="364" font-size="10">beej pass (6)</text>
+  <line x1="70" y1="376" x2="90" y2="376" stroke="#A5D6A7" stroke-width="2" stroke-dasharray="4,4"/>  <text x="94" y="380" font-size="10">beej total (11)</text>
+  <line x1="310" y1="376" x2="330" y2="376" stroke="#FF9800" stroke-width="2"/>  <text x="334" y="380" font-size="10">bgc pass (41)</text>
+  <line x1="550" y1="376" x2="570" y2="376" stroke="#FFCC80" stroke-width="2" stroke-dasharray="4,4"/>  <text x="574" y="380" font-size="10">bgc total (117)</text>
+</svg>

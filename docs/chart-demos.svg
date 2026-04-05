@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" font-family="sans-serif" font-size="12">
+  <rect width="800" height="400" fill="white"/>
+  <text x="400" y="24" text-anchor="middle" font-size="16" font-weight="bold">Demos & Subset Tests</text>
+  <line x1="60" y1="320" x2="780" y2="320" stroke="#eee"/>
+  <text x="52" y="324" text-anchor="end" font-size="10">0</text>
+  <line x1="60" y1="264" x2="780" y2="264" stroke="#eee"/>
+  <text x="52" y="268" text-anchor="end" font-size="10">14</text>
+  <line x1="60" y1="208" x2="780" y2="208" stroke="#eee"/>
+  <text x="52" y="212" text-anchor="end" font-size="10">28</text>
+  <line x1="60" y1="152" x2="780" y2="152" stroke="#eee"/>
+  <text x="52" y="156" text-anchor="end" font-size="10">42</text>
+  <line x1="60" y1="96" x2="780" y2="96" stroke="#eee"/>
+  <text x="52" y="100" text-anchor="end" font-size="10">56</text>
+  <line x1="60" y1="40" x2="780" y2="40" stroke="#eee"/>
+  <text x="52" y="44" text-anchor="end" font-size="10">70</text>
+  <text x="60" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,60,340)">03-22</text>
+  <text x="150" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,150,340)">03-23</text>
+  <text x="330" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,330,340)">03-28</text>
+  <text x="420" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,420,340)">03-30</text>
+  <text x="600" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,600,340)">04-03</text>
+  <text x="780" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,780,340)">04-05</text>
+  <rect x="60" y="40" width="720" height="280" fill="none" stroke="#ccc"/>
+  <polyline points="60.0,236.0 150.0,136.0 240.0,132.0 330.0,120.0 420.0,120.0 510.0,100.0 600.0,100.0 690.0,76.0 780.0,76.0" fill="none" stroke="#9C27B0" stroke-width="2.5"/>
+  <circle cx="780.0" cy="76.0" r="3" fill="#9C27B0"/>
+  <polyline points="60.0,300.0 150.0,300.0 240.0,300.0 330.0,300.0 420.0,300.0 510.0,300.0 600.0,300.0 690.0,300.0 780.0,300.0" fill="none" stroke="#00BCD4" stroke-width="2.5"/>
+  <circle cx="780.0" cy="300.0" r="3" fill="#00BCD4"/>
+  <line x1="70" y1="360" x2="90" y2="360" stroke="#9C27B0" stroke-width="2"/>  <text x="94" y="364" font-size="10">demos (61)</text>
+  <line x1="310" y1="360" x2="330" y2="360" stroke="#00BCD4" stroke-width="2"/>  <text x="334" y="364" font-size="10">subset pass (5)</text>
+</svg>

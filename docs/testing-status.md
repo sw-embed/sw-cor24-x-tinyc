@@ -1,6 +1,14 @@
 # Testing Status
 
-Last updated: 2026-04-04
+Last updated: 2026-04-05
+
+## Progress Charts
+
+![Test Suite Progress](chart-test-progress.svg)
+
+![Demos & Subset Tests](chart-demos.svg)
+
+Regenerate with: `tools/chart-gen/target/release/chart-gen . docs`
 
 ## Summary
 
