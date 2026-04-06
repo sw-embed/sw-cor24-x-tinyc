@@ -30,7 +30,7 @@ Regenerate: `tools/chart-gen/target/release/chart-gen . docs`
 | tc24r demos | 61 | 61 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 81 | 81 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
-| chibicc full | 18 | 41 | 44% | builtin, cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, typeof, usualconv, variable, vla |
+| chibicc full | 19 | 41 | 46% | builtin, cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, typeof, union, usualconv, variable, vla |
 | beej-c-guide | 6 | 11 | 55% | hello_world, functions, pointers, pointers_arithmetic, strings, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
@@ -281,6 +281,7 @@ Run: `scripts/run-chibicc-tests.sh`
 - Preprocessor: angle bracket include whitespace trimming
 - Fix: statement expression variable scoping — each StmtExpr gets independent stack slots for same-named locals (GH #18)
 - Parenthesized declarators: `char (*y)[3]` (pointer to array) distinguished from function pointers (GH #17)
+- StmtExpr scope save/restore in codegen — prevents type map pollution across sibling statement expressions (GH #1)
 
 ## beej-c-guide Examples (6/11)
 

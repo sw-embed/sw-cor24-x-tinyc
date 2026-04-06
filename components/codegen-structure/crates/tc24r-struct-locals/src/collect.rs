@@ -97,7 +97,24 @@ pub fn collect_locals_stmt(state: &mut CodegenState, stmt: &Stmt) {
 /// contain local declarations needing stack slots.
 fn scan_expr_locals(state: &mut CodegenState, expr: &Expr) {
     match expr {
-        Expr::StmtExpr(block) => collect_locals_block(state, &block.stmts),
+        Expr::StmtExpr(block) => {
+            // Save/restore ALL locals state — each StmtExpr gets its own scope.
+            // locals_size is also saved so sibling StmtExprs can reuse the
+            // same stack region (only one is active at a time).
+            // The MAXIMUM locals_size across all scopes determines the frame.
+            let saved_locals = state.locals.clone();
+            let saved_types = state.local_types.clone();
+            let saved_size = state.locals_size;
+            collect_locals_block(state, &block.stmts);
+            let max_size = state.locals_size;
+            state.locals = saved_locals;
+            state.local_types = saved_types;
+            state.locals_size = saved_size;
+            // Keep track of the maximum frame size needed
+            if max_size > state.locals_size {
+                state.locals_size = max_size;
+            }
+        }
         Expr::BinOp { lhs, rhs, .. } => {
             scan_expr_locals(state, lhs);
             scan_expr_locals(state, rhs);
