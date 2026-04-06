@@ -1,24 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 400" font-family="sans-serif" font-size="12">
   <rect width="860" height="400" fill="white"/>
-  <text x="430" y="24" text-anchor="middle" font-size="16" font-weight="bold">reg-rs Regression Tests (0)</text>
-  <line x1="60" y1="NaN" x2="780" y2="NaN" stroke="#eee"/>
-  <text x="52" y="NaN" text-anchor="end" font-size="10">0</text>
-  <line x1="60" y1="NaN" x2="780" y2="NaN" stroke="#eee"/>
-  <text x="52" y="NaN" text-anchor="end" font-size="10">0</text>
-  <line x1="60" y1="NaN" x2="780" y2="NaN" stroke="#eee"/>
-  <text x="52" y="NaN" text-anchor="end" font-size="10">0</text>
-  <line x1="60" y1="NaN" x2="780" y2="NaN" stroke="#eee"/>
-  <text x="52" y="NaN" text-anchor="end" font-size="10">0</text>
-  <line x1="60" y1="NaN" x2="780" y2="NaN" stroke="#eee"/>
-  <text x="52" y="NaN" text-anchor="end" font-size="10">0</text>
-  <line x1="60" y1="NaN" x2="780" y2="NaN" stroke="#eee"/>
-  <text x="52" y="NaN" text-anchor="end" font-size="10">0</text>
+  <text x="430" y="24" text-anchor="middle" font-size="16" font-weight="bold">reg-rs Regression Tests (81)</text>
+  <line x1="60" y1="320" x2="780" y2="320" stroke="#eee"/>
+  <text x="52" y="324" text-anchor="end" font-size="10">0</text>
+  <line x1="60" y1="264" x2="780" y2="264" stroke="#eee"/>
+  <text x="52" y="268" text-anchor="end" font-size="10">18</text>
+  <line x1="60" y1="208" x2="780" y2="208" stroke="#eee"/>
+  <text x="52" y="212" text-anchor="end" font-size="10">36</text>
+  <line x1="60" y1="152" x2="780" y2="152" stroke="#eee"/>
+  <text x="52" y="156" text-anchor="end" font-size="10">54</text>
+  <line x1="60" y1="96" x2="780" y2="96" stroke="#eee"/>
+  <text x="52" y="100" text-anchor="end" font-size="10">72</text>
+  <line x1="60" y1="40" x2="780" y2="40" stroke="#eee"/>
+  <text x="52" y="44" text-anchor="end" font-size="10">90</text>
   <text x="60" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,60,340)">03-22</text>
-  <text x="150" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,150,340)">03-23</text>
-  <text x="330" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,330,340)">03-28</text>
-  <text x="420" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,420,340)">03-30</text>
-  <text x="600" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,600,340)">04-03</text>
-  <text x="780" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,780,340)">04-05</text>
+  <text x="140" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,140,340)">03-23</text>
+  <text x="300" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,300,340)">03-28</text>
+  <text x="460" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,460,340)">04-01</text>
+  <text x="620" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,620,340)">04-04</text>
+  <text x="780" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,780,340)">04-06</text>
   <rect x="60" y="40" width="720" height="280" fill="none" stroke="#ccc"/>
-  <line x1="70" y1="360" x2="90" y2="360" stroke="#607D8B" stroke-width="2"/>  <text x="94" y="364" font-size="10">reg-rs Regression Tests (0)</text>
+  <polyline points="60.0,320.0 140.0,320.0 220.0,320.0 300.0,320.0 380.0,320.0 460.0,320.0 540.0,320.0 620.0,320.0 700.0,320.0 780.0,68.0" fill="none" stroke="#607D8B" stroke-width="2.5"/>
+  <circle cx="780.0" cy="68.0" r="3" fill="#607D8B"/>
+  <line x1="70" y1="360" x2="90" y2="360" stroke="#607D8B" stroke-width="2"/>  <text x="94" y="364" font-size="10">reg-rs Regression Tests (81)</text>
 </svg>

@@ -14,23 +14,23 @@
   <line x1="60" y1="40" x2="780" y2="40" stroke="#eee"/>
   <text x="52" y="44" text-anchor="end" font-size="10">50</text>
   <text x="60" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,60,340)">03-22</text>
-  <text x="150" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,150,340)">03-23</text>
-  <text x="330" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,330,340)">03-28</text>
-  <text x="420" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,420,340)">03-30</text>
-  <text x="600" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,600,340)">04-03</text>
-  <text x="780" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,780,340)">04-05</text>
+  <text x="140" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,140,340)">03-23</text>
+  <text x="300" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,300,340)">03-28</text>
+  <text x="460" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,460,340)">04-01</text>
+  <text x="620" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,620,340)">04-04</text>
+  <text x="780" y="340" text-anchor="middle" font-size="10" transform="rotate(-30,780,340)">04-06</text>
   <rect x="60" y="40" width="720" height="280" fill="none" stroke="#ccc"/>
   <line x1="60" y1="90.4" x2="780" y2="90.4" stroke="#2196F3" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
   <text x="784" y="93.4" font-size="9" fill="#2196F3" opacity="0.7">chibicc: 41</text>
   <line x1="60" y1="258.4" x2="780" y2="258.4" stroke="#4CAF50" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
   <text x="784" y="261.4" font-size="9" fill="#4CAF50" opacity="0.7">beej: 11</text>
-  <polyline points="60.0,303.2 150.0,286.4 240.0,286.4 330.0,286.4 420.0,286.4 510.0,286.4 600.0,241.6 690.0,241.6 780.0,230.4" fill="none" stroke="#2196F3" stroke-width="2.5"/>
-  <circle cx="780.0" cy="230.4" r="3" fill="#2196F3"/>
-  <polyline points="60.0,320.0 150.0,297.6 240.0,297.6 330.0,297.6 420.0,297.6 510.0,297.6 600.0,286.4 690.0,286.4 780.0,286.4" fill="none" stroke="#4CAF50" stroke-width="2.5"/>
+  <polyline points="60.0,303.2 140.0,286.4 220.0,286.4 300.0,286.4 380.0,286.4 460.0,286.4 540.0,241.6 620.0,241.6 700.0,230.4 780.0,213.6" fill="none" stroke="#2196F3" stroke-width="2.5"/>
+  <circle cx="780.0" cy="213.6" r="3" fill="#2196F3"/>
+  <polyline points="60.0,320.0 140.0,297.6 220.0,297.6 300.0,297.6 380.0,297.6 460.0,297.6 540.0,286.4 620.0,286.4 700.0,286.4 780.0,286.4" fill="none" stroke="#4CAF50" stroke-width="2.5"/>
   <circle cx="780.0" cy="286.4" r="3" fill="#4CAF50"/>
-  <polyline points="60.0,314.4 150.0,90.4 240.0,90.4 330.0,90.4 420.0,90.4 510.0,90.4 600.0,90.4 690.0,90.4 780.0,90.4" fill="none" stroke="#FF9800" stroke-width="2.5"/>
+  <polyline points="60.0,314.4 140.0,90.4 220.0,90.4 300.0,90.4 380.0,90.4 460.0,90.4 540.0,90.4 620.0,90.4 700.0,90.4 780.0,90.4" fill="none" stroke="#FF9800" stroke-width="2.5"/>
   <circle cx="780.0" cy="90.4" r="3" fill="#FF9800"/>
-  <line x1="70" y1="360" x2="90" y2="360" stroke="#2196F3" stroke-width="2"/>  <text x="94" y="364" font-size="10">chibicc pass (16)</text>
+  <line x1="70" y1="360" x2="90" y2="360" stroke="#2196F3" stroke-width="2"/>  <text x="94" y="364" font-size="10">chibicc pass (19)</text>
   <line x1="310" y1="360" x2="330" y2="360" stroke="#4CAF50" stroke-width="2"/>  <text x="334" y="364" font-size="10">beej pass (6)</text>
   <line x1="550" y1="360" x2="570" y2="360" stroke="#FF9800" stroke-width="2"/>  <text x="574" y="364" font-size="10">bgc pass (41)</text>
 </svg>
