@@ -70,6 +70,10 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     }
     if ts.eat(TokenKind::Minus) {
         let operand = parse_unary(ts)?;
+        // Fold -N → IntLit(-N) at parse time (avoids 0-N codegen)
+        if let Expr::IntLit(n) = &operand {
+            return Ok(Expr::IntLit(-n));
+        }
         return Ok(Expr::UnaryOp {
             op: UnaryOp::Neg,
             operand: Box::new(operand),

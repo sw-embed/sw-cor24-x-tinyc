@@ -8,8 +8,10 @@ use tc24r_ast::{Expr, Type};
 use tc24r_codegen_state::CodegenState;
 use tc24r_emit_core::{emit_brf, emit_brt};
 use tc24r_emit_macros::emit;
-use tc24r_ops_compare::{gen_compare_branch, gen_compare_branch_true, is_comparison_op};
-use tc24r_type_infer::{GenExprFn, expr_type, gen_simple_into_r1, is_simple_expr};
+use tc24r_ops_compare::{
+    gen_compare_branch, gen_compare_branch_true, gen_compare_branch_zero, is_comparison_op,
+};
+use tc24r_type_infer::{expr_type, gen_simple_into_r1, is_simple_expr, GenExprFn};
 
 /// Evaluate `cond` and branch to `skip_label` when the condition is false.
 ///
@@ -23,6 +25,15 @@ pub fn gen_condition_skip(
 ) {
     if let Expr::BinOp { op, lhs, rhs } = cond {
         if is_comparison_op(*op) {
+            // Peephole: compare against 0 → use z register directly
+            if matches!(rhs.as_ref(), Expr::IntLit(0)) {
+                gen_expr_fn(lhs, state);
+                // r1 not needed — compare functions use z implicitly
+                // (ceq r0,z, cls r0,z, clu r0,z)
+                let is_unsigned = matches!(expr_type(state, lhs), Some(Type::UnsignedInt));
+                gen_compare_branch_zero(state, *op, skip_label, is_unsigned);
+                return;
+            }
             // Fused path: load operands into r0/r1, then compare+branch
             if is_simple_expr(rhs, state) {
                 gen_expr_fn(lhs, state);

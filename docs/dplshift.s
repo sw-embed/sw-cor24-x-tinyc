@@ -14,16 +14,11 @@ _main:
         push    r1
         mov     fp,sp
         add     sp,-6
-        lc      r0,1
-        push    r0
-        lc      r0,0
-        pop     r1
-        sub     r0,r1
+        lc      r0,-1
         sw      r0,-6(fp)
         sw      r0,-3(fp)
         lw      r0,-6(fp)
-        lc      r1,1
-        shl     r0,r1
+        add     r0,r0
         push    r0
         lw      r0,-3(fp)
         lc      r1,23
@@ -33,8 +28,7 @@ _main:
         or      r0,r1
         sw      r0,-6(fp)
         lw      r0,-6(fp)
-        lc      r1,1
-        shl     r0,r1
+        add     r0,r0
         push    r0
         lw      r0,-3(fp)
         lc      r1,0
@@ -45,11 +39,9 @@ _main:
         or      r0,r1
         sw      r0,-6(fp)
         lw      r0,-3(fp)
-        lc      r1,1
-        shl     r0,r1
+        add     r0,r0
         sw      r0,-3(fp)
         lc      r0,0
-        bra     L0
 L0:
         mov     sp,fp
         pop     r1

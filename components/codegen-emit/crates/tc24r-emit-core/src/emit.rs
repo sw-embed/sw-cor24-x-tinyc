@@ -139,6 +139,28 @@ fn emit_long_brf(state: &mut CodegenState, target: &str) {
 /// Out-of-range branches are expanded to long form by replacing the short
 /// branch line in `state.out`. Processes from end to start so byte offsets
 /// of earlier entries remain valid.
+/// Remove redundant `bra Lx` immediately before `Lx:`.
+pub fn eliminate_redundant_branches(state: &mut CodegenState) {
+    // Collect lines, remove bra→label pairs
+    let mut lines: Vec<String> = state.out.lines().map(|l| l.to_string()).collect();
+    let mut i = 0;
+    while i + 1 < lines.len() {
+        let cur = lines[i].trim();
+        let next = lines[i + 1].trim();
+        // Check: "bra     Lx" followed by "Lx:"
+        if let Some(target) = cur.strip_prefix("bra").or_else(|| cur.strip_prefix("bra ")) {
+            let target = target.trim();
+            if next == format!("{target}:") {
+                lines.remove(i);
+                continue; // don't advance i — re-check the new pair
+            }
+        }
+        i += 1;
+    }
+    state.out = lines.join("\n");
+    state.out.push('\n');
+}
+
 pub fn resolve_branches(state: &mut CodegenState) {
     // Process in reverse order so replacements don't shift earlier offsets
     let branches: Vec<DeferredBranch> = state.deferred_branches.drain(..).collect();

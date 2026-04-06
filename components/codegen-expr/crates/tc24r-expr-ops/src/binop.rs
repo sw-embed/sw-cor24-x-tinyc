@@ -10,7 +10,7 @@ use tc24r_ops_bitwise::{
 use tc24r_ops_compare::gen_compare_eq;
 use tc24r_ops_divmod::gen_divmod_call;
 use tc24r_ops_logical::{gen_log_and, gen_log_or};
-use tc24r_type_infer::{GenExprFn, expr_type, gen_simple_into_r1, is_simple_expr};
+use tc24r_type_infer::{expr_type, gen_simple_into_r1, is_simple_expr, GenExprFn};
 
 /// Dispatch a binary operation to the appropriate L2 handler.
 pub fn gen_binop_dispatch(
@@ -29,6 +29,12 @@ pub fn gen_binop_dispatch(
         BinOp::LogAnd => return gen_log_and(state, lhs, rhs, gen_expr_fn),
         BinOp::LogOr => return gen_log_or(state, lhs, rhs, gen_expr_fn),
         BinOp::Add | BinOp::Sub => return gen_add_sub(state, op, lhs, rhs, gen_expr_fn),
+        // Peephole: shift by 1 → add r0,r0 (saves loading r1)
+        BinOp::Shl if matches!(rhs, Expr::IntLit(1)) => {
+            gen_expr_fn(lhs, state);
+            emit!(state, "        add     r0,r0");
+            return;
+        }
         _ => {}
     }
     let is_unsigned = matches!(expr_type(state, lhs), Some(Type::UnsignedInt));

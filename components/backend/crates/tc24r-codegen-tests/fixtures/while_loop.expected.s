@@ -28,7 +28,6 @@ L1:
         bra     L1
 L2:
         lw      r0,-3(fp)
-        bra     L0
 L0:
         mov     sp,fp
         pop     r1

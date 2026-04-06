@@ -66,7 +66,11 @@ pub fn is_comparison_op(op: BinOp) -> bool {
 
 /// Select the compare-less instruction: `cls` (signed) or `clu` (unsigned).
 fn cmp_less(is_unsigned: bool) -> &'static str {
-    if is_unsigned { "clu" } else { "cls" }
+    if is_unsigned {
+        "clu"
+    } else {
+        "cls"
+    }
 }
 
 /// Emit a comparison and branch to `label` when the condition is FALSE.
@@ -140,5 +144,39 @@ pub fn gen_compare_branch_true(
             emit_brf(state, loop_label);
         }
         _ => panic!("gen_compare_branch_true called with non-comparison op: {op:?}"),
+    }
+}
+
+/// Compare r0 against zero (using z register) and branch when FALSE.
+/// Handles Eq, Ne, Lt, Ge efficiently. Gt and Le fall back to r1 load.
+pub fn gen_compare_branch_zero(
+    state: &mut CodegenState,
+    op: BinOp,
+    skip_label: &str,
+    is_unsigned: bool,
+) {
+    let cmp = cmp_less(is_unsigned);
+    match op {
+        BinOp::Eq => {
+            emit!(state, "        ceq     r0,z");
+            emit_brf(state, skip_label);
+        }
+        BinOp::Ne => {
+            emit!(state, "        ceq     r0,z");
+            emit_brt(state, skip_label);
+        }
+        BinOp::Lt => {
+            emit!(state, "        {cmp}     r0,z");
+            emit_brf(state, skip_label);
+        }
+        BinOp::Ge => {
+            emit!(state, "        {cmp}     r0,z");
+            emit_brt(state, skip_label);
+        }
+        _ => {
+            // Gt, Le: fall back to loading 0 into r1
+            emit!(state, "        lc      r1,0");
+            gen_compare_branch(state, op, skip_label, is_unsigned);
+        }
     }
 }

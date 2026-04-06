@@ -38,7 +38,6 @@ L2:
         mov     r1,r0
         pop     r0
         add     r0,r1
-        bra     L0
 L0:
         mov     sp,fp
         pop     r1
@@ -57,7 +56,6 @@ _main:
         la      r0,_fib
         jal     r1,(r0)
         add     sp,3
-        bra     L3
 L3:
         mov     sp,fp
         pop     r1

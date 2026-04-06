@@ -1,6 +1,6 @@
 use tc24r_ast::Function;
 use tc24r_codegen_state::CodegenState;
-use tc24r_emit_core::{emit, new_label, resolve_branches};
+use tc24r_emit_core::{eliminate_redundant_branches, emit, new_label, resolve_branches};
 use tc24r_struct_isr::{emit_isr_epilogue, emit_isr_prologue};
 use tc24r_struct_locals::collect_locals_block;
 use tc24r_struct_prologue::{emit_epilogue, emit_prologue};
@@ -53,4 +53,6 @@ pub fn gen_function(state: &mut CodegenState, func: &Function) {
 
     // Resolve deferred forward branches now that all labels are known
     resolve_branches(state);
+    // Remove redundant bra→label pairs (bra Lx immediately before Lx:)
+    eliminate_redundant_branches(state);
 }
