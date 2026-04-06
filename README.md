@@ -113,12 +113,12 @@ cargo run -- run path/to/program.s
 
 ## Testing
 
-| Test Suite | Pass | Total | Notes |
-|-----------|------|-------|-------|
+| Test Suite | Pass | In-Scope | Notes |
+|-----------|------|----------|-------|
 | reg-rs regressions | 81 | 81 | Output stability checks (demos + chibicc + suites) |
 | tc24r demos | 61 | 61 | End-to-end compiler + emulator |
-| chibicc full | 19 | 41 | builtin, cast, commonsym, compat, const, control, decl, enum, extern, generic, pointer, pragma-once, sizeof, stdhdr, typeof, union, usualconv, variable, vla |
-| beej-c-guide | 6 | 11 | hello_world, functions, pointers, pointers_arithmetic, strings, typedef |
+| chibicc | 19 | 36 | 5 excluded: float, atomic, tls, varargs, unicode |
+| beej-c-guide | 6 | 6 | 5 excluded: float/double (no FPU) |
 | bgc examples | 41 | 117 | With stdio/stdlib/string/stdbool stubs |
 
 See [Testing Status](docs/testing-status.md) for detailed tables, blocker analysis, and progress charts.

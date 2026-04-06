@@ -49,9 +49,10 @@ fn main() {
     let out = PathBuf::from(&output_dir);
 
     // Individual charts per suite
-    generate_suite_chart(&history, &out.join("chart-chibicc.svg"), "chibicc", 41,
+    // In-scope totals (excluding float/atomic/tls/varargs/unicode)
+    generate_suite_chart(&history, &out.join("chart-chibicc.svg"), "chibicc", 36,
         |c| c.chibicc, "#2196F3");
-    generate_suite_chart(&history, &out.join("chart-beej.svg"), "beej-c-guide", 11,
+    generate_suite_chart(&history, &out.join("chart-beej.svg"), "beej-c-guide", 6,
         |c| c.beej, "#4CAF50");
     generate_suite_chart(&history, &out.join("chart-bgc.svg"), "bgc", 117,
         |c| c.bgc, "#FF9800");
