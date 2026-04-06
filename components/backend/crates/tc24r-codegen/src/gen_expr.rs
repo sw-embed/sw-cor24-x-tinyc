@@ -84,16 +84,24 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
             // Save/restore ALL locals state, matching the collect pass.
             // Both passes save/restore identically, so the re-run of
             // collect_locals produces the same offsets as the initial pass.
-            // Save/restore locals maps so variables from one StmtExpr
-            // don't leak into subsequent ones.
-            // gen_local_decl allocates on-demand for missing variables.
+            // Save/restore ALL locals state so variables from one StmtExpr
+            // don't leak into subsequent ones. locals_size is saved so
+            // on-demand allocation in gen_local_decl starts from the same
+            // point as the initial collect pass (which also saves/restores).
             let saved_locals = state.locals.clone();
             let saved_types = state.local_types.clone();
+            let saved_size = state.locals_size;
             for s in &block.stmts {
                 gen_stmt(s, state);
             }
+            let inner_max = state.locals_size;
             state.locals = saved_locals;
             state.local_types = saved_types;
+            state.locals_size = saved_size;
+            // Track max (mirrors collect's behavior)
+            if inner_max > state.locals_size {
+                state.locals_size = inner_max;
+            }
         }
         Expr::MemberAccess { object, member } => {
             tc24r_expr_struct::gen_member_access(state, object, member, gen_expr)

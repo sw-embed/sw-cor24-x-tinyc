@@ -36,6 +36,11 @@ pub fn gen_function(state: &mut CodegenState, func: &Function) {
         emit_prologue(state);
     }
 
+    // Reset locals_size after prologue so on-demand allocation in
+    // gen_local_decl (inside StmtExpr scopes) starts from 0, matching
+    // the initial collect pass. The prologue already used the max value.
+    state.locals_size = 0;
+
     for stmt in &body.stmts {
         gen_stmt(stmt, state);
     }
