@@ -459,9 +459,9 @@ fn parse_params(ts: &mut TokenStream) -> Result<Vec<Param>, CompileError> {
             } else {
                 ts.expect_ident()?
             };
-            // Array parameter: int a[N] decays to pointer
+            // Array parameter: int a[N] or int a[][3] — decays to pointer
             let ty = if ts.eat(TokenKind::LBracket) {
-                // Skip qualifiers and static inside brackets: [restrict static 3]
+                // Skip qualifiers and static inside brackets
                 while matches!(
                     ts.peek().kind,
                     TokenKind::Restrict
@@ -476,6 +476,13 @@ fn parse_params(ts: &mut TokenStream) -> Result<Vec<Param>, CompileError> {
                     let _ = parse_const_array_size(ts);
                 }
                 ts.expect(TokenKind::RBracket)?;
+                // Handle additional dimensions: int a[][3][4]
+                while ts.eat(TokenKind::LBracket) {
+                    if !ts.check(&TokenKind::RBracket) {
+                        let _ = parse_const_array_size(ts);
+                    }
+                    ts.expect(TokenKind::RBracket)?;
+                }
                 Type::Ptr(Box::new(ty))
             } else {
                 ty

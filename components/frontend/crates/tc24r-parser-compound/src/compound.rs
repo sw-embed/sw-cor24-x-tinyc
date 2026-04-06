@@ -70,14 +70,8 @@ pub fn desugar_compound(lhs: Expr, op: BinOp, rhs: Expr) -> Result<Expr, Compile
 }
 
 /// Clone an lvalue expression for the read side of compound assignment.
+/// Also clones sub-expressions (like pointer arithmetic in a[i]).
 fn clone_lvalue(expr: &Expr) -> Expr {
-    match expr {
-        Expr::Ident(name) => Expr::Ident(name.clone()),
-        Expr::Deref(inner) => Expr::Deref(Box::new(clone_lvalue(inner))),
-        Expr::MemberAccess { object, member } => Expr::MemberAccess {
-            object: Box::new(clone_lvalue(object)),
-            member: member.clone(),
-        },
-        _ => unreachable!("clone_lvalue called on non-lvalue"),
-    }
+    // Expr derives Clone, so we can clone any sub-expression.
+    expr.clone()
 }

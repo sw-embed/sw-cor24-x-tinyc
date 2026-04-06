@@ -7,6 +7,13 @@
 #define NULL 0
 #define EOF (-1)
 
+// Opaque file handle (stub — no real filesystem on COR24)
+typedef int FILE;
+// Standard streams (stub pointers)
+#define stdin  ((FILE *)0)
+#define stdout ((FILE *)1)
+#define stderr ((FILE *)2)
+
 #define _STDIO_UART_DATA   0xFF0100
 #define _STDIO_UART_STATUS 0xFF0101
 
