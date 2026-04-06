@@ -30,9 +30,15 @@ Regenerate: `tools/chart-gen/target/release/chart-gen . docs`
 | tc24r demos | 61 | 61 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 81 | 81 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
-| chibicc | 19 | 36 | 53% | 5 out-of-scope (float, atomic, tls, varargs, unicode) |
-| beej-c-guide | 6 | 6 | 100% | 5 out-of-scope (float/double — no FPU on COR24) |
-| bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
+| chibicc | 19 | 36 | 53% | 5 of 41 excluded (float, atomic, tls, varargs, unicode) |
+| beej-c-guide | 6 | 6 | 100% | 5 of 11 excluded (float/double — no FPU on COR24) |
+| bgc examples | 41 | ~117* | ~35% | *See footnote |
+
+\* **bgc note:** 117 is the total file count. The in-scope count (excluding float/double)
+is not yet determined — bgc examples are only available on the Linux build machine.
+The 41 passing count is from the last test run on that machine. Many of the remaining
+76 are likely blocked by float/double usage, which would reduce the in-scope total
+significantly.
 
 ## tc24r Demos (55/55)
 
@@ -310,13 +316,13 @@ Testing against `~/github/softwarewrighter/beej-c-guide/src/*.c`.
 
 Run: `scripts/run-beej-tests.sh`
 
-## bgc (Beej's Guide to C) Examples (1/117)
+## bgc (Beej's Guide to C) Examples (41/~117)
 
-Testing against `/home/mike/bgc_download/bgc_source/examples/*.c`.
+Testing against `/home/mike/bgc_download/bgc_source/examples/*.c` (Linux machine only).
 
-- 116/117 blocked on `#include <stdio.h>`
-- 1/117 blocked on `#include <stdalign.h>`
-- All 117 examples use printf and require a stdio.h implementation
+- 41 compile and pass with freestanding stdio/stdlib/string stubs
+- Remaining ~76 are likely blocked by float/double (not yet categorized)
+- In-scope total (excluding float) TBD — requires access to the Linux machine
 
 ## Known Limitations Affecting Tests
 
