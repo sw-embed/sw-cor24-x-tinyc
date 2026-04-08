@@ -171,11 +171,10 @@ cargo test --manifest-path components/backend/Cargo.toml -- --ignored
 
 The following COR24 ecosystem projects are written in C and built with `tc24r`:
 
-- [sw-cor24-assembler](https://github.com/sw-embed/sw-cor24-assembler) -- Native COR24 assembler
+- [sw-cor24-assembler](https://github.com/sw-embed/sw-cor24-assembler) -- Native COR24 assembler (planned)
 - [sw-cor24-macrolisp](https://github.com/sw-embed/sw-cor24-macrolisp) -- Tiny Macro Lisp interpreter
 - [sw-cor24-apl](https://github.com/sw-embed/sw-cor24-apl) -- APL interpreter
-- [sw-cor24-basic](https://github.com/sw-embed/sw-cor24-basic) -- BASIC interpreter
-- [sw-cor24-fortran](https://github.com/sw-embed/sw-cor24-fortran) -- Fortran compiler
+- [sw-cor24-fortran](https://github.com/sw-embed/sw-cor24-fortran) -- Fortran compiler (planned)
 - [sw-cor24-script](https://github.com/sw-embed/sw-cor24-script) -- SWS scripting language (Tcl-like)
 - [sw-cor24-monitor](https://github.com/sw-embed/sw-cor24-monitor) -- Resident monitor / service processor
 - [sw-cor24-yocto-ed](https://github.com/sw-embed/sw-cor24-yocto-ed) -- Tiny ed-style line editor
