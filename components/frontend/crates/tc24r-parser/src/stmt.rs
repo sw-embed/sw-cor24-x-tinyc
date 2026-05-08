@@ -248,17 +248,25 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
         if ts.check(&TokenKind::LBrace) {
             return parse_brace_init(ts, name, ty, implicit_size);
         }
-        // char s[] = "hello" — infer size from string length + null
+        // Parse the initializer first, then size-infer from the parsed
+        // expression. The expression parser collapses adjacent string
+        // literals (C99 phase 6), so peeking the raw token here would
+        // see only the first chunk; e.g. `char s[] = "abc" "def"` would
+        // wrongly infer length 4 instead of 7. Mirror the global path
+        // in decl.rs.
+        let init_expr = parse_assign(ts)?;
         if implicit_size {
             if let Type::Array(elem, 0) = &ty {
-                if let TokenKind::StringLit(s) = &ts.peek().kind {
-                    let len = s.len() + 1; // +1 for null terminator
-                    ty = Type::Array(elem.clone(), len);
+                if let Expr::StringLit(s) = &init_expr {
+                    ty = Type::Array(elem.clone(), s.len() + 1);
                 }
             }
         }
-        let init = Some(parse_assign(ts)?);
-        return Ok(Stmt::LocalDecl { name, ty, init });
+        return Ok(Stmt::LocalDecl {
+            name,
+            ty,
+            init: Some(init_expr),
+        });
     }
     Ok(Stmt::LocalDecl {
         name,

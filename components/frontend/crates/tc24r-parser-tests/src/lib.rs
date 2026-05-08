@@ -17,6 +17,8 @@ mod tests_array_const_expr;
 #[cfg(test)]
 mod tests_basic;
 #[cfg(test)]
+mod tests_string_concat;
+#[cfg(test)]
 mod tests_compound_literal;
 #[cfg(test)]
 mod tests_enum;
