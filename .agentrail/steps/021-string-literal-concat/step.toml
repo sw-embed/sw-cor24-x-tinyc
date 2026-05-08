@@ -1,4 +1,4 @@
-number = 20
+number = 21
 slug = "string-literal-concat"
 status = "pending"
 description = 'Fix: implicit string literal concatenation ("str1" "str2" → "str1str2") is ...'

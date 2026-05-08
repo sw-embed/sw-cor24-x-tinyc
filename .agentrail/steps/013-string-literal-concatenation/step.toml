@@ -1,0 +1,9 @@
+number = 13
+slug = "string-literal-concatenation"
+status = "pending"
+description = "Implement adjacent string-literal token concatenation per C99 translation pha..."
+role = "production"
+context_files = []
+created_at = "2026-05-07T19:59:03"
+task_type = "rust-clippy-fix"
+commits = []
