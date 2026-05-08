@@ -1,4 +1,4 @@
-number = 12
+number = 13
 slug = "compound-literals"
 status = "in-progress"
 description = "Support compound literal syntax: (type){initializer} in expression position. ..."
@@ -6,3 +6,4 @@ role = "production"
 context_files = []
 created_at = "2026-04-01T17:31:06"
 task_type = "rust-clippy-fix"
+commits = []

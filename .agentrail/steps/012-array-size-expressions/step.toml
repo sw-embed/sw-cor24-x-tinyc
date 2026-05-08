@@ -1,0 +1,9 @@
+number = 12
+slug = "array-size-expressions"
+status = "pending"
+description = "Extend tc24r's array-size grammar to accept compile-time integer constant exp..."
+role = "production"
+context_files = []
+created_at = "2026-05-07T17:57:44"
+task_type = "rust-clippy-fix"
+commits = []
