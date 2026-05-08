@@ -1,0 +1,11 @@
+{
+  "task_type": "rust-clippy-fix",
+  "state": {
+    "number": 12,
+    "step": "array-size-expressions"
+  },
+  "action": "Edit decl.rs (Ident arm), add tc24r-parser-tests/tests_array_const_expr.rs and try_parse_source helper, add demos/demo62.{c,sh}, add work/reg-rs/tc24r-demo62.{rgt,out}, update README, retarget cor24-isa to sw-cor24-isa. Verified with cargo test (63/63), demo55+demo62 e2e, chibicc-subset 5/5, cargo clippy clean, cargo fmt clean.",
+  "result": "success",
+  "reward": 1,
+  "timestamp": "2026-05-07T19:36:46"
+}
