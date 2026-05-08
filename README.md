@@ -18,7 +18,18 @@ tc24r is **functional** -- it compiles real C programs to COR24 assembly that ru
 - Compound assignment: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
 - sizeof, typedef, enum, struct (dot and arrow access), union
 - Function pointers: local/global declarations, arrays, parameter passing, indirect calls
-- Constant expressions in array sizes (int buf[ROWS * COLS])
+- Constant expressions in array sizes: `+ - * /`, parens, and unary minus
+  on integer literals or `#define`-substituted identifiers
+  (e.g. `int buf[ROWS * COLS]`, `char grid[(A + B) * 2]`, `char cell[N * 16]`).
+  Folded to a single integer at parse time. `sizeof` and VLAs are not
+  supported in this position.
+- Adjacent string-literal concatenation (C99 §5.1.1.2 phase 6):
+  `"abc" "def"` becomes a single `"abcdef"` token before parsing.
+  Works across newlines and intervening comments, in expression
+  position (initializers, return values, function arguments) and in
+  brace-init elements. Escape sequences resolve per chunk before
+  concatenation, so `"ab\n" "cd"` is 5 chars + null. Wide-string
+  concatenation (`L"..." L"..."`) is out of scope.
 - Function prototypes (forward declarations, mutual recursion)
 - Functions with multiple parameters, recursion, ISR support
 - Globals, string constants, hex literals

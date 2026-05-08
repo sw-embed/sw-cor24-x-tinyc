@@ -1,0 +1,4 @@
+command = "bash demos/run-demo63.sh"
+exit_code = 0
+desc = "Demo 63: adjacent string-literal concatenation (C99 phase 6)"
+expects = "r0=63, CPU halted, D63OK"

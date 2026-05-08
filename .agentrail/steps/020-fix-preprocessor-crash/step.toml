@@ -1,4 +1,4 @@
-number = 18
+number = 20
 slug = "fix-preprocessor-crash"
 status = "pending"
 description = "Fix preprocessor crash on chibicc macro.c test. Run macro.c through tc24r wit..."
@@ -6,3 +6,4 @@ role = "production"
 context_files = []
 created_at = "2026-04-01T17:31:37"
 task_type = "rust-clippy-fix"
+commits = []

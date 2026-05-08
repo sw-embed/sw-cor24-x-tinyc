@@ -1,0 +1,4 @@
+command = "bash demos/run-demo62.sh"
+exit_code = 0
+desc = "Demo 62: parenthesised and mixed const-expr in array sizes"
+expects = "r0=62, CPU halted, D62OK"

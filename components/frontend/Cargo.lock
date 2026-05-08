@@ -339,6 +339,7 @@ name = "tc24r-parser-tests"
 version = "0.1.0"
 dependencies = [
  "tc24r-ast",
+ "tc24r-error",
  "tc24r-lexer",
  "tc24r-parser",
 ]

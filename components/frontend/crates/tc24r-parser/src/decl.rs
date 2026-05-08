@@ -72,6 +72,12 @@ fn const_primary(ts: &mut TokenStream) -> Result<i32, CompileError> {
     if ts.eat(TokenKind::Minus) {
         return Ok(-const_primary(ts)?);
     }
+    if let TokenKind::Ident(name) = &ts.peek().kind {
+        let msg = format!(
+            "'{name}' must be a compile-time integer constant in array size"
+        );
+        return Err(CompileError::new(msg, Some(ts.current_span())));
+    }
     Err(CompileError::new(
         "expected integer constant in array size",
         Some(ts.current_span()),

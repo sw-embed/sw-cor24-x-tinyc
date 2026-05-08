@@ -1,0 +1,1 @@
+Added 14 parser tests, demo62 (parens/mixed/precedence), reg-rs lock-in, and a clearer named-identifier error message in const_primary. Discovered the parser-side cascade was already in c641f9d (Apr 1) but the May-3 PATH binary lacked it; downstream PL/SW failure resolves once mike rebuilds and reinstalls. Also folded the sw-cor24-isa Cargo.toml path migration.
