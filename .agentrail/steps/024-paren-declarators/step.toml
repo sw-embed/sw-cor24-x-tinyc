@@ -1,4 +1,4 @@
-number = 23
+number = 24
 slug = "paren-declarators"
 status = "pending"
 description = "Support parenthesized declarators in variable declarations: char (*x)[3] (pointer to array), char (x)[3] (parenthesized declarator), char (x[3])[4]. These appear in chibicc variable.c test. Parser must handle nested parens, brackets, and stars in declarator position. GH #17."

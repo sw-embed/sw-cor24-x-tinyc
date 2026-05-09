@@ -30,6 +30,14 @@ tc24r is **functional** -- it compiles real C programs to COR24 assembly that ru
   brace-init elements. Escape sequences resolve per chunk before
   concatenation, so `"ab\n" "cd"` is 5 chars + null. Wide-string
   concatenation (`L"..." L"..."`) is out of scope.
+- Whole-program dead-code elimination: functions defined in any
+  included `.h` (or in the `.c` itself) that aren't reachable from
+  `main`, an interrupt handler, a global initializer, or an inline
+  `asm("...")` reference are dropped before codegen. The variadic
+  `printf`/`sprintf` rewrite to `__tc24r_printfN` is mirrored so the
+  right shim is kept based on call arity. A no-std program (no
+  `#include`s) like `demos/demo64.c` emits only `_start`/`_halt`/
+  `_main` and any data symbols it touches.
 - Function prototypes (forward declarations, mutual recursion)
 - Functions with multiple parameters, recursion, ISR support
 - Globals, string constants, hex literals

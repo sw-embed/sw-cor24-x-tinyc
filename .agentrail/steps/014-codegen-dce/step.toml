@@ -1,0 +1,10 @@
+number = 14
+slug = "codegen-dce"
+status = "completed"
+description = "Whole-program dead-code elimination in tc24r. Today every function defined in..."
+role = "production"
+context_files = []
+created_at = "2026-05-08T12:35:49"
+completed_at = "2026-05-09T08:48:19"
+task_type = "rust-clippy-fix"
+commits = ["62d5aac7ead041bbafbf7e99c5ee66607b120b84"]

@@ -1,4 +1,4 @@
-number = 16
+number = 17
 slug = "inline-asm"
 status = "pending"
 description = """Support asm("...") inline assembly statements. Parser: recognize 'asm' keywor..."""

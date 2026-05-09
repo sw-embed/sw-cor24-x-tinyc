@@ -1,6 +1,6 @@
 name = "chibicc-compatibility"
 status = "active"
-current_step = 14
+current_step = 15
 created_at = "2026-04-01T12:00:00"
 plan_file = ".agentrail/plan.md"
 retroactive = false

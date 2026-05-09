@@ -256,6 +256,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "tc24r-dce"
+version = "0.1.0"
+dependencies = [
+ "tc24r-ast",
+ "tc24r-lexer",
+ "tc24r-parser",
+]
+
+[[package]]
 name = "tc24r-error"
 version = "0.1.0"
 dependencies = [
