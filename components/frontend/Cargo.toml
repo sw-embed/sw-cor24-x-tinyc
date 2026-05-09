@@ -7,6 +7,7 @@ members = [
     "crates/tc24r-parser-compound",
     "crates/tc24r-parser-enum",
     "crates/tc24r-parser-struct",
+    "crates/tc24r-dce",
     "crates/tc24r-parser-tests",
     "crates/tc24r-parser-typedef",
     "crates/tc24r-parser-types",

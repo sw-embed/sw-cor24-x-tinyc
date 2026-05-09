@@ -47,13 +47,15 @@ fn compile(source: &str, source_dir: Option<&Path>, include_dirs: &[String]) -> 
         }
     };
 
-    let program = match tc24r_parser::parse(tokens) {
+    let mut program = match tc24r_parser::parse(tokens) {
         Ok(p) => p,
         Err(e) => {
             eprintln!("tc24r: {e}");
             process::exit(1);
         }
     };
+
+    tc24r_dce::dce(&mut program);
 
     tc24r_codegen::Codegen::new().generate(&program)
 }
