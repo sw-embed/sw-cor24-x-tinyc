@@ -1,0 +1,11 @@
+{
+  "task_type": "rust-clippy-fix",
+  "state": {
+    "number": 16,
+    "step": "emit-zero-fill"
+  },
+  "action": "Edit data.rs:118 (collapse loop to single .zero N emit). Add 6 codegen_zero_fill_* tests in codegen_checks.rs. Verified end-to-end via demo45 (the canary that exposed the old cor24-run bug) and full demo sweep.",
+  "result": "success",
+  "reward": 1,
+  "timestamp": "2026-05-10T09:19:05"
+}
