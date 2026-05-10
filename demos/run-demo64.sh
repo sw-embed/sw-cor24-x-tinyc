@@ -22,8 +22,9 @@ for sym in _malloc _free _calloc _realloc _printf _abs _atoi _strcmp _strcpy _pu
     fi
 done
 echo "  [PASS] no stdlib/stdio/string symbols leaked into .s"
+cor24-asm "$TMPDIR/demo64.s" -o "$TMPDIR/demo64.lgo"
 
-OUTPUT=$(cor24-run --run "$TMPDIR/demo64.s" --dump --speed 0 --time 10 2>&1)
+OUTPUT=$(cor24-emu --lgo "$TMPDIR/demo64.lgo" --dump --speed 0 --time 10 2>&1)
 R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | awk -F'[()]' '{print $2}' | tr -d ' ')
 HALTED=$(echo "$OUTPUT" | grep "Halted:" | head -1 | awk '{print $2}')
 if [ "$HALTED" = "true" ] && [ "$R0" = "5" ]; then

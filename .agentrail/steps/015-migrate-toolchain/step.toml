@@ -1,6 +1,6 @@
 number = 15
 slug = "migrate-toolchain"
-status = "pending"
+status = "in-progress"
 description = "Apply dc-migrate-toolchain.md to sw-cor24-x-tinyc. Pre-flight grep showed 64 ..."
 role = "production"
 context_files = []

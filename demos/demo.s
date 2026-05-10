@@ -16,7 +16,6 @@ _add:
         lw      r0,9(fp)
         lw      r1,12(fp)
         add     r0,r1
-        bra     L0
 L0:
         mov     sp,fp
         pop     r1
@@ -55,7 +54,6 @@ L3:
         mov     r1,r0
         pop     r0
         add     r0,r1
-        bra     L1
 L1:
         mov     sp,fp
         pop     r1
@@ -83,15 +81,13 @@ _bitops:
         xor     r0,r1
         sw      r0,-9(fp)
         lw      r0,-9(fp)
-        lc      r1,1
-        shl     r0,r1
+        add     r0,r0
         sw      r0,-12(fp)
         lw      r0,-12(fp)
         lc      r1,1
         sra     r0,r1
         sw      r0,-15(fp)
         lw      r0,-15(fp)
-        bra     L4
 L4:
         mov     sp,fp
         pop     r1
@@ -180,11 +176,7 @@ L12:
         jal     r1,(r0)
         add     sp,3
         sw      r0,-24(fp)
-        lc      r0,1
-        push    r0
-        lc      r0,0
-        pop     r1
-        sub     r0,r1
+        lc      r0,-1
         sw      r0,-27(fp)
         lc      r0,0
         lc      r1,-1
@@ -226,14 +218,7 @@ L18:
         sw      r0,-36(fp)
 L20:
         lw      r0,-27(fp)
-        push    r0
-        lc      r0,1
-        push    r0
-        lc      r0,0
-        pop     r1
-        sub     r0,r1
-        mov     r1,r0
-        pop     r0
+        lc      r1,-1
         ceq     r0,r1
         brt     L22
         lc      r0,0
@@ -254,7 +239,6 @@ L24:
         bra     L5
 L26:
         lc      r0,0
-        bra     L5
 L5:
         mov     sp,fp
         pop     r1
