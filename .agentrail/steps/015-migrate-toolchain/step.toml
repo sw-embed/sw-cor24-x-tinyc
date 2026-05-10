@@ -1,0 +1,9 @@
+number = 15
+slug = "migrate-toolchain"
+status = "pending"
+description = "Apply dc-migrate-toolchain.md to sw-cor24-x-tinyc. Pre-flight grep showed 64 ..."
+role = "production"
+context_files = []
+created_at = "2026-05-10T08:34:42"
+task_type = "rust-clippy-fix"
+commits = []
