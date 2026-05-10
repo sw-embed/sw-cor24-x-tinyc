@@ -511,6 +511,104 @@ fn codegen_global_init_list_zero_padding() {
     assert_eq!(word_count, 5, "should emit 5 words (2 init + 3 zero-pad)");
 }
 
+// --- .zero N emission for zero-init globals ---
+
+#[test]
+fn codegen_zero_fill_big_array_one_line() {
+    // 16 * 4096 = 65536 bytes. Pre-fix this emitted ~21,846 lines
+    // (.word 0 + trailing .byte 0). Post-fix: a single .zero 65536.
+    let src = "static char chunk_storage[16 * 4096]; int main(void) { return chunk_storage[0]; }";
+    let output = compile(src);
+    assert!(output.contains("_chunk_storage:"));
+    assert!(
+        output.contains(".zero   65536"),
+        "expected single .zero 65536 line; got:\n{}",
+        output
+            .lines()
+            .filter(|l| l.contains("chunk_storage") || l.contains(".zero") || l.contains(".word"))
+            .take(5)
+            .collect::<Vec<_>>()
+            .join("\n")
+    );
+    let chunk_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_chunk_storage:"))
+        .take(3)
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(
+        !chunk_section.contains(".word   0"),
+        "should not contain .word 0 lines; got:\n{chunk_section}"
+    );
+}
+
+#[test]
+fn codegen_zero_fill_small_array() {
+    let src = "static char small[10]; int main(void) { return small[0]; }";
+    let output = compile(src);
+    assert!(output.contains("_small:"));
+    assert!(output.contains(".zero   10"), "got:\n{output}");
+}
+
+#[test]
+fn codegen_zero_fill_int_array() {
+    // 3 ints * 3 bytes/int = 9 bytes.
+    let src = "static int trio[3]; int main(void) { return trio[0]; }";
+    let output = compile(src);
+    assert!(output.contains("_trio:"));
+    assert!(output.contains(".zero   9"), "got:\n{output}");
+}
+
+#[test]
+fn codegen_zero_fill_non_word_multiple() {
+    // 10 bytes is not a multiple of 3. Pre-fix would emit 3 .word 0
+    // + 1 .byte 0; post-fix: one .zero 10.
+    let src = "static char buf[10]; int main(void) { return buf[0]; }";
+    let output = compile(src);
+    assert!(output.contains(".zero   10"), "got:\n{output}");
+    let buf_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_buf:"))
+        .take(3)
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(!buf_section.contains(".byte   0"));
+    assert!(!buf_section.contains(".word   0"));
+}
+
+#[test]
+fn codegen_zero_fill_scalar() {
+    // Sanity check the one-emit path covers single scalars.
+    let src = "static int scalar; int main(void) { return scalar; }";
+    let output = compile(src);
+    assert!(output.contains("_scalar:"));
+    assert!(output.contains(".zero   3"), "got:\n{output}");
+}
+
+#[test]
+fn codegen_mixed_init_unchanged_by_zero_fill_change() {
+    // emit_typed_data path (mixed-init) is explicitly out of scope:
+    // it should still produce per-element .word lines including
+    // explicit .word 0 for the trailing zeros.
+    let src = "static int arr[5] = {10, 20}; int main(void) { return arr[0]; }";
+    let output = compile(src);
+    let arr_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_arr:"))
+        .take_while(|l| !l.starts_with('_') || l.contains("_arr:"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let word_count = arr_section.matches(".word").count();
+    assert_eq!(
+        word_count, 5,
+        "mixed-init should still emit 5 per-element .word lines, not collapse via .zero"
+    );
+    assert!(
+        !arr_section.contains(".zero"),
+        "mixed-init must not use .zero; got:\n{arr_section}"
+    );
+}
+
 // --- Postfix ++/-- on struct members and array elements ---
 
 #[test]

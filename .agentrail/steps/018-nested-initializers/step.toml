@@ -1,4 +1,4 @@
-number = 17
+number = 18
 slug = "nested-initializers"
 status = "pending"
 description = "Support nested brace initializers and designated initializers. Nested braces:..."
