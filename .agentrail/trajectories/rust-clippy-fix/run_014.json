@@ -1,0 +1,11 @@
+{
+  "task_type": "rust-clippy-fix",
+  "state": {
+    "number": 15,
+    "step": "migrate-toolchain"
+  },
+  "action": "Wrote /tmp/asx-repro/migrate.py one-shot helper. Migrated 63 runners + 1 unnumbered + 2 test scripts via the helper, plus manual edit on scripts/run-subset-tests.sh (used 'result=' not 'OUTPUT=' so the regex skipped it). Verified byte-equivalent across the suite.",
+  "result": "success",
+  "reward": 1,
+  "timestamp": "2026-05-10T09:00:40"
+}
