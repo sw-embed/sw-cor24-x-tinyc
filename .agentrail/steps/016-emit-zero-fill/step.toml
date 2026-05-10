@@ -1,9 +1,10 @@
 number = 16
 slug = "emit-zero-fill"
-status = "pending"
+status = "completed"
 description = "Replace per-word/.word 0 loop in emit_zero_fill (components/codegen-emit/crat..."
 role = "production"
 context_files = []
 created_at = "2026-05-10T09:17:00"
+completed_at = "2026-05-10T09:19:05"
 task_type = "rust-clippy-fix"
-commits = []
+commits = ["5cd8f7049ebf8fb33c2369b5303ff6e5aa6c9577"]
