@@ -115,15 +115,15 @@ fn emit_scalar_or_fill(state: &mut CodegenState, ty: &Type, val: i32) {
 }
 
 /// Emit zero-fill for the entire size of a type.
+///
+/// Uses cor24-asm's `.zero N` directive (added in cor24-asm fcc7f6c) to
+/// collapse N bytes of zero into a single line. The previous per-word/
+/// per-byte loop produced N/3 + N%3 lines per zero-init global, which
+/// blew up for large arrays (e.g. ~21,846 lines for a 64KB chunk pool)
+/// — same .lgo bytes either way, but the .s shrinks proportionally.
 fn emit_zero_fill(state: &mut CodegenState, ty: &Type) {
     let total = ty.size();
-    let mut off = 0;
-    while off + 3 <= total {
-        emit!(state, "        .word   0");
-        off += 3;
-    }
-    while off < total {
-        emit!(state, "        .byte   0");
-        off += 1;
+    if total > 0 {
+        emit!(state, "        .zero   {total}");
     }
 }
