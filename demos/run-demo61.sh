@@ -11,6 +11,7 @@ TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 "$CC24" "$SRC" -o "$TMPDIR/demo61.s" -I "$INCLUDE_DIR"
 echo "=== Compiled demo61.c ==="
-OUTPUT=$(cor24-run --run "$TMPDIR/demo61.s" --dump --speed 0 --time 10 2>&1)
+cor24-asm "$TMPDIR/demo61.s" -o "$TMPDIR/demo61.lgo"
+OUTPUT=$(cor24-emu --lgo "$TMPDIR/demo61.lgo" --dump --speed 0 --time 10 2>&1)
 R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | awk -F'[()]' '{print $2}' | tr -d ' ')
 echo "r0 = $R0 (0 = all tests passed)"

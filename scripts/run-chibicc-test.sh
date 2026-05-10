@@ -90,7 +90,8 @@ if ! "$CC24" "$TMPDIR/$NAME.c" -o "$TMPDIR/$NAME.s" -I "$INCLUDE_DIR" -I "$CHIBI
 fi
 
 # Assemble and run
-OUTPUT=$(cor24-run --run "$TMPDIR/$NAME.s" --dump --speed 0 --time 10 2>&1)
+cor24-asm "$TMPDIR/$NAME.s" -o "$TMPDIR/$NAME.lgo"
+OUTPUT=$(cor24-emu --lgo "$TMPDIR/$NAME.lgo" --dump --speed 0 --time 10 2>&1)
 R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | awk -F'[()]' '{print $2}' | tr -d ' ')
 HALTED=$(echo "$OUTPUT" | grep "Halted:" | head -1 | awk '{print $2}')
 

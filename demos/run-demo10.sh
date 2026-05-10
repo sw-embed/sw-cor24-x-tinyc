@@ -38,7 +38,10 @@ echo ""
 
 echo "Assembling and running on COR24 emulator..."
 echo ""
-OUTPUT=$(cor24-run --run "$DEMO_S" --dump --speed 0 --time 10 2>&1)
+LGO=$(mktemp --suffix=.lgo)
+cor24-asm "$DEMO_S" -o "$LGO"
+OUTPUT=$(cor24-emu --lgo "$LGO" --dump --speed 0 --time 10 2>&1)
+rm -f "$LGO"
 echo "$OUTPUT"
 echo ""
 

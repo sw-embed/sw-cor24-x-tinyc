@@ -21,7 +21,8 @@ for f in "$SUBSET_DIR"/*.c; do
     TMPDIR=$(mktemp -d)
 
     if "$CC24" "$f" -o "$TMPDIR/$name.s" -I "$INCLUDE_DIR" 2>"$TMPDIR/err"; then
-        result=$(cor24-run --run "$TMPDIR/$name.s" --dump --speed 0 --time 10 2>&1)
+        cor24-asm "$TMPDIR/$name.s" -o "$TMPDIR/$name.lgo" 2>"$TMPDIR/asmerr" || true
+        result=$(cor24-emu --lgo "$TMPDIR/$name.lgo" --dump --speed 0 --time 10 2>&1)
         r0=$(echo "$result" | grep "r0:" | head -1 | awk -F'[()]' '{print $2}' | tr -d ' ')
         halted=$(echo "$result" | grep "Halted:" | head -1 | awk '{print $2}')
         if [ "$halted" = "true" ] && [ "$r0" = "0" ]; then

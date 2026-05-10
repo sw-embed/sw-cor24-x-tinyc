@@ -11,7 +11,8 @@ TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 "$CC24" "$SRC" -o "$TMPDIR/demo62.s" -I "$INCLUDE_DIR"
 echo "=== Compiled demo62.c ==="
-OUTPUT=$(cor24-run --run "$TMPDIR/demo62.s" --dump --speed 0 --time 10 2>&1)
+cor24-asm "$TMPDIR/demo62.s" -o "$TMPDIR/demo62.lgo"
+OUTPUT=$(cor24-emu --lgo "$TMPDIR/demo62.lgo" --dump --speed 0 --time 10 2>&1)
 R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | awk -F'[()]' '{print $2}' | tr -d ' ')
 HALTED=$(echo "$OUTPUT" | grep "Halted:" | head -1 | awk '{print $2}')
 if [ "$HALTED" = "true" ] && [ "$R0" = "62" ]; then

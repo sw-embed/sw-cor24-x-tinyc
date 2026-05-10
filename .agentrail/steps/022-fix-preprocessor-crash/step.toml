@@ -1,4 +1,4 @@
-number = 21
+number = 22
 slug = "fix-preprocessor-crash"
 status = "pending"
 description = "Fix preprocessor crash on chibicc macro.c test. Run macro.c through tc24r wit..."
