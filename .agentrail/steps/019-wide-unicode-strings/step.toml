@@ -1,4 +1,4 @@
-number = 18
+number = 19
 slug = "wide-unicode-strings"
 status = "pending"
 description = """Support wide and unicode string/char literal prefixes: L"...", L'x', u"...", ..."""

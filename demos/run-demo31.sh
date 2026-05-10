@@ -9,7 +9,10 @@ cargo build --manifest-path "$ROOT_DIR/components/cli/Cargo.toml" --release --qu
 
 echo "=== tc24r Demo 31: tentative definitions ==="
 "$CC24" "$DEMO_C" -o "$DEMO_S"
-OUTPUT=$(cor24-run --run "$DEMO_S" --dump --speed 0 --time 10 2>&1)
+LGO=$(mktemp --suffix=.lgo)
+cor24-asm "$DEMO_S" -o "$LGO"
+OUTPUT=$(cor24-emu --lgo "$LGO" --dump --speed 0 --time 10 2>&1)
+rm -f "$LGO"
 echo "$OUTPUT"
 echo ""
 R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | awk -F'[()]' '{print $2}' | tr -d ' ')
