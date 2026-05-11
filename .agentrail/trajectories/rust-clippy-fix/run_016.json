@@ -1,0 +1,11 @@
+{
+  "task_type": "rust-clippy-fix",
+  "state": {
+    "number": 17,
+    "step": "codegen-string-storage-bugs"
+  },
+  "action": "Edit data.rs Some(Expr::StringLit) arm to branch on Type::Ptr vs other. Add gen_local_char_array_string_init helper in local_decl.rs and special-case the array-char-string-init path. Add 4 codegen_checks tests. Rewrite demo63.c to drop the workaround NOTE and use the natural form. Update bug005/bug011 tests for .zero N. Update README 'What Works'.",
+  "result": "success",
+  "reward": 1,
+  "timestamp": "2026-05-11T11:14:42"
+}
