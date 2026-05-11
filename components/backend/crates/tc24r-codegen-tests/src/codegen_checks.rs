@@ -211,13 +211,14 @@ fn bug003_nested_array_index() {
 
 #[test]
 fn bug005_global_array_full_size() {
-    // BUG-005: int arr[10] should allocate 10 words, not 1
+    // BUG-005: int arr[10] should allocate 30 bytes (10 * 3-byte int).
+    // After pr/emit-zero-fill, this is a single `.zero 30` directive
+    // instead of 10 enumerated `.word 0` lines.
     let src = "int arr[10]; int main() { return 0; }";
     let output = compile(src);
-    let word_count = output.matches(".word").count();
     assert!(
-        word_count >= 10,
-        "int arr[10] should emit at least 10 .word directives, got {word_count}"
+        output.contains(".zero   30"),
+        "int arr[10] should emit `.zero 30` (10 * 3-byte int), got:\n{output}"
     );
 }
 
@@ -274,11 +275,11 @@ fn bug011_global_struct_array_parse() {
     let output = compile(src);
     // Should compile without parse error
     assert!(output.contains("_main:"), "main should be generated");
-    // Should allocate space for 8 structs (at least 16 .word directives for 8 * 2 members)
-    let word_count = output.matches(".word").count();
+    // Should allocate space for 8 structs of 2 ints each = 8 * 2 * 3 = 48 bytes.
+    // After pr/emit-zero-fill this is a single `.zero 48` directive.
     assert!(
-        word_count >= 16,
-        "struct symbol symtab[8] should emit at least 16 .word directives, got {word_count}"
+        output.contains(".zero   48"),
+        "struct symbol symtab[8] should emit `.zero 48` (8 structs * 2 ints * 3 bytes), got:\n{output}"
     );
 }
 
@@ -511,7 +512,111 @@ fn codegen_global_init_list_zero_padding() {
     assert_eq!(word_count, 5, "should emit 5 words (2 init + 3 zero-pad)");
 }
 
-// --- .zero N emission for zero-init globals ---
+// --- char *g = "..." (global pointer init) and char a[] = "..." (local array init) ---
+
+#[test]
+fn codegen_global_char_pointer_init_emits_word_label() {
+    // `char *g = "abc"` must allocate an anonymous rodata label for
+    // the bytes and store its address at _g — NOT emit the bytes
+    // at _g directly. Otherwise `g[i]` (which dereferences _g) reads
+    // bytes of the pointer representation instead of the string.
+    let src = r#"char *g = "abc"; int main(void) { return g[2]; }"#;
+    let output = compile(src);
+    let g_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_g:"))
+        .take(2)
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(
+        g_section.contains(".word   _S"),
+        "expected _g to hold a .word _Sn (pointer to rodata), got:\n{g_section}"
+    );
+    assert!(
+        !g_section.contains(".byte"),
+        "_g must not hold inline bytes for a pointer-typed global, got:\n{g_section}"
+    );
+}
+
+#[test]
+fn codegen_global_char_array_init_keeps_inline_bytes() {
+    // Regression: `char ga[] = "abc"` must keep the existing
+    // inline-byte emission. Only pointer globals get the anon-
+    // label treatment.
+    let src = r#"char ga[] = "abc"; int main(void) { return ga[2]; }"#;
+    let output = compile(src);
+    let ga_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_ga:"))
+        .take(3)
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(
+        ga_section.contains(".byte   97,98,99,0"),
+        "expected inline bytes for char[] global, got:\n{ga_section}"
+    );
+    assert!(
+        !ga_section.contains(".word   _S"),
+        "char[] global must NOT use anon-label form, got:\n{ga_section}"
+    );
+}
+
+#[test]
+fn codegen_local_char_array_string_init_emits_byte_stores() {
+    // `char a[] = "abc"` must byte-copy into the stack array, not
+    // store a pointer to rodata. Look for per-byte `sb r0,off(fp)`
+    // emissions for each of the 4 bytes ('a','b','c','\0').
+    let src = r#"int main(void) { char a[] = "abc"; return a[2]; }"#;
+    let output = compile(src);
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| !l.starts_with("L0:") && !l.starts_with("_S"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    // Should see 4 byte stores for 'a','b','c','\0'.
+    let sb_count = main_section.matches("        sb      r0,").count();
+    assert!(
+        sb_count >= 4,
+        "expected at least 4 sb-byte stores for the literal init, got {sb_count}:\n{main_section}"
+    );
+    // And the character constants 97, 98, 99 must appear as immediates.
+    for v in [97, 98, 99] {
+        assert!(
+            main_section.contains(&format!("lc      r0,{v}")),
+            "expected `lc r0,{v}` for char literal init, got:\n{main_section}"
+        );
+    }
+    // Must NOT have the broken pointer-store pattern (`la r0,_Sn` then
+    // `sw r0,offset(fp)`).
+    let lines: Vec<&str> = main_section.lines().collect();
+    let has_pointer_init = lines
+        .windows(2)
+        .any(|w| w[0].contains("la      r0,_S") && w[1].contains("sw      r0,"));
+    assert!(
+        !has_pointer_init,
+        "char[] local must not be initialized by storing the rodata pointer, got:\n{main_section}"
+    );
+}
+
+#[test]
+fn codegen_local_char_array_explicit_size_zero_pads() {
+    // `char a[10] = "abc"` should byte-copy 'a','b','c','\0' then
+    // emit six additional zero stores to fill the array.
+    let src = r#"int main(void) { char a[10] = "abc"; return a[5]; }"#;
+    let output = compile(src);
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| !l.starts_with("L0:") && !l.starts_with("_S"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let sb_count = main_section.matches("        sb      r0,").count();
+    assert_eq!(
+        sb_count, 10,
+        "expected 10 sb-byte stores for char[10] init (3 chars + null + 6 zeros), got {sb_count}:\n{main_section}"
+    );
+}
 
 #[test]
 fn codegen_zero_fill_big_array_one_line() {

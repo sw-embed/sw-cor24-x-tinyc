@@ -1,0 +1,10 @@
+number = 17
+slug = "codegen-string-storage-bugs"
+status = "completed"
+description = "Fix two pre-existing codegen storage bugs surfaced during the string-literal-..."
+role = "production"
+context_files = []
+created_at = "2026-05-11T09:45:44"
+completed_at = "2026-05-11T11:14:42"
+task_type = "rust-clippy-fix"
+commits = ["39f2f510ca2fd06a06e146743e6470766e35c722"]

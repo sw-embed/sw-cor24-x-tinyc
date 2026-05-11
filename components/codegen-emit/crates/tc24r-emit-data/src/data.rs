@@ -22,18 +22,29 @@ pub fn emit_data_section(state: &mut CodegenState, program: &Program) {
                 emit_typed_data(state, &g.ty, &mut iter);
             }
             Some(Expr::StringLit(s)) => {
-                let bytes: Vec<String> = s
-                    .bytes()
-                    .chain(std::iter::once(0))
-                    .map(|b| b.to_string())
-                    .collect();
-                let byte_str = bytes.join(",");
-                emit!(state, "        .byte   {byte_str}");
-                // Pad if declared array is larger
-                if let Type::Array(_, count) = &g.ty {
-                    let pad = count.saturating_sub(s.len() + 1);
-                    for _ in 0..pad {
-                        emit!(state, "        .byte   0");
+                if matches!(&g.ty, Type::Ptr(_)) {
+                    // `char *g = "abc";` — emit the bytes at an
+                    // anonymous rodata label and store the address at
+                    // _g. Without this, `_g` holds the bytes directly
+                    // and the read side (which treats _g as a pointer
+                    // variable via `lw r0,0(_g)`) reads garbage.
+                    let idx = state.string_literals.len();
+                    state.string_literals.push(s.clone());
+                    emit!(state, "        .word   _S{idx}");
+                } else {
+                    // `char g[] = "abc";` — emit bytes inline.
+                    let bytes: Vec<String> = s
+                        .bytes()
+                        .chain(std::iter::once(0))
+                        .map(|b| b.to_string())
+                        .collect();
+                    let byte_str = bytes.join(",");
+                    emit!(state, "        .byte   {byte_str}");
+                    if let Type::Array(_, count) = &g.ty {
+                        let pad = count.saturating_sub(s.len() + 1);
+                        for _ in 0..pad {
+                            emit!(state, "        .byte   0");
+                        }
                     }
                 }
             }

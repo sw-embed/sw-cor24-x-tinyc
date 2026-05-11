@@ -30,6 +30,12 @@ tc24r is **functional** -- it compiles real C programs to COR24 assembly that ru
   brace-init elements. Escape sequences resolve per chunk before
   concatenation, so `"ab\n" "cd"` is 5 chars + null. Wide-string
   concatenation (`L"..." L"..."`) is out of scope.
+- String-literal initialization of `char *` globals and `char[]`
+  locals reads back correctly. `char *g = "abc";` stores the address
+  of an anonymous rodata literal in `_g` (not the bytes themselves),
+  and `char a[N] = "abc";` byte-copies into the stack array
+  (zero-padding to `N`). Subscripting `g[i]` and `a[i]` returns the
+  expected character.
 - Whole-program dead-code elimination: functions defined in any
   included `.h` (or in the `.c` itself) that aren't reachable from
   `main`, an interrupt handler, a global initializer, or an inline
