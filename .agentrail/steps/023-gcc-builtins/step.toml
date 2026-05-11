@@ -1,4 +1,4 @@
-number = 22
+number = 23
 slug = "gcc-builtins"
 status = "pending"
 description = "Support __builtin_types_compatible_p(type1, type2) — a GCC builtin returnin..."
