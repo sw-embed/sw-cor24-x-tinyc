@@ -1,0 +1,11 @@
+{
+  "task_type": "rust-clippy-fix",
+  "state": {
+    "number": 18,
+    "step": "compound-literals"
+  },
+  "action": "Trace stack-layout discrepancy: collector places __complit_0 at -12 and arr at -3 (12-byte frame max), but gen pass put __complit_0 at -9 overlapping arr. Edit local_decl.rs to advance locals_size to -offset for pre-populated locals. Add codegen_compound_literal_array_no_slot_overlap structural test. Verified with 9 isolated compound-literal subcases + demo60 + full sweep.",
+  "result": "success",
+  "reward": 1,
+  "timestamp": "2026-05-13T14:45:10"
+}
