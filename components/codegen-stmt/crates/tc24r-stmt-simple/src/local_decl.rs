@@ -23,7 +23,21 @@ pub fn gen_local_decl(
     // the outer map was saved/restored, the name may be missing.
     // The collect pass already reserved frame space via always-allocate,
     // so we allocate at the next available offset (within the frame).
-    if !state.locals.contains_key(name) {
+    //
+    // For variables that ARE already in the map (pre-populated by the
+    // collect pass), advance `locals_size` to reflect this slot's depth.
+    // Otherwise, when a StmtExpr-bound init expression is processed, the
+    // inner scope's on-demand allocations start at 0 instead of past the
+    // current outer variable — causing the inner temp to overlap with
+    // the outer variable's slot. (Concrete failure: compound literals as
+    // local-decl initializers like `int *arr = (int[]){...};` clobbered
+    // the third element of the temp array with the assignment of `arr`.)
+    if let Some(&offset) = state.locals.get(name) {
+        let used = -offset;
+        if used > state.locals_size {
+            state.locals_size = used;
+        }
+    } else {
         let alloc = ty.size().max(3);
         state.locals_size += alloc;
         let offset = -state.locals_size;
