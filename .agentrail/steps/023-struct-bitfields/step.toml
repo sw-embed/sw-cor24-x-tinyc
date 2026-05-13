@@ -1,4 +1,4 @@
-number = 22
+number = 23
 slug = "struct-bitfields"
 status = "pending"
 description = "Support struct bitfield declarations: 'int x : 2;' in struct member position...."
