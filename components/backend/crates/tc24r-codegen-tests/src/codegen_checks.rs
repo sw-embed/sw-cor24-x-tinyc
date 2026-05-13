@@ -512,6 +512,48 @@ fn codegen_global_init_list_zero_padding() {
     assert_eq!(word_count, 5, "should emit 5 words (2 init + 3 zero-pad)");
 }
 
+// --- compound literal as a local-decl initializer ---
+
+#[test]
+fn codegen_compound_literal_array_no_slot_overlap() {
+    // Regression for the stack-layout bug: when a compound-literal
+    // expression is the init of a same-scope LocalDecl, the inner
+    // StmtExpr's auto-allocation must start past the outer variable.
+    //
+    // Before: `int *arr = (int[]){5,15,10};` placed __complit_0 at
+    // offset -9 and arr at offset -3 — overlapping arr's slot with
+    // the third element of the array temp. Now both should fit in
+    // 12 bytes with arr at -3 and __complit_0 at -12 (disjoint).
+    let src = r#"int main(void) { int *arr = (int[]){5,15,10}; return arr[2]; }"#;
+    let output = compile(src);
+    let main_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_main:"))
+        .take_while(|l| !l.starts_with("L0:") && !l.starts_with("_S"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    // Frame size must be 12 (9 for int[3] + 3 for int*).
+    assert!(
+        main_section.contains("add     sp,-12"),
+        "expected 12-byte frame (9 temp + 3 arr), got:\n{main_section}"
+    );
+    // The third element of the temp must be stored at -3 (relative
+    // to __complit_0 base at -12 + offset 6 = -6 ... wait, the
+    // codegen uses temp_base + 6 = -12 + 6 = -6 for the third int).
+    // Assert no zero-fill store overlaps offset -3 (which is arr's
+    // slot). All zero-fills should be at -12, -9, -6.
+    let zero_targets: Vec<&str> = main_section
+        .lines()
+        .filter(|l| l.contains("sw      r0,") || l.contains("sb      r0,"))
+        .take(3) // first 3 stores are the zero-fill words
+        .collect();
+    let zero_text = zero_targets.join("\n");
+    assert!(
+        !zero_text.contains("-3(fp)"),
+        "zero-fill must not touch arr's slot at -3(fp); got:\n{zero_text}"
+    );
+}
+
 // --- char *g = "..." (global pointer init) and char a[] = "..." (local array init) ---
 
 #[test]
