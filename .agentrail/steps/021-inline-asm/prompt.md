@@ -1,0 +1,1 @@
+Support asm("...") inline assembly statements. Parser: recognize 'asm' keyword, parse asm(string...) with concatenated strings. Allow GCC extended syntax asm(template : outputs : inputs : clobbers) by accepting and skipping operand constraints. Codegen: emit string content directly into assembly output. Verify chibicc asm.c passes. Refs: #13

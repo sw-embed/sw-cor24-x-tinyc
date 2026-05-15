@@ -37,7 +37,7 @@ echo "Assembling and running on COR24 emulator..."
 echo ""
 LGO=$(mktemp --suffix=.lgo)
 cor24-asm "$DEMO_S" -o "$LGO"
-OUTPUT=$(cor24-emu --lgo "$LGO" --dump --speed 0 --time 10 2>&1)
+OUTPUT=$(cor24-emu --lgo "$LGO" --dump --speed 0 --time 10 2>&1 | awk '!/^Loaded [0-9]+ bytes from /')
 rm -f "$LGO"
 echo "$OUTPUT"
 echo ""
@@ -45,7 +45,7 @@ echo ""
 # Extract values for validation
 R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | awk -F'[()]' '{print $2}' | tr -d ' ')
 HALTED=$(echo "$OUTPUT" | grep "Halted:" | head -1 | awk '{print $2}')
-LED=$(echo "$OUTPUT" | grep "LED:" | head -1 | awk '{print $3}')
+LED=$(echo "$OUTPUT" | grep "LED D2:" | head -1 | awk '{print $3}')
 UART=$(echo "$OUTPUT" | grep "UART TX log:" | awk -F'UART TX log:' '{print $2}' | tr -d ' "')
 
 echo "=== Validation ==="

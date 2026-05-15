@@ -67,9 +67,6 @@ Compiling demo8.c -> demo8.s
 
 Assembling and running on COR24 emulator...
 
-Assembled 255 bytes
-Running (speed: max IPS, time limit: 10s)...
-
 LEDs: [91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m  (0x00)  [UART TX @ 600] 'D'  (0x44)
 [UART TX @ 600] '8'  (0x38)
 [UART TX @ 600] 'O'  (0x4F)
@@ -80,7 +77,6 @@ UART output: D8OK
 
 
 Executed 600 instructions
-CPU halted (self-branch detected)
 
 === Registers ===
   PC:  0x000005    C: 1
@@ -102,15 +98,15 @@ CPU halted (self-branch detected)
   000040: 09 38 00 C8 15 13 4D 09 38 00 7D 29 19 00 00 25  |.8....M.8.})...%|
   000050: 0C 03 4D 09 45 01 01 A6 09 13 E2 69 7A 7B 7C 27  |..M.E......iz{|'|
   000060: 80 7F 7E 65 0C EE 44 01 A6 FD 44 2A A6 FA 4D FA  |..~e..D...D*..M.|
-  000070: 45 2A 16 15 02 44 00 A6 FD 29 07 00 00 25 29 DD  |E*...D...)...%).|
+  000070: 45 2A 16 15 02 44 00 A6 FD 29 07 00 00 25 29 DB  |E*...D...)...%).|
   000080: 00 00 A6 F7 44 00 A6 F4 4D F7 A6 F1 4D F1 38 00  |....D...M...M.8.|
   000090: C8 15 0E 4D F4 45 01 01 A6 F4 4D F1 45 01 01 A6  |...M.E....M.E...|
   0000A0: F1 13 E7 4D F4 45 1B 16 15 02 44 00 A6 FD 44 63  |...M.E....D...Dc|
   0000B0: A6 EE 4D EE 45 63 16 15 02 44 00 A6 FD 4D FD 45  |..M.Ec...D...M.E|
-  0000C0: 01 16 14 0E 29 F9 00 00 7D 29 3B 00 00 25 0C 03  |....)...});..%..|
-  0000D0: 44 2A 13 02 44 00 13 FE 69 7A 7B 7C 27 41 4E 53  |D*..D...iz{|'ANS|
-  0000E0: 57 45 52 20 69 73 20 6E 6F 74 20 72 65 70 6C 61  |WER is not repla|
-  0000F0: 63 65 64 20 68 65 72 65 00 44 38 4F 4B 0A 00 00  |ced here.D8OK...|
+  0000C0: 01 16 14 0E 29 F7 00 00 7D 29 3B 00 00 25 0C 03  |....)...});..%..|
+  0000D0: 44 2A 13 00 44 00 69 7A 7B 7C 27 41 4E 53 57 45  |D*..D.iz{|'ANSWE|
+  0000E0: 52 20 69 73 20 6E 6F 74 20 72 65 70 6C 61 63 65  |R is not replace|
+  0000F0: 64 20 68 65 72 65 00 44 38 4F 4B 0A 00 00 00 00  |d here.D8OK.....|
   000100..0FFFFF: 1048320 bytes all zero
 
 === Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
@@ -119,7 +115,7 @@ CPU halted (self-branch detected)
   FEE000..FEEBBF: 3008 bytes all zero
   FEEBC0: 00 00 00 00 00 00 00 00 00 00 00 00 00 50 00 00  |.............P..|
   FEEBD0: 00 00 00 D9 EB FE 0A 00 00 CE 00 00 00 00 00 F7  |................|
-  FEEBE0: EB FE FE 00 00 63 00 00 F8 00 00 1B 00 00 DD 00  |.....c..........|
+  FEEBE0: EB FE FC 00 00 63 00 00 F6 00 00 1B 00 00 DB 00  |.....c..........|
   FEEBF0: 00 2A 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |.*..............|
   FEEC00..FEFFFF: 5120 bytes all zero
 
@@ -130,3 +126,10 @@ CPU halted (self-branch detected)
   FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
   UART TX log:   "D8OK\n"
 
+=== Validation ===
+  [PASS] CPU halted cleanly
+  [PASS] r0 = 42 (ANSWER constant expanded)
+  [PASS] LED D2 on (LED_REG/LED_ON expanded)
+  [PASS] UART output contains 'D8OK'
+
+Demo 8 PASSED

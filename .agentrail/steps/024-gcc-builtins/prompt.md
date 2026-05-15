@@ -1,0 +1,1 @@
+Support __builtin_types_compatible_p(type1, type2) — a GCC builtin returning 1 if types are compatible, 0 otherwise. Parser: recognize __builtin_types_compatible_p as special expression, parse two type arguments. Evaluate at compile time and emit result as integer literal. Verify chibicc builtin.c passes. Refs: #15
