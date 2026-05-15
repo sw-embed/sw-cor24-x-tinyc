@@ -1,0 +1,11 @@
+{
+  "task_type": "rust-clippy-fix",
+  "state": {
+    "number": 19,
+    "step": "audit-negative-demos"
+  },
+  "action": "Read .rgt + demo headers + runner scripts; ran all 3 demos manually; observed UART output was correct but script exited early; pinpointed grep 'LED:' vs 'LED D2:' mismatch; fixed grep + added awk filter for path stability; rebased reg-rs baselines via reg-rs rebase; verified stability across 3 successive runs and full demo sweep.",
+  "result": "success",
+  "reward": 1,
+  "timestamp": "2026-05-14T18:38:23"
+}

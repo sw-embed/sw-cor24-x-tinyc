@@ -1,1 +1,0 @@
-Support wide and unicode string/char literal prefixes: L"...", L'x', u"...", u8"...". Lexer: when seeing L, u, u8 followed by quote, parse as prefixed literal. On COR24 (8-bit chars), wide chars can be treated as regular chars but sizeof should differ appropriately. Verify chibicc string.c passes. Refs: #14

@@ -63,7 +63,7 @@ int main() {
 }
 ---
 
-Compiling demo10.c -> demo10.s (with -I /Users/mike/github/sw-embed/sw-cor24-x-tinyc/include)
+Compiling demo10.c -> demo10.s (with -I /disk1/github/softwarewrighter/devgroup/work/dcxtc/github/sw-embed/sw-cor24-x-tinyc/include)
 
 Generated assembly:
 ---
@@ -187,7 +187,6 @@ L11:
         bra     L7
 L13:
         lc      r0,0
-        bra     L7
 L7:
         mov     sp,fp
         pop     r1
@@ -202,9 +201,6 @@ _S0:
 
 Assembling and running on COR24 emulator...
 
-Assembled 180 bytes
-Running (speed: max IPS, time limit: 10s)...
-
 LEDs: [91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m[91m●[0m  (0x00)  [UART TX @ 265] 'D'  (0x44)
 [UART TX @ 265] '1'  (0x31)
 [UART TX @ 265] '0'  (0x30)
@@ -216,7 +212,6 @@ UART output: D10OK
 
 
 Executed 265 instructions
-CPU halted (self-branch detected)
 
 === Registers ===
   PC:  0x000005    C: 1
@@ -240,9 +235,9 @@ CPU halted (self-branch detected)
   000060: 80 7F 7E 65 0C FD 44 01 A6 FD 29 00 00 FF 2A 00  |..~e..D...)...*.|
   000070: 00 FF 16 15 02 44 00 A6 FD 29 01 01 FF 2A 01 01  |.....D...)...*..|
   000080: FF 16 15 02 44 00 A6 FD 29 4E 00 00 25 4D FD 45  |....D...)N..%M.E|
-  000090: 01 16 14 0E 29 AD 00 00 7D 29 29 00 00 25 0C 03  |....)...}))..%..|
-  0000A0: 44 2A 13 02 44 00 13 FE 69 7A 7B 7C 27 44 31 30  |D*..D...iz{|'D10|
-  0000B0: 4F 4B 0A 00 00 00 00 00 00 00 00 00 00 00 00 00  |OK..............|
+  000090: 01 16 14 0E 29 AB 00 00 7D 29 29 00 00 25 0C 03  |....)...}))..%..|
+  0000A0: 44 2A 13 00 44 00 69 7A 7B 7C 27 44 31 30 4F 4B  |D*..D.iz{|'D10OK|
+  0000B0: 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  |................|
   0000C0..0FFFFF: 1048384 bytes all zero
 
 === Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
@@ -251,7 +246,7 @@ CPU halted (self-branch detected)
   FEE000..FEEBCF: 3024 bytes all zero
   FEEBD0: 00 00 00 00 00 00 00 00 00 00 00 00 3E 00 00 00  |............>...|
   FEEBE0: 00 00 E8 EB FE 0A 00 00 9E 00 00 00 00 00 F7 EB  |................|
-  FEEBF0: FE B3 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
+  FEEBF0: FE B1 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
   FEEC00..FEFFFF: 5120 bytes all zero
 
 === I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
@@ -261,3 +256,10 @@ CPU halted (self-branch detected)
   FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
   UART TX log:   "D10OK\n"
 
+=== Validation ===
+  [PASS] CPU halted cleanly
+  [PASS] r0 = 42 (all #include checks passed)
+  [PASS] LED D2 on (from included header function)
+  [PASS] UART output contains 'D10OK'
+
+Demo 10 PASSED
